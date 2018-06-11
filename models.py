@@ -1,6 +1,7 @@
 HALF_STEP = 1
 WHOLE_STEP = 2
 
+
 ########################################################################
 class Note:
 
@@ -15,7 +16,7 @@ class Note:
 
     ####################################################################
     def __repr__(self):
-        return f'Note("{self.name}")'
+        return 'Note("{name}")'.format(name=self.name)
 
     ####################################################################
     def __eq__(self, other):
@@ -24,7 +25,8 @@ class Note:
         elif isinstance(other, Note):
             return (self.name == other.name) or (self.as_flat == other.name)
         else:
-            raise TypeError(f'Cannot compare type {type(self)} to type {type(other)}')
+            err = 'Cannot compare type {note} to type {other}'
+            raise TypeError(err.format(note=type(self), other=type(other)))
 
 
 ########################################################################
@@ -104,7 +106,8 @@ class Transposer:
     def _get_number_of_semitones(self):
         semitones = self._steps * 2
         as_int = int(semitones)
-        error = f'Invalid number of semitones: {semitones}, steps={self._steps}'
+        error = 'Invalid number of semitones: {semitones}, steps={steps}'
+        error = error.format(semitones=semitones, steps=self._steps)
         assert semitones == as_int, error
         return as_int
 
@@ -113,7 +116,7 @@ class Transposer:
         for i, note in enumerate(NOTES):
             if self.note == note:
                 return i
-        raise Exception(f'Could not find {self.note} in {NOTES}')
+        raise Exception('Could not find {note} in {notes}'.format(note=self.note, notes=NOTES))
 
     ####################################################################
     def _transpose(self):

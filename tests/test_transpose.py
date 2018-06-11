@@ -20,7 +20,6 @@ def add_args_to_error_msg(func):
     return wrapper
 
 
-
 ########################################################################
 class TestTranspose(TestCase):
 
