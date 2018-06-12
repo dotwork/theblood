@@ -7,8 +7,13 @@ class Note:
 
     ####################################################################
     def __init__(self, name, as_flat=None):
-        self.name = name.upper().strip()
-        self.as_flat = as_flat.upper().strip() if as_flat else ''
+        if isinstance(name, Note):
+            note_obj = name
+            self.name = note_obj.name
+            self.as_flat = note_obj.as_flat
+        else:
+            self.name = name.upper().strip()
+            self.as_flat = as_flat.upper().strip() if as_flat else ''
 
     ####################################################################
     def __str__(self):
@@ -63,8 +68,8 @@ NOTES = (
 class Transposer:
 
     ####################################################################
-    def __init__(self, note):
-        self.note = note
+    def __init__(self, notes):
+        self.notes = [Note(n) for n in notes]
         self.transpose_up = False
         self.transpose_down = False
         self._steps = 0
@@ -112,79 +117,44 @@ class Transposer:
         return as_int
 
     ####################################################################
-    def _get_current_index(self):
-        for i, note in enumerate(NOTES):
-            if self.note == note:
+    def _get_current_index(self, note):
+        for i, _note in enumerate(NOTES):
+            if _note == note:
                 return i
-        raise Exception('Could not find {note} in {notes}'.format(note=self.note, notes=NOTES))
+        raise Exception('Could not find {note} in {notes}'.format(note=note, notes=NOTES))
 
     ####################################################################
     def _transpose(self):
+        transposed = []
         semitones = self._get_number_of_semitones()
-        i = self._get_current_index()
+        for note in self.notes:
+            i = self._get_current_index(note)
 
-        if self.transpose_up:
-            diff = len(NOTES) - i
-            if diff <= semitones:
-                i = semitones - diff
+            if self.transpose_up:
+                diff = len(NOTES) - i
+                if diff <= semitones:
+                    i = semitones - diff
+                else:
+                    i += semitones
             else:
-                i += semitones
+                assert self.transpose_down
+                i -= semitones
+
+            transposed_note = NOTES[i]
+            transposed.append(transposed_note)
+
+        return transposed
+
+
+########################################################################
+def transpose(*notes):
+    _notes = []
+    for n in notes:
+        if isinstance(n, (str, Note)):
+            _notes.append(n)
         else:
-            assert self.transpose_down
-            i -= semitones
-
-        note = NOTES[i]
-        return note
-
-
-########################################################################
-class Transposers:
-
-    ####################################################################
-    def __init__(self, transpose_objs):
-        self.transposers = tuple(transpose_objs)
-
-    ####################################################################
-    @property
-    def up(self):
-        for t in self.transposers:
-            setattr(t, 'transpose_up', True)
-            setattr(t, 'transpose_down', False)
-        return self
-
-    ####################################################################
-    @property
-    def down(self):
-        for t in self.transposers:
-            setattr(t, 'transpose_up', False)
-            setattr(t, 'transpose_down', True)
-        return self
-
-    ####################################################################
-    @property
-    def third(self):
-        transposed_notes = []
-        for t in self.transposers:
-            transposed_notes.append(t.third)
-        return transposed_notes
-
-    ####################################################################
-    @property
-    def fifth(self):
-        transposed_notes = []
-        for t in self.transposers:
-            transposed_notes.append(t.fifth)
-        return transposed_notes
-
-
-########################################################################
-def transpose(note):
-    return Transposer(note)
-
-
-########################################################################
-def transpose_multiple(*notes):
-    return Transposers([Transposer(n) for n in notes])
+            _notes.extend(list(n))
+    return Transposer(_notes)
 
 
 ########################################################################
