@@ -1,19 +1,42 @@
 HALF_STEP = 1
 WHOLE_STEP = 2
+WHOLE_NOTES = ('A', 'B', 'C', 'D', 'E', 'F', 'G', 'A')
+
+SHARPS_AND_FLATS = {
+    'sharp': '♯',
+    'flat': '♭',
+    '♯': '♯',
+    '♭': '♭',
+    '#': '♯',
+    'b': '♭',
+}
 
 
 ########################################################################
 class Note:
 
     ####################################################################
-    def __init__(self, name, as_flat=None):
-        if isinstance(name, Note):
-            note_obj = name
-            self.name = note_obj.name
-            self.as_flat = note_obj.as_flat
+    def __init__(self, note):
+        if isinstance(note, Note):
+            self.name = note.name
         else:
-            self.name = name.upper().strip()
-            self.as_flat = as_flat.upper().strip() if as_flat else ''
+            name = note[:1].upper().strip()
+            remainder = note[1:].replace("-", "").replace("_", "").lower().strip()
+            if remainder:
+                modifier = SHARPS_AND_FLATS[remainder]
+            else:
+                modifier = ''
+            self.name = '{}{}'.format(name, modifier)
+
+    ####################################################################
+    @property
+    def is_sharp(self):
+        return self.name.endswith('♯')
+
+    ####################################################################
+    @property
+    def is_flat(self):
+        return not self.is_sharp
 
     ####################################################################
     def __str__(self):
@@ -24,29 +47,87 @@ class Note:
         return 'Note("{name}")'.format(name=self.name)
 
     ####################################################################
+    @property
+    def whole_note_name(self):
+        return self.name[0]
+
+    ####################################################################
+    @property
+    def next_whole_note(self):
+        current_index = WHOLE_NOTES.index(self.whole_note_name)
+        next_note_index = current_index + 1
+        next_note_name = WHOLE_NOTES[next_note_index]
+        return Note(next_note_name)
+
+    ####################################################################
+    @property
+    def previous_whole_note(self):
+        current_index = WHOLE_NOTES.index(self.whole_note_name)
+        if current_index == 0:
+            current_index = -1
+        previous_note_index = current_index - 1
+        previous_note_name = WHOLE_NOTES[previous_note_index]
+        return Note(previous_note_name)
+
+    ####################################################################
+    @property
+    def alias(self):
+        if self.is_sharp:
+            return Transposer([self.next_whole_note]).down.half_step
+        elif self.is_flat:
+            return Transposer([self.previous_whole_note]).up.half_step
+        else:
+            return None
+
+    ####################################################################
     def __eq__(self, other):
         if isinstance(other, str):
-            return (self.name == other.upper()) or (self.as_flat == other.upper())
-        elif isinstance(other, Note):
-            return (self.name == other.name) or (self.as_flat == other.name)
-        else:
+            other = Note(other)
+        elif not isinstance(other, Note):
             err = 'Cannot compare type {note} to type {other}'
             raise TypeError(err.format(note=type(self), other=type(other)))
 
+        if self.name == other.name:
+            return True
+        else:
+            if other.whole_note_name == self.next_whole_note.whole_note_name:
+                if other.is_flat:
+                    return True
+            elif other.whole_note_name == self.previous_whole_note.whole_note_name:
+                if other.is_sharp:
+                    return True
+            return False
+
 
 ########################################################################
+A_flat = Note('A♭')
 A = Note('A')
-A_sharp = Note('A♯', 'B♭')
+A_sharp = Note('A♯')
+
+B_flat = Note('B♭')
 B = Note('B')
+B_sharp = Note('B♯')
+
+C_flat = Note('C♭')
 C = Note('C')
-C_sharp = Note('C♯', 'D♭')
+C_sharp = Note('C♯')
+
+D_flat = Note('D♭')
 D = Note('D')
-D_sharp = Note('D♯', 'E♭')
+D_sharp = Note('D♯')
+
+E_flat = Note('E♭')
 E = Note('E')
+E_sharp = Note('E♯')
+
+F_flat = Note('F♭')
 F = Note('F')
-F_sharp = Note('F♯', 'G♭')
+F_sharp = Note('F♯')
+
+G_flat = Note('G♭')
 G = Note('G')
-G_sharp = Note('G♯', 'A♭')
+G_sharp = Note('G♯')
+
 
 NOTES = (
     A,
@@ -87,6 +168,18 @@ class Transposer:
         self.transpose_down = True
         self.transpose_up = False
         return self
+
+    ####################################################################
+    @property
+    def half_step(self):
+        self._steps = .5
+        return self._transpose()
+
+    ####################################################################
+    @property
+    def whole_step(self):
+        self._steps = 1
+        return self._transpose()
 
     ####################################################################
     @property
