@@ -30,13 +30,16 @@ class Note:
 
     ####################################################################
     def next(self):
-        if self.is_flat:
-            return Note(self.whole_note_name)
-        elif self.is_sharp:
-            if self == B_sharp or self == E_sharp:
-                whole_note = Note(self.whole_note_name)
-                return Note(whole_note.next_whole_note.name + "#")
+        if self.is_flat and self.name not in (B.name, E.name):
+            whole_note = Note(self.whole_note_name)
+            return whole_note
+        elif (self.is_sharp and self not in (B_sharp, E_sharp)) or self.name in (B.name, E.name):
+                # return Note(whole_note.next_whole_note.name + "#")
             return self.next_whole_note
+        elif self.name == B_sharp.name:
+            return C_sharp
+        elif self.name == E_sharp.name:
+            return F_sharp
         else:
             return Note(self.name + "#")
 
@@ -94,11 +97,32 @@ class Note:
         else:
             if other.whole_note_name == self.next_whole_note.whole_note_name:
                 if other.is_flat:
-                    return True
+                    if self.is_sharp:
+                        return True
+                    elif self.name == B.name and other.name == C_flat.name:
+                        return True
+                    elif self.name == E.name and other.name == F_flat.name:
+                        return True
+                elif self.is_sharp:
+                    if self.name == B_sharp.name and other.name == C.name:
+                        return True
+                    elif self.name == E_sharp.name and other.name == F.name:
+                        return True
             elif other.whole_note_name == self.previous_whole_note.whole_note_name:
-                if other.is_sharp or self.is_flat:
-                    return True
+                if self.is_flat:
+                    if other.is_sharp:
+                        return True
+                    elif self.name == C_flat.name and other.name == B.name:
+                        return True
+                    elif self.name == F_flat.name and other.name == E.name:
+                        return True
+                elif other.is_sharp:
+                    if self.name == C.name and other.name == B_sharp.name:
+                        return True
+                    elif self.name == F.name and other.name == E_sharp.name:
+                        return True
             return False
+
 
 
 ########################################################################
