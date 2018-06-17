@@ -29,6 +29,18 @@ class Note:
             self.name = '{}{}'.format(name, modifier)
 
     ####################################################################
+    def next(self):
+        if self.is_flat:
+            return Note(self.whole_note_name)
+        elif self.is_sharp:
+            if self == B_sharp or self == E_sharp:
+                whole_note = Note(self.whole_note_name)
+                return Note(whole_note.next_whole_note.name + "#")
+            return self.next_whole_note
+        else:
+            return Note(self.name + "#")
+
+    ####################################################################
     @property
     def is_sharp(self):
         return self.name.endswith('♯')
@@ -36,7 +48,7 @@ class Note:
     ####################################################################
     @property
     def is_flat(self):
-        return not self.is_sharp
+        return self.name.endswith('♭')
 
     ####################################################################
     def __str__(self):
@@ -70,16 +82,6 @@ class Note:
         return Note(previous_note_name)
 
     ####################################################################
-    @property
-    def alias(self):
-        if self.is_sharp:
-            return Transposer([self.next_whole_note]).down.half_step
-        elif self.is_flat:
-            return Transposer([self.previous_whole_note]).up.half_step
-        else:
-            return None
-
-    ####################################################################
     def __eq__(self, other):
         if isinstance(other, str):
             other = Note(other)
@@ -94,7 +96,7 @@ class Note:
                 if other.is_flat:
                     return True
             elif other.whole_note_name == self.previous_whole_note.whole_note_name:
-                if other.is_sharp:
+                if other.is_sharp or self.is_flat:
                     return True
             return False
 
@@ -218,24 +220,30 @@ class Transposer:
 
     ####################################################################
     def _transpose(self):
+        """
+                # for note in self.notes:
+        #     i = self._get_current_index(note)
+        #
+        #     if self.transpose_up:
+        #         diff = len(NOTES) - i
+        #         if diff <= semitones:
+        #             i = semitones - diff
+        #         else:
+        #             i += semitones
+        #     else:
+        #         assert self.transpose_down
+        #         i -= semitones
+        #
+        #     transposed_note = NOTES[i]
+
+        """
         transposed = []
         semitones = self._get_number_of_semitones()
         for note in self.notes:
-            i = self._get_current_index(note)
-
-            if self.transpose_up:
-                diff = len(NOTES) - i
-                if diff <= semitones:
-                    i = semitones - diff
-                else:
-                    i += semitones
-            else:
-                assert self.transpose_down
-                i -= semitones
-
-            transposed_note = NOTES[i]
+            transposed_note = note
+            for i in range(semitones):
+                transposed_note = transposed_note.next()
             transposed.append(transposed_note)
-
         return transposed
 
 
