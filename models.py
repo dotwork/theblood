@@ -29,19 +29,48 @@ class Note:
             self.name = '{}{}'.format(name, modifier)
 
     ####################################################################
+    @property
+    def is_standard_flat(self):
+        return self.is_flat and self.name not in (B.name, E.name)
+
+    ####################################################################
+    @property
+    def is_standard_sharp(self):
+        return self.is_sharp and self.name not in (B_sharp.name, E_sharp.name)
+
+    ####################################################################
+    @property
+    def is_B_or_E(self):
+        return self.name in (B.name, E.name)
+
+    ####################################################################
     def next(self):
-        if self.is_flat and self.name not in (B.name, E.name):
+        if self.is_standard_flat:
             whole_note = Note(self.whole_note_name)
             return whole_note
-        elif (self.is_sharp and self not in (B_sharp, E_sharp)) or self.name in (B.name, E.name):
-                # return Note(whole_note.next_whole_note.name + "#")
+        elif self.is_standard_sharp or self.is_B_or_E:
             return self.next_whole_note
-        elif self.name == B_sharp.name:
+        elif self == B_sharp:
             return C_sharp
-        elif self.name == E_sharp.name:
+        elif self == E_sharp:
             return F_sharp
         else:
             return Note(self.name + "#")
+
+    ####################################################################
+    def previous(self):
+        if self.is_standard_flat:
+            return self.previous_whole_note
+        elif self.is_sharp:
+            whole_note = Note(self.whole_note_name)
+            return whole_note
+        elif self == C:
+            return B
+        elif self == F:
+            return E
+        else:
+            assert self.name in WHOLE_NOTES
+            return Note(self.name + "♭")
 
     ####################################################################
     @property
@@ -266,7 +295,10 @@ class Transposer:
         for note in self.notes:
             transposed_note = note
             for i in range(semitones):
-                transposed_note = transposed_note.next()
+                if self.transpose_up:
+                    transposed_note = transposed_note.next()
+                else:
+                    transposed_note = transposed_note.previous()
             transposed.append(transposed_note)
         return transposed
 
