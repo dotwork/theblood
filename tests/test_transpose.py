@@ -1,23 +1,6 @@
-import traceback
 from unittest import TestCase
 
 from models import transpose, A, A_sharp, B, C, C_sharp, D, D_sharp, F, E, F_sharp, G, G_sharp
-
-
-########################################################################
-def add_args_to_error_msg(func):
-    def wrapper(*args, **kwargs):
-        arguments = list(args[1:])
-        arguments.append(kwargs)
-        try:
-            func(*args, **kwargs)
-        except Exception:
-            msg = "{original_message}\nCalled with args: {args}"
-            print(msg.format(original_message=traceback.format_exc(), args=arguments))
-            import time
-            time.sleep(5)
-            raise
-    return wrapper
 
 
 ########################################################################
