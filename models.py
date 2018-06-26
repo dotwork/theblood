@@ -34,7 +34,6 @@ class Note:
             whole_note = Note(self.whole_note_name)
             return whole_note
         elif (self.is_sharp and self not in (B_sharp, E_sharp)) or self.name in (B.name, E.name):
-                # return Note(whole_note.next_whole_note.name + "#")
             return self.next_whole_note
         elif self.name == B_sharp.name:
             return C_sharp
