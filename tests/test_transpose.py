@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from models import transpose, A, A_sharp, B, C, C_sharp, D, D_sharp, F, E, F_sharp, G, G_sharp
+from models import transpose, A, A_sharp, B, C, C_sharp, D, D_sharp, F, E, F_sharp, G, G_sharp, WHOLE_STEP
 
 
 ########################################################################
@@ -85,4 +85,23 @@ class TestTransposeMultiple(TestCase):
 
     ####################################################################
     def test_transpose_multiple_notes_up_a_fifth(self):
+<<<<<<< Updated upstream
         self.assertEqual([F_sharp, D, E], transpose(B, G, A).up.fifth)
+=======
+        transposed = transpose(B, G, A).up.fifth
+        expected = [F_sharp, D, E]
+        self.assertEqual(expected, transposed)
+
+    ####################################################################
+    def test_steps(self):
+        self.assertEqual([B], transpose(A).up.steps(WHOLE_STEP))
+        self.assertEqual([B], transpose(A).up.steps(1))
+        self.assertEqual([B], transpose(A).up.steps(.5, .5))
+
+        up_a_third = transpose(A).up.third
+        up_two_whole_steps = transpose(A).up.steps(WHOLE_STEP, WHOLE_STEP)
+        self.assertEqual(up_a_third, up_two_whole_steps)
+        self.assertEqual([C_sharp], up_two_whole_steps)
+
+        self.assertEqual([B], transpose(A).up.steps(*[.5, .5]))
+>>>>>>> Stashed changes

@@ -1,5 +1,5 @@
-HALF_STEP = 1
-WHOLE_STEP = 2
+HALF_STEP = .5
+WHOLE_STEP = 1
 WHOLE_NOTES = ('A', 'B', 'C', 'D', 'E', 'F', 'G', 'A')
 
 SHARPS_AND_FLATS = {
@@ -249,10 +249,8 @@ class Transposer:
         return self._transpose()
 
     ####################################################################
-    def steps(self, num_whole=0, num_half=0):
-        num_half_as_int = int(num_half)
-        assert num_half == num_half_as_int
-        self._steps = num_whole + (num_half/2)
+    def steps(self, *steps):
+        self._steps = sum(steps)
         return self._transpose()
 
     ####################################################################
@@ -300,6 +298,12 @@ class Transposer:
                 else:
                     transposed_note = transposed_note.previous()
             transposed.append(transposed_note)
+
+            # find the version of this note that starts with the next whole note.
+            # ie. if the previous note was a C of some kind (C, C#, Cb, etc.)
+            # find the version of this note that starts with the next whole note, D something
+            # previous_note = tra
+
         return transposed
 
 
@@ -319,17 +323,22 @@ class Key:
 
     ####################################################################
     def __init__(self, root_note):
-        self.root = root_note
-        self.notes = self.generate_notes(Note(root_note))
+        self.root_note = Note(root_note)
+        self.notes = self._generate_notes()
+        self.note_names = tuple(note.name for note in self.notes)
 
     ####################################################################
-    @classmethod
-    def generate_notes(cls, root_note):
-        notes = [root_note]
-        whole = 0
-        half = 0
+    def _generate_notes(self):
+        notes = [self.root_note]
         for step in (WHOLE_STEP, WHOLE_STEP, HALF_STEP, WHOLE_STEP, WHOLE_STEP, WHOLE_STEP):
-            whole += 1 if step == WHOLE_STEP else 0
-            half += 1 if step == HALF_STEP else 0
-            notes.append(Transposer(root_note).up.steps(num_whole=whole, num_half=half))
+            previous_note = notes[-1]
+            transposed = transpose(previous_note).up.steps(step)[0]
+            previous_modifier = previous_note.name[1:]
+            for alias in NOTES:
+                if alias == transposed:
+                    if alias.name[1:] == previous_modifier:
+                        break
+            else:
+                raise Exception('Should be unreachable code.')
+            notes.extend(transposed)
         return notes
