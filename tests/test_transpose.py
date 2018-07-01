@@ -85,9 +85,6 @@ class TestTransposeMultiple(TestCase):
 
     ####################################################################
     def test_transpose_multiple_notes_up_a_fifth(self):
-<<<<<<< Updated upstream
-        self.assertEqual([F_sharp, D, E], transpose(B, G, A).up.fifth)
-=======
         transposed = transpose(B, G, A).up.fifth
         expected = [F_sharp, D, E]
         self.assertEqual(expected, transposed)
@@ -104,4 +101,3 @@ class TestTransposeMultiple(TestCase):
         self.assertEqual([C_sharp], up_two_whole_steps)
 
         self.assertEqual([B], transpose(A).up.steps(*[.5, .5]))
->>>>>>> Stashed changes
