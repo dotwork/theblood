@@ -31,16 +31,16 @@ class Note:
     def __init__(self, note):
         if isinstance(note, Note):
             self.name = note.name
-            self.modifier = note.modifier
+            self.accidental = note.accidental
         else:
             name = note[:1].upper().strip()
             remainder = note[1:].replace("-", "").replace("_", "").lower().strip()
             if remainder:
-                modifier = SHARPS_AND_FLATS[remainder]
+                accidental = SHARPS_AND_FLATS[remainder]
             else:
-                modifier = ''
-            self.name = '{}{}'.format(name, modifier)
-            self.modifier = modifier
+                accidental = ''
+            self.name = '{}{}'.format(name, accidental)
+            self.accidental = accidental
 
     ####################################################################
     @property
@@ -91,7 +91,7 @@ class Note:
     ####################################################################
     @property
     def is_natural(self):
-        return not self.modifier
+        return not self.accidental
 
     ####################################################################
     @property
@@ -369,8 +369,8 @@ class Key:
         for step in (WHOLE_STEP, WHOLE_STEP, HALF_STEP, WHOLE_STEP, WHOLE_STEP, WHOLE_STEP):
             previous_note = notes[-1]
             transposed = transpose(previous_note).up.steps(step)[0]
-            for modifier in ('', '#', 'b', '##', 'bb'):
-                next_note = Note(previous_note.next_whole_note.whole_note_name + modifier)
+            for accidental in ('', '#', 'b', '##', 'bb'):
+                next_note = Note(previous_note.next_whole_note.whole_note_name + accidental)
                 if next_note == transposed:
                     transposed = next_note
                     break

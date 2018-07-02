@@ -79,7 +79,7 @@ class TestKey(TestCase):
     ####################################################################
     def test_note_names__non_standard_sharps(self):
         names = Key('B♯').note_names
-        expected = ('B♯', 'C♯♯', 'D♯♯', 'E♯', 'F♯♯', 'G♯♯', '♯♯')
+        expected = ('B♯', 'C♯♯', 'D♯♯', 'E♯', 'F♯♯', 'G♯♯', 'A♯♯')
         self.assertEqual(expected, names)
 
         names = Key('E♯').note_names
