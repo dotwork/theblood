@@ -3,12 +3,24 @@ WHOLE_STEP = 1
 WHOLE_NOTES = ('A', 'B', 'C', 'D', 'E', 'F', 'G', 'A')
 
 SHARPS_AND_FLATS = {
-    'sharp': '♯',
-    'flat': '♭',
+    '♯♯': '♯♯',
+    '♭♭': '♭♭',
+
+    '##': '♯♯',
+    'bb': '♭♭',
+
     '♯': '♯',
     '♭': '♭',
+
     '#': '♯',
     'b': '♭',
+
+    'sharp': '♯',
+    'flat': '♭',
+
+    'double sharp': '♯♯',
+    'double flat': '♭♭',
+
 }
 
 
@@ -19,6 +31,7 @@ class Note:
     def __init__(self, note):
         if isinstance(note, Note):
             self.name = note.name
+            self.modifier = note.modifier
         else:
             name = note[:1].upper().strip()
             remainder = note[1:].replace("-", "").replace("_", "").lower().strip()
@@ -27,6 +40,7 @@ class Note:
             else:
                 modifier = ''
             self.name = '{}{}'.format(name, modifier)
+            self.modifier = modifier
 
     ####################################################################
     @property
@@ -54,6 +68,8 @@ class Note:
             return C_sharp
         elif self == E_sharp:
             return F_sharp
+        elif self.is_double_sharp:
+            return Note(self.next_whole_note.whole_note_name + '#')
         else:
             return Note(self.name + "#")
 
@@ -74,13 +90,28 @@ class Note:
 
     ####################################################################
     @property
+    def is_natural(self):
+        return not self.modifier
+
+    ####################################################################
+    @property
     def is_sharp(self):
-        return self.name.endswith('♯')
+        return self.name.endswith('♯') and not self.is_double_sharp
+
+    ####################################################################
+    @property
+    def is_double_sharp(self):
+        return self.name.endswith('♯♯')
 
     ####################################################################
     @property
     def is_flat(self):
-        return self.name.endswith('♭')
+        return self.name.endswith('♭') and not self.is_double_flat
+
+    ####################################################################
+    @property
+    def is_double_flat(self):
+        return self.name.endswith('♭♭')
 
     ####################################################################
     def __str__(self):
@@ -118,8 +149,7 @@ class Note:
         if isinstance(other, str):
             other = Note(other)
         elif not isinstance(other, Note):
-            err = 'Cannot compare type {note} to type {other}'
-            raise TypeError(err.format(note=type(self), other=type(other)))
+            raise TypeError(f'Cannot compare type {type(self)} to type {type(other)}')
 
         if self.name == other.name:
             return True
@@ -137,6 +167,8 @@ class Note:
                         return True
                     elif self.name == E_sharp.name and other.name == F.name:
                         return True
+                elif self.is_double_sharp and other.is_natural:
+                    return True
             elif other.whole_note_name == self.previous_whole_note.whole_note_name:
                 if self.is_flat:
                     if other.is_sharp:
@@ -328,17 +360,21 @@ class Key:
         self.note_names = tuple(note.name for note in self.notes)
 
     ####################################################################
+    def __str__(self):
+        return f'Key of {self.root_note.name}'
+
+    ####################################################################
     def _generate_notes(self):
         notes = [self.root_note]
         for step in (WHOLE_STEP, WHOLE_STEP, HALF_STEP, WHOLE_STEP, WHOLE_STEP, WHOLE_STEP):
             previous_note = notes[-1]
             transposed = transpose(previous_note).up.steps(step)[0]
-            previous_modifier = previous_note.name[1:]
-            for alias in NOTES:
-                if alias == transposed:
-                    if alias.name[1:] == previous_modifier:
-                        break
+            for modifier in ('', '#', 'b', '##', 'bb'):
+                next_note = Note(previous_note.next_whole_note.whole_note_name + modifier)
+                if next_note == transposed:
+                    transposed = next_note
+                    break
             else:
                 raise Exception('Should be unreachable code.')
-            notes.extend(transposed)
+            notes.append(transposed)
         return notes
