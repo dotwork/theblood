@@ -70,6 +70,8 @@ class Note:
             return F_sharp
         elif self.is_double_sharp:
             return Note(self.next_whole_note.whole_note_name + '#')
+        elif self.is_double_flat:
+            return Note(self.whole_note_name + 'b')
         else:
             return Note(self.name + "#")
 
@@ -182,6 +184,8 @@ class Note:
                         return True
                     elif self.name == F.name and other.name == E_sharp.name:
                         return True
+                elif self.is_double_flat and other.is_natural:
+                    return True
             return False
 
 

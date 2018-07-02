@@ -88,4 +88,32 @@ class TestKey(TestCase):
 
     ####################################################################
     def test_note_names__flat(self):
-        self.fail('finish these')
+        names = Key('A♭').note_names
+        expected = ('A♭', 'B♭', 'C', 'D♭', 'E♭', 'F', 'G')
+        self.assertEqual(expected, names)
+
+        names = Key('B♭').note_names
+        expected = ('B♭', 'C', 'D', 'E♭', 'F', 'G', 'A')
+        self.assertEqual(expected, names)
+
+        names = Key('D♭').note_names
+        expected = ('D♭', 'E♭', 'F', 'G♭', 'A♭', 'B♭', 'C')
+        self.assertEqual(expected, names)
+
+        names = Key('E♭').note_names
+        expected = ('E♭', 'F', 'G', 'A♭', 'B♭', 'C', 'D')
+        self.assertEqual(expected, names)
+
+        names = Key('G♭').note_names
+        expected = ('G♭', 'A♭', 'B♭', 'C♭', 'D♭', 'E♭', 'F')
+        self.assertEqual(expected, names)
+
+    ####################################################################
+    def test_note_names__non_standard_flats(self):
+        names = Key('C♭').note_names
+        expected = ('C♭', 'D♭', 'E♭', 'F♭', 'G♭', 'A♭', 'B♭')
+        self.assertEqual(expected, names)
+
+        names = Key('F♭').note_names
+        expected = ('F♭', 'G♭', 'A♭', 'B♭♭', 'C♭', 'D♭', 'E♭')
+        self.assertEqual(expected, names)
