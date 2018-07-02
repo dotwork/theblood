@@ -189,7 +189,6 @@ class Note:
             return False
 
 
-
 ########################################################################
 A_flat = Note('A♭')
 A = Note('A')
@@ -299,31 +298,7 @@ class Transposer:
         return as_int
 
     ####################################################################
-    def _get_current_index(self, note):
-        for i, _note in enumerate(NOTES):
-            if _note == note:
-                return i
-        raise Exception('Could not find {note} in {notes}'.format(note=note, notes=NOTES))
-
-    ####################################################################
     def _transpose(self):
-        """
-                # for note in self.notes:
-        #     i = self._get_current_index(note)
-        #
-        #     if self.transpose_up:
-        #         diff = len(NOTES) - i
-        #         if diff <= semitones:
-        #             i = semitones - diff
-        #         else:
-        #             i += semitones
-        #     else:
-        #         assert self.transpose_down
-        #         i -= semitones
-        #
-        #     transposed_note = NOTES[i]
-
-        """
         transposed = []
         semitones = self._get_number_of_semitones()
         for note in self.notes:
@@ -334,12 +309,6 @@ class Transposer:
                 else:
                     transposed_note = transposed_note.previous()
             transposed.append(transposed_note)
-
-            # find the version of this note that starts with the next whole note.
-            # ie. if the previous note was a C of some kind (C, C#, Cb, etc.)
-            # find the version of this note that starts with the next whole note, D something
-            # previous_note = tra
-
         return transposed
 
 
