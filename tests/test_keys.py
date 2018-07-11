@@ -117,3 +117,25 @@ class TestKey(TestCase):
         names = Key('F♭').note_names
         expected = ('F♭', 'G♭', 'A♭', 'B♭♭', 'C♭', 'D♭', 'E♭')
         self.assertEqual(expected, names)
+
+
+########################################################################
+class TestMinorKey(TestCase):
+
+    ####################################################################
+    def test_init__with_str(self):
+        a_minor = Key('A minor')
+        self.assertEqual(A, a_minor.root_note)
+        self.assertTrue(a_minor.is_minor)
+
+        a_minor = Key('Am')
+        self.assertEqual(A, a_minor.root_note)
+        self.assertTrue(a_minor.is_minor)
+
+        a_minor = Key('A min')
+        self.assertEqual(A, a_minor.root_note)
+        self.assertTrue(a_minor.is_minor)
+
+        a_minor = Key('Amin')
+        self.assertEqual(A, a_minor.root_note)
+        self.assertTrue(a_minor.is_minor)

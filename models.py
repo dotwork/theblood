@@ -2,6 +2,7 @@ HALF_STEP = .5
 WHOLE_STEP = 1
 WHOLE_NOTES = ('A', 'B', 'C', 'D', 'E', 'F', 'G', 'A')
 
+
 SHARPS_AND_FLATS = {
     '♯♯': '♯♯',
     '♭♭': '♭♭',
@@ -226,6 +227,27 @@ G = Note('G')
 G_sharp = Note('G♯')
 
 
+########################################################################
+def generate_note_names():
+    names = []
+
+    for whole_note in WHOLE_NOTES:
+        flat = Note(whole_note + "b")
+        if flat.is_standard_flat:
+            names.append(flat.name)
+
+        names.append(whole_note)
+
+        sharp = Note(whole_note + "#")
+        if sharp.is_standard_sharp:
+            names.append(sharp.name)
+
+    return tuple(names)
+
+
+NOTE_NAMES = generate_note_names()
+print("Note names: ", NOTE_NAMES)
+
 NOTES = (
     A,
     A_sharp,
@@ -330,10 +352,25 @@ def transpose(*notes):
 class Key:
 
     ####################################################################
-    def __init__(self, root_note):
+    def __init__(self, name):
+        root_note, is_minor = self.evaluate_key(name.strip())
         self.root_note = Note(root_note)
+        self.is_minor = is_minor
         self.notes = self._generate_notes()
         self.note_names = tuple(note.name for note in self.notes)
+
+    ####################################################################
+    def evaluate_key(self, name):
+        note_name = name[0]
+        for char in name[1:]:
+            if note_name + char in NOTE_NAMES:
+                note_name += char
+            else:
+                break
+
+        descriptor = name[len(note_name):].strip()
+        is_minor = descriptor in ('m', 'minor', 'min')
+        return note_name, is_minor
 
     ####################################################################
     def __str__(self):
