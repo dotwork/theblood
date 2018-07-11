@@ -353,14 +353,14 @@ class Key:
 
     ####################################################################
     def __init__(self, name):
-        root_note, is_minor = self.evaluate_key(name.strip())
+        root_note, is_minor = self.get_root_note_and_key_type(name.strip())
         self.root_note = Note(root_note)
         self.is_minor = is_minor
         self.notes = self._generate_notes()
         self.note_names = tuple(note.name for note in self.notes)
 
     ####################################################################
-    def evaluate_key(self, name):
+    def get_root_note_and_key_type(self, name):
         note_name = name[0]
         for char in name[1:]:
             if note_name + char in NOTE_NAMES:
@@ -368,8 +368,8 @@ class Key:
             else:
                 break
 
-        descriptor = name[len(note_name):].strip()
-        is_minor = descriptor in ('m', 'minor', 'min')
+        key_type = name[len(note_name):].strip()
+        is_minor = key_type in ('m', 'minor', 'min')
         return note_name, is_minor
 
     ####################################################################
