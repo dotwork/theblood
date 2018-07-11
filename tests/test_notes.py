@@ -277,6 +277,7 @@ class TestNote(TestCase):
         self.assertEqual(A_sharp, C_flat.previous())
         self.assertEqual(D_sharp, F_flat.previous())
 
+    ####################################################################
     def test_c_flat_b_sharp(self):
         self.assertNotEqual(C_flat, B_sharp)
         self.assertNotEqual(B_sharp, C_flat)

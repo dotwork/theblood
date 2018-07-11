@@ -45,7 +45,7 @@ class Note:
     ####################################################################
     @property
     def is_standard_flat(self):
-        return self.is_flat and self.name not in (B.name, E.name)
+        return self.is_flat and self.name not in (C_flat.name, F_flat.name)
 
     ####################################################################
     @property
@@ -56,6 +56,11 @@ class Note:
     @property
     def is_B_or_E(self):
         return self.name in (B.name, E.name)
+
+    ####################################################################
+    @property
+    def is_C_or_F(self):
+        return self.name in (C.name, F.name)
 
     ####################################################################
     def next(self):
@@ -82,10 +87,12 @@ class Note:
         elif self.is_sharp:
             whole_note = Note(self.whole_note_name)
             return whole_note
-        elif self == C:
-            return B
-        elif self == F:
-            return E
+        elif self.is_C_or_F:
+            return self.previous_whole_note
+        elif self == C_flat:
+            return A_sharp
+        elif self == F_flat:
+            return D_sharp
         else:
             assert self.name in WHOLE_NOTES
             return Note(self.name + "♭")
