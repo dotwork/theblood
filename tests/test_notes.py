@@ -273,7 +273,10 @@ class TestNote(TestCase):
         self.assertEqual(F, G_flat.previous())
 
     ####################################################################
-    @skip("Need to decide how to handle 'previous' with B/C and E/F")
     def test_previous__from_flat_to_sharp(self):
         self.assertEqual(A_sharp, C_flat.previous())
         self.assertEqual(D_sharp, F_flat.previous())
+
+    def test_c_flat_b_sharp(self):
+        self.assertNotEqual(C_flat, B_sharp)
+        self.assertNotEqual(B_sharp, C_flat)

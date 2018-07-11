@@ -291,11 +291,7 @@ class Transposer:
     ####################################################################
     def _get_number_of_semitones(self):
         semitones = self._steps * 2
-        as_int = int(semitones)
-        error = 'Invalid number of semitones: {semitones}, steps={steps}'
-        error = error.format(semitones=semitones, steps=self._steps)
-        assert semitones == as_int, error
-        return as_int
+        return int(semitones)
 
     ####################################################################
     def _transpose(self):
@@ -319,7 +315,7 @@ def transpose(*notes):
         if isinstance(n, (str, Note)):
             _notes.append(n)
         else:
-            _notes.extend(list(n))
+            _notes.extend(n)
     return Transposer(_notes)
 
 
