@@ -359,6 +359,10 @@ def transpose(*notes):
     return Transposer(_notes)
 
 
+MAJOR_KEY_STEPS = (WHOLE_STEP, WHOLE_STEP, HALF_STEP, WHOLE_STEP, WHOLE_STEP, WHOLE_STEP)
+MINOR_KEY_STEPS = (WHOLE_STEP, HALF_STEP, WHOLE_STEP, WHOLE_STEP, HALF_STEP, WHOLE_STEP)
+
+
 ########################################################################
 class Key:
 
@@ -367,6 +371,7 @@ class Key:
         root_note, is_minor = self.get_root_note_and_key_type(name.strip())
         self.root_note = Note(root_note)
         self.is_minor = is_minor
+        self.steps = MINOR_KEY_STEPS if is_minor else MAJOR_KEY_STEPS
         self.notes = self._generate_notes()
         self.note_names = tuple(note.name for note in self.notes)
 
@@ -390,7 +395,7 @@ class Key:
     ####################################################################
     def _generate_notes(self):
         notes = [self.root_note]
-        for step in (WHOLE_STEP, WHOLE_STEP, HALF_STEP, WHOLE_STEP, WHOLE_STEP, WHOLE_STEP):
+        for step in self.steps:
             previous_note = notes[-1]
             transposed = transpose(previous_note).up.steps(step)[0]
             for accidental in ('', '#', 'b', '##', 'bb'):
