@@ -11,10 +11,6 @@ class TestKey(TestCase):
         self.assertEqual(C, Key('C').root_note)
 
     ####################################################################
-    def test_init__with_note_obj(self):
-        self.assertEqual(C, Key(C).root_note)
-
-    ####################################################################
     def test_generate_notes(self):
         key_notes = Key('C').notes
         expected = [C, D, E, F, G, A, B]

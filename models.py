@@ -24,6 +24,10 @@ SHARPS_AND_FLATS = {
 
 }
 
+########################################################################
+class InvalidNoteError(Exception):
+    pass
+
 
 ########################################################################
 class Note:
@@ -37,7 +41,10 @@ class Note:
             name = note[:1].upper().strip()
             remainder = note[1:].replace("-", "").replace("_", "").lower().strip()
             if remainder:
-                accidental = SHARPS_AND_FLATS[remainder]
+                try:
+                    accidental = SHARPS_AND_FLATS[remainder]
+                except KeyError:
+                    raise InvalidNoteError(f'"{note}" is not a valid note.')
             else:
                 accidental = ''
             self.name = '{}{}'.format(name, accidental)
@@ -70,10 +77,14 @@ class Note:
             return whole_note
         elif self.is_standard_sharp or self.is_B_or_E:
             return self.next_whole_note
-        elif self == B_sharp:
+        elif self.name == B_sharp.name:
             return C_sharp
-        elif self == E_sharp:
+        elif self.name == C_flat.name:
+            return C
+        elif self.name == E_sharp.name:
             return F_sharp
+        elif self.name == F_flat.name:
+            return F
         elif self.is_double_sharp:
             return Note(self.next_whole_note.whole_note_name + '#')
         elif self.is_double_flat:
@@ -363,9 +374,9 @@ class Key:
     def get_root_note_and_key_type(self, name):
         note_name = name[0]
         for char in name[1:]:
-            if note_name + char in NOTE_NAMES:
-                note_name += char
-            else:
+            try:
+                note_name = Note(note_name + char).name
+            except InvalidNoteError:
                 break
 
         key_type = name[len(note_name):].strip()

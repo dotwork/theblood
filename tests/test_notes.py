@@ -1,7 +1,7 @@
 from unittest import TestCase, skip
 
 from models import A, A_sharp, B, F, E, G, F_flat, B_flat, G_sharp, A_flat, E_sharp, B_sharp, C_flat, C_sharp, D_flat, \
-    D_sharp, E_flat, F_sharp, G_flat, C, D
+    D_sharp, E_flat, F_sharp, G_flat, C, D, Note, InvalidNoteError
 
 
 ########################################################################
@@ -10,6 +10,11 @@ class TestNote(TestCase):
     ####################################################################
     def test_equal_to_string(self):
         self.assertEqual('A', A)
+
+    ####################################################################
+    def test_invalid_name(self):
+        with self.assertRaises(InvalidNoteError):
+            Note('A#foo')
 
     ####################################################################
     def test_invalid_types(self):
