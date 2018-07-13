@@ -1,5 +1,6 @@
 from unittest import TestCase
 
+from errors import InvalidKeyError
 from models import Key, A, B, C, D, E, F, G, C_sharp, D_sharp, E_sharp, F_sharp, G_sharp, A_sharp, B_sharp
 
 
@@ -8,7 +9,33 @@ class TestKey(TestCase):
 
     ####################################################################
     def test_init(self):
-        self.assertEqual(C, Key('C').root_note)
+        a_major = Key('A')
+        self.assertEqual(A, a_major.root_note)
+        self.assertTrue(a_major.is_major)
+        self.assertFalse(a_major.is_minor)
+
+        a_major = Key('A major')
+        self.assertEqual(A, a_major.root_note)
+        self.assertTrue(a_major.is_major)
+        self.assertFalse(a_major.is_minor)
+
+        a_major = Key('A maj')
+        self.assertEqual(A, a_major.root_note)
+        self.assertTrue(a_major.is_major)
+        self.assertFalse(a_major.is_minor)
+
+        a_major = Key('Amaj')
+        self.assertEqual(A, a_major.root_note)
+        self.assertTrue(a_major.is_major)
+        self.assertFalse(a_major.is_minor)
+
+    ####################################################################
+    def test_init__invalid(self):
+        with self.assertRaises(InvalidKeyError):
+            Key('A foo')
+
+        with self.assertRaises(InvalidKeyError):
+            Key('A majo r')
 
     ####################################################################
     def test_generate_notes(self):
@@ -123,18 +150,22 @@ class TestMinorKey(TestCase):
         a_minor = Key('A minor')
         self.assertEqual(A, a_minor.root_note)
         self.assertTrue(a_minor.is_minor)
+        self.assertFalse(a_minor.is_major)
 
         a_minor = Key('Am')
         self.assertEqual(A, a_minor.root_note)
         self.assertTrue(a_minor.is_minor)
+        self.assertFalse(a_minor.is_major)
 
         a_minor = Key('A min')
         self.assertEqual(A, a_minor.root_note)
         self.assertTrue(a_minor.is_minor)
+        self.assertFalse(a_minor.is_major)
 
         a_minor = Key('Amin')
         self.assertEqual(A, a_minor.root_note)
         self.assertTrue(a_minor.is_minor)
+        self.assertFalse(a_minor.is_major)
 
     ####################################################################
     def test_generate_notes(self):

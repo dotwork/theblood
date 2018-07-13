@@ -1,3 +1,5 @@
+from errors import InvalidNoteError, InvalidKeyError
+
 HALF_STEP = .5
 WHOLE_STEP = 1
 WHOLE_NOTES = ('A', 'B', 'C', 'D', 'E', 'F', 'G', 'A')
@@ -23,10 +25,6 @@ SHARPS_AND_FLATS = {
     'double flat': '♭♭',
 
 }
-
-########################################################################
-class InvalidNoteError(Exception):
-    pass
 
 
 ########################################################################
@@ -368,24 +366,29 @@ class Key:
 
     ####################################################################
     def __init__(self, name):
-        root_note, is_minor = self.get_root_note_and_key_type(name.strip())
+        root_note, is_minor = self.get_root_note_and_quality(name.strip())
         self.root_note = Note(root_note)
         self.is_minor = is_minor
+        self.is_major = not is_minor
         self.steps = MINOR_KEY_STEPS if is_minor else MAJOR_KEY_STEPS
         self.notes = self._generate_notes()
         self.note_names = tuple(note.name for note in self.notes)
 
     ####################################################################
-    def get_root_note_and_key_type(self, name):
-        note_name = name[0]
-        for char in name[1:]:
+    def get_root_note_and_quality(self, key_name):
+        note_name = key_name[0]
+        for char in key_name[1:]:
             try:
                 note_name = Note(note_name + char).name
             except InvalidNoteError:
                 break
 
-        key_type = name[len(note_name):].strip()
-        is_minor = key_type in ('m', 'minor', 'min')
+        quality = key_name[len(note_name):].strip().lower()
+        is_minor = quality in ('m', 'minor', 'min')
+        if not is_minor:
+            if quality not in ('', 'major', 'maj'):
+                raise InvalidKeyError(f'{key_name} is not a valid key.')
+
         return note_name, is_minor
 
     ####################################################################
