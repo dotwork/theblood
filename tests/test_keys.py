@@ -7,7 +7,7 @@ from models import Key, A, B, C, D, E, F, G, C_sharp, D_sharp, E_sharp, F_sharp,
 class TestKey(TestCase):
 
     ####################################################################
-    def test_init__with_str(self):
+    def test_init(self):
         self.assertEqual(C, Key('C').root_note)
 
     ####################################################################
@@ -119,7 +119,7 @@ class TestKey(TestCase):
 class TestMinorKey(TestCase):
 
     ####################################################################
-    def test_init__with_str(self):
+    def test_init(self):
         a_minor = Key('A minor')
         self.assertEqual(A, a_minor.root_note)
         self.assertTrue(a_minor.is_minor)
