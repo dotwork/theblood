@@ -5,6 +5,10 @@ WHOLE_STEP = 1
 WHOLE_NOTES = ('A', 'B', 'C', 'D', 'E', 'F', 'G', 'A')
 
 
+MAJOR_KEY_STEPS = (WHOLE_STEP, WHOLE_STEP, HALF_STEP, WHOLE_STEP, WHOLE_STEP, WHOLE_STEP)
+MINOR_KEY_STEPS = (WHOLE_STEP, HALF_STEP, WHOLE_STEP, WHOLE_STEP, HALF_STEP, WHOLE_STEP)
+
+
 SHARPS_AND_FLATS = {
     '♯♯': '♯♯',
     '♭♭': '♭♭',
@@ -28,6 +32,19 @@ SHARPS_AND_FLATS = {
 
 
 ########################################################################
+def get_note_name_and_quality(name):
+    note_name = name[0]
+    for char in name[1:]:
+        try:
+            note_name = Note(note_name + char).name
+        except InvalidNoteError:
+            break
+
+    quality = name[len(note_name):].strip().lower()
+    return note_name, quality
+
+
+########################################################################
 class Note:
 
     ####################################################################
@@ -35,18 +52,18 @@ class Note:
         if isinstance(note, Note):
             self.name = note.name
             self.accidental = note.accidental
+            self.quality = note.quality
         else:
             name = note[:1].upper().strip()
-            remainder = note[1:].replace("-", "").replace("_", "").lower().strip()
-            if remainder:
+            quality = note[1:].replace("-", "").replace("_", "").lower().strip()
+            if quality:
                 try:
-                    accidental = SHARPS_AND_FLATS[remainder]
+                    quality = SHARPS_AND_FLATS[quality]
                 except KeyError:
                     raise InvalidNoteError(f'"{note}" is not a valid note.')
-            else:
-                accidental = ''
-            self.name = '{}{}'.format(name, accidental)
-            self.accidental = accidental
+
+            self.name = '{}{}'.format(name, quality)
+            self.quality = quality
 
     ####################################################################
     @property
@@ -274,6 +291,66 @@ NOTES = (
 
 
 ########################################################################
+class Chord:
+
+    ####################################################################
+    def __init__(self, name):
+        root_note_name, quality = get_note_name_and_quality(name)
+        self.root_note = Note(root_note_name)
+        self.quality = quality
+        self.name = f'{root_note_name}' + (f' {quality}' if quality else '')
+        self.notes = self.generate_notes()
+
+    ####################################################################
+    def generate_notes(self):
+        return tuple([self.root_note])
+
+
+########################################################################
+class Key:
+
+    ####################################################################
+    def __init__(self, name):
+        root_note, is_minor = self.get_root_note_and_quality(name.strip())
+        self.root_note = Note(root_note)
+        self.is_minor = is_minor
+        self.is_major = not is_minor
+        self.steps = MINOR_KEY_STEPS if is_minor else MAJOR_KEY_STEPS
+        self.notes = self._generate_notes()
+        self.note_names = tuple(note.name for note in self.notes)
+
+    ####################################################################
+    def get_root_note_and_quality(self, key_name):
+        name, quality = get_note_name_and_quality(key_name)
+        is_minor = quality in ('m', 'minor', 'min')
+        if not is_minor:
+            if quality not in ('', 'major', 'maj'):
+                raise InvalidKeyError(f'{key_name} is not a valid key.')
+
+        return note_name, is_minor
+
+    ####################################################################
+    def __str__(self):
+        return f'Key of {self.root_note.name}'
+
+    ####################################################################
+    def _generate_notes(self):
+        notes = [self.root_note]
+        for step in self.steps:
+            previous_note = notes[-1]
+            transposed = transpose(previous_note).up.steps(step)[0]
+            for accidental in ('', '#', 'b', '##', 'bb'):
+                next_note = Note(previous_note.next_whole_note.whole_note_name + accidental)
+                if next_note == transposed:
+                    transposed = next_note
+                    break
+            else:
+                raise Exception('Should be unreachable code.')
+            notes.append(transposed)
+        return notes
+
+
+########################################################################
 class Transposer:
 
     ####################################################################
@@ -355,58 +432,3 @@ def transpose(*notes):
         else:
             _notes.extend(n)
     return Transposer(_notes)
-
-
-MAJOR_KEY_STEPS = (WHOLE_STEP, WHOLE_STEP, HALF_STEP, WHOLE_STEP, WHOLE_STEP, WHOLE_STEP)
-MINOR_KEY_STEPS = (WHOLE_STEP, HALF_STEP, WHOLE_STEP, WHOLE_STEP, HALF_STEP, WHOLE_STEP)
-
-
-########################################################################
-class Key:
-
-    ####################################################################
-    def __init__(self, name):
-        root_note, is_minor = self.get_root_note_and_quality(name.strip())
-        self.root_note = Note(root_note)
-        self.is_minor = is_minor
-        self.is_major = not is_minor
-        self.steps = MINOR_KEY_STEPS if is_minor else MAJOR_KEY_STEPS
-        self.notes = self._generate_notes()
-        self.note_names = tuple(note.name for note in self.notes)
-
-    ####################################################################
-    def get_root_note_and_quality(self, key_name):
-        note_name = key_name[0]
-        for char in key_name[1:]:
-            try:
-                note_name = Note(note_name + char).name
-            except InvalidNoteError:
-                break
-
-        quality = key_name[len(note_name):].strip().lower()
-        is_minor = quality in ('m', 'minor', 'min')
-        if not is_minor:
-            if quality not in ('', 'major', 'maj'):
-                raise InvalidKeyError(f'{key_name} is not a valid key.')
-
-        return note_name, is_minor
-
-    ####################################################################
-    def __str__(self):
-        return f'Key of {self.root_note.name}'
-
-    ####################################################################
-    def _generate_notes(self):
-        notes = [self.root_note]
-        for step in self.steps:
-            previous_note = notes[-1]
-            transposed = transpose(previous_note).up.steps(step)[0]
-            for accidental in ('', '#', 'b', '##', 'bb'):
-                next_note = Note(previous_note.next_whole_note.whole_note_name + accidental)
-                if next_note == transposed:
-                    transposed = next_note
-                    break
-            else:
-                raise Exception('Should be unreachable code.')
-            notes.append(transposed)
-        return notes
