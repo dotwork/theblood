@@ -177,7 +177,7 @@ class Note:
         else:
             if other.whole_note_name == self.next_whole_note.whole_note_name:
                 if other.is_flat:
-                    if self.is_sharp:
+                    if self.is_standard_sharp:
                         return True
                     elif self.name == B.name and other.name == C_flat.name:
                         return True
@@ -192,7 +192,7 @@ class Note:
                     return True
             elif other.whole_note_name == self.previous_whole_note.whole_note_name:
                 if self.is_flat:
-                    if other.is_sharp:
+                    if other.is_standard_sharp:
                         return True
                     elif self.name == C_flat.name and other.name == B.name:
                         return True
