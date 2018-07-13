@@ -178,68 +178,64 @@ class TestMinorKey(TestCase):
 
     ####################################################################
     def test_note_names__sharps(self):
-        names = Key('A♯').note_names
-        expected = ('A♯', 'B♯', 'C♯♯', 'D♯', 'E♯', 'F♯♯', 'G♯♯')
+        names = Key('A♯ minor').note_names
+        expected = ('A♯', 'B♯', 'C♯', 'D♯', 'E♯', 'F♯', 'G♯')
         self.assertEqual(expected, names)
 
-        names = Key('C♯').note_names
-        expected = ('C♯', 'D♯', 'E♯', 'F♯', 'G♯', 'A♯', 'B♯')
+        names = Key('C♯ minor').note_names
+        expected = ('C♯', 'D♯', 'E', 'F♯', 'G♯', 'A', 'B')
         self.assertEqual(expected, names)
 
-        names = Key('D♯').note_names
-        expected = ('D♯', 'E♯', 'F♯♯', 'G♯', 'A♯', 'B♯', 'C♯♯')
+        names = Key('D♯ minor').note_names
+        expected = ('D♯', 'E♯', 'F♯', 'G♯', 'A♯', 'B', 'C♯')
         self.assertEqual(expected, names)
 
-        names = Key('F♯').note_names
-        expected = ('F♯', 'G♯', 'A♯', 'B', 'C♯', 'D♯', 'E♯')
+        names = Key('F♯ minor').note_names
+        expected = ('F♯', 'G♯', 'A', 'B', 'C♯', 'D', 'E')
         self.assertEqual(expected, names)
 
-        names = Key('G♯').note_names
-        expected = ('G♯', 'A♯', 'B♯', 'C♯', 'D♯', 'E♯', 'F♯♯')
+        names = Key('G♯ minor').note_names
+        expected = ('G♯', 'A♯', 'B', 'C♯', 'D♯', 'E', 'F♯')
         self.assertEqual(expected, names)
-        self.fail('Adjust for minor key.')
 
     ####################################################################
     def test_note_names__non_standard_sharps(self):
-        names = Key('B♯').note_names
-        expected = ('B♯', 'C♯♯', 'D♯♯', 'E♯', 'F♯♯', 'G♯♯', 'A♯♯')
+        names = Key('B♯ minor').note_names
+        expected = ('B♯', 'C♯♯', 'D♯', 'E♯', 'F♯♯', 'G♯', 'A♯')
         self.assertEqual(expected, names)
 
-        names = Key('E♯').note_names
-        expected = ('E♯', 'F♯♯', 'G♯♯', 'A♯', 'B♯', 'C♯♯', 'D♯♯')
+        names = Key('E♯ minor').note_names
+        expected = ('E♯', 'F♯♯', 'G♯', 'A♯', 'B♯', 'C♯', 'D♯')
         self.assertEqual(expected, names)
-        self.fail('Adjust for minor key.')
 
     ####################################################################
     def test_note_names__flat(self):
-        names = Key('A♭').note_names
-        expected = ('A♭', 'B♭', 'C', 'D♭', 'E♭', 'F', 'G')
+        names = Key('A♭ minor').note_names
+        expected = ('A♭', 'B♭', 'C♭', 'D♭', 'E♭', 'F♭', 'G♭')
         self.assertEqual(expected, names)
 
-        names = Key('B♭').note_names
-        expected = ('B♭', 'C', 'D', 'E♭', 'F', 'G', 'A')
+        names = Key('B♭ minor').note_names
+        expected = ('B♭', 'C', 'D♭', 'E♭', 'F', 'G♭', 'A♭')
         self.assertEqual(expected, names)
 
-        names = Key('D♭').note_names
-        expected = ('D♭', 'E♭', 'F', 'G♭', 'A♭', 'B♭', 'C')
+        names = Key('D♭ minor').note_names
+        expected = ('D♭', 'E♭', 'F♭', 'G♭', 'A♭', 'B♭♭', 'C♭')
         self.assertEqual(expected, names)
 
-        names = Key('E♭').note_names
-        expected = ('E♭', 'F', 'G', 'A♭', 'B♭', 'C', 'D')
+        names = Key('E♭ minor').note_names
+        expected = ('E♭', 'F', 'G♭', 'A♭', 'B♭', 'C♭', 'D♭')
         self.assertEqual(expected, names)
 
-        names = Key('G♭').note_names
-        expected = ('G♭', 'A♭', 'B♭', 'C♭', 'D♭', 'E♭', 'F')
+        names = Key('G♭ minor').note_names
+        expected = ('G♭', 'A♭', 'B♭♭', 'C♭', 'D♭', 'E♭♭', 'F♭')
         self.assertEqual(expected, names)
-        self.fail('Adjust for minor key.')
 
     ####################################################################
     def test_note_names__non_standard_flats(self):
-        names = Key('C♭').note_names
-        expected = ('C♭', 'D♭', 'E♭', 'F♭', 'G♭', 'A♭', 'B♭')
+        names = Key('C♭ minor').note_names
+        expected = ('C♭', 'D♭', 'E♭♭', 'F♭', 'G♭', 'A♭♭', 'B♭♭')
         self.assertEqual(expected, names)
 
-        names = Key('F♭').note_names
-        expected = ('F♭', 'G♭', 'A♭', 'B♭♭', 'C♭', 'D♭', 'E♭')
+        names = Key('F♭ minor').note_names
+        expected = ('F♭', 'G♭', 'A♭♭', 'B♭♭', 'C♭', 'D♭♭', 'E♭♭')
         self.assertEqual(expected, names)
-        self.fail('Adjust for minor key.')
