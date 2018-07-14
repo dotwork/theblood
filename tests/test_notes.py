@@ -36,20 +36,16 @@ class TestNote(TestCase):
     ####################################################################
     def test_equals__sharps_and_flats__going_down(self):
         self.assertEqual(A_sharp, B_flat)
-        self.assertEqual(B_sharp, C_flat)
         self.assertEqual(C_sharp, D_flat)
         self.assertEqual(D_sharp, E_flat)
-        self.assertEqual(E_sharp, F_flat)
         self.assertEqual(F_sharp, G_flat)
         self.assertEqual(G_sharp, A_flat)
 
     ####################################################################
     def test_equals__sharps_and_flats__going_up(self):
         self.assertEqual(B_flat, A_sharp)
-        self.assertEqual(C_flat, B_sharp)
         self.assertEqual(D_flat, C_sharp)
         self.assertEqual(E_flat, D_sharp)
-        self.assertEqual(F_flat, E_sharp)
         self.assertEqual(G_flat, F_sharp)
         self.assertEqual(A_flat, G_sharp)
 

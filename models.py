@@ -51,7 +51,6 @@ class Note:
     def __init__(self, note):
         if isinstance(note, Note):
             self.name = note.name
-            self.accidental = note.accidental
             self.quality = note.quality
         else:
             name = note[:1].upper().strip()
@@ -127,7 +126,7 @@ class Note:
     ####################################################################
     @property
     def is_natural(self):
-        return not self.accidental
+        return not bool(self.quality)
 
     ####################################################################
     @property
@@ -327,7 +326,7 @@ class Key:
             if quality not in ('', 'major', 'maj'):
                 raise InvalidKeyError(f'{key_name} is not a valid key.')
 
-        return note_name, is_minor
+        return name, is_minor
 
     ####################################################################
     def __str__(self):
