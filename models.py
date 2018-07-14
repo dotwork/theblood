@@ -293,6 +293,29 @@ NOTES = (
 
 
 ########################################################################
+class Interval:
+
+    ####################################################################
+    def __init__(self, number):
+        self.degree = self.get_degree(number)
+        self.name = self.get_name()
+
+    ####################################################################
+    def get_degree(self, number):
+        try:
+            degree = int(number)
+        except Exception as e:
+            print('Provide a number for the interval, ie. for a Third, provide "3".')
+            raise
+
+        return degree
+
+    ####################################################################
+    def get_name(self):
+        return self.degree
+
+
+########################################################################
 class Chord:
 
     ####################################################################

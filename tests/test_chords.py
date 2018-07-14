@@ -7,10 +7,6 @@ from models import Chord, Key, A, B, C, D, E, F, G, C_sharp, D_sharp, E_sharp, F
 class TestChord(TestCase):
 
     ####################################################################
-    def test_init(self):
-        self.fail()
-
-    ####################################################################
     def test_name__major(self):
         self.assertEqual('A', Chord('A').name)
         self.assertEqual('A', Chord('A maj').name)
