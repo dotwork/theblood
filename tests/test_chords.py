@@ -11,9 +11,13 @@ class TestChord(TestCase):
         self.fail()
 
     ####################################################################
-    def test_name(self):
-        a_major = Chord('A')
-        self.assertEqual('A', a_major.name)
+    def test_name__major(self):
+        self.assertEqual('A', Chord('A').name)
+        self.assertEqual('A', Chord('A maj').name)
+        self.assertEqual('A', Chord('A major').name)
 
-        a_major = Chord('A maj')
-        self.assertEqual('A', a_major.name)
+    ####################################################################
+    def test_name__minor(self):
+        self.assertEqual('Am', Chord('Am').name)
+        self.assertEqual('Am', Chord('A min').name)
+        self.assertEqual('Am', Chord('A minor').name)

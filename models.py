@@ -41,6 +41,9 @@ def get_note_name_and_quality(name):
             break
 
     quality = name[len(note_name):].strip().lower()
+    quality = quality.replace('major', '').replace('maj', '')
+    if quality in ('min', 'minor'):
+        quality = 'm'
     return note_name, quality
 
 
@@ -298,7 +301,7 @@ class Chord:
         root_note_name, quality = get_note_name_and_quality(name)
         self.root_note = Note(root_note_name)
         self.quality = quality
-        self.name = f'{root_note_name}' + (f' {quality}' if quality else '')
+        self.name = f'{root_note_name}{quality}'
         self.notes = self.generate_notes()
 
     ####################################################################
