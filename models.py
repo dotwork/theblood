@@ -347,23 +347,22 @@ class Key:
 
     ####################################################################
     def __init__(self, name):
-        root_note, is_minor = self.get_root_note_and_quality(name.strip())
-        self.root_note = Note(root_note)
-        self.is_minor = is_minor
-        self.is_major = not is_minor
-        self.steps = MINOR_KEY_STEPS if is_minor else MAJOR_KEY_STEPS
+        self.root_note, quality = self.get_root_note_and_quality(name.strip())
+        self.is_minor = quality == 'm'
+        self.is_major = not self.is_minor
+        self.steps = MINOR_KEY_STEPS if self.is_minor else MAJOR_KEY_STEPS
         self.notes = self._generate_notes()
         self.note_names = tuple(note.name for note in self.notes)
 
     ####################################################################
     def get_root_note_and_quality(self, key_name):
-        name, quality = get_note_and_quality_from_music_element(key_name)
+        note, quality = get_note_and_quality_from_music_element(key_name)
         try:
-            assert quality in ('', 'm', 'minor', 'min', 'major', 'maj')
+            assert quality in ('', 'm')
         except AssertionError:
             raise InvalidKeyError(f'{key_name} is not a valid key. quality={quality}')
 
-        return name, quality
+        return note, quality
 
     ####################################################################
     def __str__(self):
