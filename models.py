@@ -32,19 +32,32 @@ SHARPS_AND_FLATS = {
 
 
 ########################################################################
-def get_note_name_and_quality(name):
-    note_name = name[0]
-    for char in name[1:]:
-        try:
-            note_name = Note(note_name + char).name
-        except InvalidNoteError:
-            break
+def validate_and_clean_quality(quality):
+    cleaned = quality.lower().strip()
+    if cleaned in ('major', 'maj'):
+        cleaned = ''
+    elif cleaned in ('min', 'minor'):
+        cleaned = 'm'
 
-    quality = name[len(note_name):].strip().lower()
-    quality = quality.replace('major', '').replace('maj', '')
-    if quality in ('min', 'minor'):
-        quality = 'm'
-    return note_name, quality
+    return cleaned
+
+
+########################################################################
+def get_note_and_quality_from_music_element(element_name):
+    note = Note(element_name[0])
+    remainder = element_name[1:]
+    if remainder:
+        for char in remainder:
+            try:
+                note = Note(note.name + char)
+            except InvalidNoteError:
+                break
+
+    quality = element_name[len(note.name):]
+    if quality:
+        quality = validate_and_clean_quality(quality)
+
+    return note, quality
 
 
 ########################################################################
@@ -320,10 +333,8 @@ class Chord:
 
     ####################################################################
     def __init__(self, name):
-        root_note_name, quality = get_note_name_and_quality(name)
-        self.root_note = Note(root_note_name)
-        self.quality = quality
-        self.name = f'{root_note_name}{quality}'
+        self.root_note, self.quality = get_note_and_quality_from_music_element(name)
+        self.name = f'{self.root_note.name}{self.quality}'
         self.notes = self.generate_notes()
 
     ####################################################################
@@ -346,13 +357,13 @@ class Key:
 
     ####################################################################
     def get_root_note_and_quality(self, key_name):
-        name, quality = get_note_name_and_quality(key_name)
-        is_minor = quality in ('m', 'minor', 'min')
-        if not is_minor:
-            if quality not in ('', 'major', 'maj'):
-                raise InvalidKeyError(f'{key_name} is not a valid key.')
+        name, quality = get_note_and_quality_from_music_element(key_name)
+        try:
+            assert quality in ('', 'm', 'minor', 'min', 'major', 'maj')
+        except AssertionError:
+            raise InvalidKeyError(f'{key_name} is not a valid key. quality={quality}')
 
-        return name, is_minor
+        return name, quality
 
     ####################################################################
     def __str__(self):
