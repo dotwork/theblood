@@ -27,7 +27,6 @@ SHARPS_AND_FLATS = {
 
     'double sharp': '♯♯',
     'double flat': '♭♭',
-
 }
 
 
@@ -70,6 +69,7 @@ class Note:
             self.quality = note.quality
         else:
             name = note[:1].upper().strip()
+            assert name in WHOLE_NOTES, f'"{name}" is not a valid whole note.'
             quality = note[1:].replace("-", "").replace("_", "").lower().strip()
             if quality:
                 try:
@@ -77,7 +77,7 @@ class Note:
                 except KeyError:
                     raise InvalidNoteError(f'"{note}" is not a valid note.')
 
-            self.name = '{}{}'.format(name, quality)
+            self.name = f'{name}{quality}'
             self.quality = quality
 
     ####################################################################
@@ -170,7 +170,7 @@ class Note:
 
     ####################################################################
     def __repr__(self):
-        return 'Note("{name}")'.format(name=self.name)
+        return f'Note("{self.name}")'
 
     ####################################################################
     @property
@@ -287,7 +287,6 @@ def generate_note_names():
 
 
 NOTE_NAMES = generate_note_names()
-print("Note names: ", NOTE_NAMES)
 
 NOTES = (
     A,
