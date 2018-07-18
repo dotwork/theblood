@@ -17,3 +17,8 @@ class TestChord(TestCase):
         self.assertEqual('Am', Chord('Am').name)
         self.assertEqual('Am', Chord('A min').name)
         self.assertEqual('Am', Chord('A minor').name)
+
+    ####################################################################
+    def test_notes(self):
+        self.assertEqual([C, E, G], Chord('C').notes)
+        self.assertEqual([C_sharp, F, G_sharp], Chord('C#').notes)

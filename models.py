@@ -308,12 +308,14 @@ NOTES = (
 class Interval:
 
     ####################################################################
-    def __init__(self, number):
-        self.degree = self.get_degree(number)
-        self.name = self.get_name()
+    def __init__(self, number, is_minor=False):
+        self.degree = self.clean_degree(number)
+        self.is_minor = is_minor
+        self.is_major = not is_minor
+        self.steps = self.get_steps()
 
     ####################################################################
-    def get_degree(self, number):
+    def clean_degree(self, number):
         try:
             degree = int(number)
         except Exception as e:
@@ -323,8 +325,27 @@ class Interval:
         return degree
 
     ####################################################################
-    def get_name(self):
-        return self.degree
+    def get_steps(self):
+        """
+        1st - 0
+        2nd - 1
+        Minor 3rd - 1.5
+        3rd - 2
+        Minor 4th - 2.5
+        4th - 2.5
+        5th - 3.5
+        """
+        steps = self.degree - 1
+        if self.is_minor:
+            steps -= .5
+        return steps
+
+
+MajorThird = Interval(3)
+MinorThird = Interval(3, is_minor=True)
+
+MAJOR_CHORD_INTERVALS = [MajorThird, MinorThird]
+MINOR_CHORD_INTERVALS = []
 
 
 ########################################################################
@@ -334,11 +355,26 @@ class Chord:
     def __init__(self, name):
         self.root_note, self.quality = get_note_and_quality_from_music_element(name)
         self.name = f'{self.root_note.name}{self.quality}'
-        self.notes = self.generate_notes()
+        self.is_major = True
+        self.intervals = MAJOR_CHORD_INTERVALS if self.is_major else MINOR_CHORD_INTERVALS
+        self.notes = self._generate_notes()
 
     ####################################################################
-    def generate_notes(self):
-        return tuple([self.root_note])
+    def _generate_notes(self):
+        notes = [self.root_note]
+
+        for interval in self.intervals:
+            previous_note = notes[-1]
+            transposed = transpose(previous_note).up.steps(interval.steps)[0]
+            # for accidental in ('', '#', 'b', '##', 'bb'):
+            #     next_note = Note(previous_note.next_whole_note.whole_note_name + accidental)
+            #     if next_note == transposed:
+            #         transposed = next_note
+            #         break
+            # else:
+            #     raise Exception('Should be unreachable code.')
+            notes.append(transposed)
+        return notes
 
 
 ########################################################################
