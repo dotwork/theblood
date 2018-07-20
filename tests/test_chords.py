@@ -29,14 +29,23 @@ class TestChord(TestCase):
         self.assertEqual(('G', 'B', 'D'), Chord('G').note_names)
 
     ####################################################################
-    def test_note_names__minor_sharps(self):
+    def test_note_names__minor(self):
         self.assertEqual(('A', 'C', 'E'), Chord('Am').note_names)
         self.assertEqual(('B', 'D', 'F♯'), Chord('Bm').note_names)
+        self.assertEqual(('C', 'E♭', 'G'), Chord('Cm').note_names)
         self.assertEqual(('D', 'F', 'A'), Chord('Dm').note_names)
         self.assertEqual(('E', 'G', 'B'), Chord('Em').note_names)
-
-    ####################################################################
-    def test_note_names__minor__flats(self):
-        self.assertEqual(('C', 'E♭', 'G'), Chord('Cm').note_names)
         self.assertEqual(('F', 'A♭', 'C'), Chord('Fm').note_names)
         self.assertEqual(('G', 'B♭', 'D'), Chord('Gm').note_names)
+
+    ####################################################################
+    # def test_note_names__major_sharps(self):
+    #     self.assertEqual(('A♯', 'D', 'F'), Chord('A♯').note_names)
+    #     self.assertEqual(('C♯', 'F', 'A♭'), Chord('C♯').note_names)
+        # self.assertEqual(('D♯', ), Chord('D♯').note_names)
+        # self.assertEqual(('E♯', ), Chord('E♯').note_names)
+        # self.assertEqual(('F♯', ), Chord('F♯').note_names)
+        # self.assertEqual(('G♯', ), Chord('G♯').note_names)
+
+    def test_weird_ones(self):
+        self.assertEqual(('B♯', 'D♯♯', 'F♯♯'), Chord('B♯').note_names)

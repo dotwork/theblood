@@ -1,7 +1,10 @@
 from errors import InvalidNoteError, InvalidKeyError
 
+NATURAL = ''
 FLAT = '♭'
 SHARP = '♯'
+DOUBLE_FLAT = '♭♭'
+DOUBLE_SHARP = '♯♯'
 
 HALF_STEP = .5
 WHOLE_STEP = 1
@@ -166,6 +169,14 @@ class Note:
         return self.name.endswith('♭♭')
 
     ####################################################################
+    def semitones_up_from(self, note):
+        num_semitones = 0
+        while note != self:
+            num_semitones += 1
+            note = note.next()
+        return num_semitones
+
+    ####################################################################
     def __str__(self):
         return self.name
 
@@ -313,37 +324,48 @@ class Interval:
         self.degree = self.clean_degree(number)
         self.is_minor = is_minor
         self.is_major = not is_minor
-        self.steps = self.get_steps()
+
+    ####################################################################
+    @property
+    def semitones(self):
+        if self.degree == 3:
+            if self.is_major:
+                return 4
+            else:
+                return 3
+        elif self.degree == 5:
+            return 7
 
     ####################################################################
     def clean_degree(self, number):
         try:
             degree = int(number)
-        except Exception as e:
+        except Exception:
             print('Provide a number for the interval, ie. for a Third, provide "3".')
             raise
 
         return degree
 
     ####################################################################
-    def get_steps(self):
-        """
-        1st - 0
-        2nd - 1
-        Minor 3rd - 1.5
-        3rd - 2
-        Minor 4th - 2.5
-        4th - 2.5
-        5th - 3.5
-        """
-        steps = self.degree - 1
-        if self.is_minor:
-            steps -= .5
-        return steps
+    def from_note(self, note):
+        NATURAL_NOTES = ('A', 'B', 'C', 'D', 'E', 'F', 'G')
+        current_index = NATURAL_NOTES.index(note.natural_note_name)
+
+        interval_note_index = current_index + self.degree - 1
+        interval_note_name = (NATURAL_NOTES + NATURAL_NOTES)[interval_note_index]
+
+        for quality in (NATURAL, SHARP, FLAT, DOUBLE_SHARP, DOUBLE_FLAT):
+            interval_note = Note(interval_note_name + quality)
+            semitone_difference = interval_note.semitones_up_from(note)
+            if semitone_difference == self.semitones:
+                return interval_note
+        else:
+            raise Exception('This should be unreachable code.')
 
 
 MajorThird = Interval(3)
 MinorThird = Interval(3, is_minor=True)
+PerfectFifth = Interval(5)
 
 MAJOR_CHORD_INTERVALS = [MajorThird, MinorThird]
 MINOR_CHORD_INTERVALS = [MinorThird, MajorThird]
@@ -360,22 +382,28 @@ class Chord:
         self.is_major = not self.is_minor
         self.intervals = MAJOR_CHORD_INTERVALS if self.is_major else MINOR_CHORD_INTERVALS
         self.notes = self._generate_notes()
-        self. note_names = tuple(n.name for n in self.notes)
+        self.note_names = tuple(n.name for n in self.notes)
 
     ####################################################################
     def _generate_notes(self):
         notes = [self.root_note]
 
         for interval in self.intervals:
-            previous_note = notes[-1]
-            transposed = transpose(previous_note).up.steps(interval.steps)[0]
-            for accidental in ('', '#', 'b', '##', 'bb'):
-                next_note = Note(previous_note.next_natural_note.next_natural_note.natural_note_name + accidental)
-                if next_note == transposed:
-                    transposed = next_note
-                    break
-            else:
-                raise Exception('Should be unreachable code.')
+            # previous_note = notes[-1]
+            transposed = interval.from_note(self.root_note)
+            # transposed = transpose(self.root_note).up.steps(interval.steps)[0]
+            # for quality in ('', '#', 'b'):
+            #     next_note = Note(previous_note.next_natural_note.next_natural_note.natural_note_name + quality)
+            #     if next_note == transposed:
+            #         transposed = next_note
+            #         break
+            #     else:
+            #         next_note = Note(next_note.next_natural_note.natural_note_name + quality)
+            #         if next_note == transposed:
+            #             transposed = next_note
+            #             break
+            # else:
+            #     raise Exception('Should be unreachable code.')
             notes.append(transposed)
         return notes
 
