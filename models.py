@@ -5,7 +5,7 @@ SHARP = '♯'
 
 HALF_STEP = .5
 WHOLE_STEP = 1
-WHOLE_NOTES = ('A', 'B', 'C', 'D', 'E', 'F', 'G', 'A')
+NATURAL_NOTES = ('A', 'B', 'C', 'D', 'E', 'F', 'G', 'A')
 
 
 MAJOR_KEY_STEPS = (WHOLE_STEP, WHOLE_STEP, HALF_STEP, WHOLE_STEP, WHOLE_STEP, WHOLE_STEP)
@@ -72,7 +72,7 @@ class Note:
             self.quality = note.quality
         else:
             name = note[:1].upper().strip()
-            assert name in WHOLE_NOTES, f'"{name}" is not a valid whole note.'
+            assert name in NATURAL_NOTES, f'"{name}" is not a valid note.'
             quality = note[1:].replace("-", "").replace("_", "").lower().strip()
             if quality:
                 try:
@@ -106,10 +106,9 @@ class Note:
     ####################################################################
     def next(self):
         if self.is_standard_flat:
-            whole_note = Note(self.whole_note_name)
-            return whole_note
+            return Note(self.natural_note_name)
         elif self.is_standard_sharp or self.is_B_or_E:
-            return self.next_whole_note
+            return self.next_natural_note
         elif self.name == B_sharp.name:
             return C_sharp
         elif self.name == C_flat.name:
@@ -119,27 +118,26 @@ class Note:
         elif self.name == F_flat.name:
             return F
         elif self.is_double_sharp:
-            return Note(self.next_whole_note.whole_note_name + '#')
+            return Note(self.next_natural_note.natural_note_name + '#')
         elif self.is_double_flat:
-            return Note(self.whole_note_name + 'b')
+            return Note(self.natural_note_name + 'b')
         else:
             return Note(self.name + "#")
 
     ####################################################################
     def previous(self):
         if self.is_standard_flat:
-            return self.previous_whole_note
+            return self.previous_natural_note
         elif self.is_sharp:
-            whole_note = Note(self.whole_note_name)
-            return whole_note
+            return Note(self.natural_note_name)
         elif self.is_C_or_F:
-            return self.previous_whole_note
+            return self.previous_natural_note
         elif self == C_flat:
             return A_sharp
         elif self == F_flat:
             return D_sharp
         else:
-            assert self.name in WHOLE_NOTES
+            assert self.name in NATURAL_NOTES
             return Note(self.name + "♭")
 
     ####################################################################
@@ -177,25 +175,25 @@ class Note:
 
     ####################################################################
     @property
-    def whole_note_name(self):
+    def natural_note_name(self):
         return self.name[0]
 
     ####################################################################
     @property
-    def next_whole_note(self):
-        current_index = WHOLE_NOTES.index(self.whole_note_name)
+    def next_natural_note(self):
+        current_index = NATURAL_NOTES.index(self.natural_note_name)
         next_note_index = current_index + 1
-        next_note_name = WHOLE_NOTES[next_note_index]
+        next_note_name = NATURAL_NOTES[next_note_index]
         return Note(next_note_name)
 
     ####################################################################
     @property
-    def previous_whole_note(self):
-        current_index = WHOLE_NOTES.index(self.whole_note_name)
+    def previous_natural_note(self):
+        current_index = NATURAL_NOTES.index(self.natural_note_name)
         if current_index == 0:
             current_index = -1
         previous_note_index = current_index - 1
-        previous_note_name = WHOLE_NOTES[previous_note_index]
+        previous_note_name = NATURAL_NOTES[previous_note_index]
         return Note(previous_note_name)
 
     ####################################################################
@@ -208,7 +206,7 @@ class Note:
         if self.name == other.name:
             return True
         else:
-            if other.whole_note_name == self.next_whole_note.whole_note_name:
+            if other.natural_note_name == self.next_natural_note.natural_note_name:
                 if other.is_flat:
                     if self.is_standard_sharp:
                         return True
@@ -223,7 +221,7 @@ class Note:
                         return True
                 elif self.is_double_sharp and other.is_natural:
                     return True
-            elif other.whole_note_name == self.previous_whole_note.whole_note_name:
+            elif other.natural_note_name == self.previous_natural_note.natural_note_name:
                 if self.is_flat:
                     if other.is_standard_sharp:
                         return True
@@ -275,14 +273,14 @@ G_sharp = Note('G♯')
 def generate_note_names():
     names = []
 
-    for whole_note in WHOLE_NOTES:
-        flat = Note(whole_note + "b")
+    for natural_note in NATURAL_NOTES:
+        flat = Note(natural_note + "b")
         if flat.is_standard_flat:
             names.append(flat.name)
 
-        names.append(whole_note)
+        names.append(natural_note)
 
-        sharp = Note(whole_note + "#")
+        sharp = Note(natural_note + "#")
         if sharp.is_standard_sharp:
             names.append(sharp.name)
 
@@ -372,7 +370,7 @@ class Chord:
             previous_note = notes[-1]
             transposed = transpose(previous_note).up.steps(interval.steps)[0]
             for accidental in ('', '#', 'b', '##', 'bb'):
-                next_note = Note(previous_note.next_whole_note.next_whole_note.whole_note_name + accidental)
+                next_note = Note(previous_note.next_natural_note.next_natural_note.natural_note_name + accidental)
                 if next_note == transposed:
                     transposed = next_note
                     break
@@ -415,7 +413,7 @@ class Key:
             previous_note = notes[-1]
             transposed = transpose(previous_note).up.steps(step)[0]
             for accidental in ('', '#', 'b', '##', 'bb'):
-                next_note = Note(previous_note.next_whole_note.whole_note_name + accidental)
+                next_note = Note(previous_note.next_natural_note.natural_note_name + accidental)
                 if next_note == transposed:
                     transposed = next_note
                     break

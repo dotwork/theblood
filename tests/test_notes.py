@@ -24,7 +24,7 @@ class TestNote(TestCase):
             self.assertEqual(None, A)
 
     ####################################################################
-    def test_equals__whole_notes(self):
+    def test_equals__natural_notes(self):
         self.assertEqual(A, A)
         self.assertEqual(B, B)
         self.assertEqual(C, C)
@@ -66,58 +66,56 @@ class TestNote(TestCase):
         self.assertEqual(F, E_sharp)
 
     ####################################################################
-    def test_next_whole_note__from_whole_note(self):
-        self.assertEqual(B, A.next_whole_note)
-        self.assertEqual(C, B.next_whole_note)
-        self.assertEqual(D, C.next_whole_note)
-        self.assertEqual(E, D.next_whole_note)
-        self.assertEqual(F, E.next_whole_note)
-        self.assertEqual(G, F.next_whole_note)
-        self.assertEqual(A, G.next_whole_note)
+    def test_next_natural_note__from_natural_note(self):
+        self.assertEqual(B, A.next_natural_note)
+        self.assertEqual(C, B.next_natural_note)
+        self.assertEqual(D, C.next_natural_note)
+        self.assertEqual(E, D.next_natural_note)
+        self.assertEqual(F, E.next_natural_note)
+        self.assertEqual(G, F.next_natural_note)
+        self.assertEqual(A, G.next_natural_note)
 
     ####################################################################
-    def test_next_whole_note__from_sharp(self):
-        self.assertEqual(B, A_sharp.next_whole_note)
-        self.assertEqual(D, C_sharp.next_whole_note)
-        self.assertEqual(E, D_sharp.next_whole_note)
-        self.assertEqual(G, F_sharp.next_whole_note)
-        self.assertEqual(A, G_sharp.next_whole_note)
+    def test_next_natural_note__from_sharp(self):
+        self.assertEqual(B, A_sharp.next_natural_note)
+        self.assertEqual(D, C_sharp.next_natural_note)
+        self.assertEqual(E, D_sharp.next_natural_note)
+        self.assertEqual(G, F_sharp.next_natural_note)
+        self.assertEqual(A, G_sharp.next_natural_note)
 
-        # TODO: Decide if this is how I actually want next_whole_note to work or not
-        self.assertEqual(C, B_sharp.next_whole_note)
-        self.assertEqual(F, E_sharp.next_whole_note)
-
-    ####################################################################
-    def test_next_whole_note__from_flat(self):
-        self.assertEqual(B, A_flat.next_whole_note)
-        self.assertEqual(D, C_flat.next_whole_note)
-        self.assertEqual(E, D_flat.next_whole_note)
-        self.assertEqual(G, F_flat.next_whole_note)
-        self.assertEqual(A, G_flat.next_whole_note)
-        self.assertEqual(C, B_flat.next_whole_note)
-        self.assertEqual(F, E_flat.next_whole_note)
+        self.assertEqual(C, B_sharp.next_natural_note)
+        self.assertEqual(F, E_sharp.next_natural_note)
 
     ####################################################################
-    def test_previous_whole_note__from_whole_note(self):
-        self.assertEqual(A, B.previous_whole_note)
-        self.assertEqual(B, C.previous_whole_note)
-        self.assertEqual(C, D.previous_whole_note)
-        self.assertEqual(D, E.previous_whole_note)
-        self.assertEqual(E, F.previous_whole_note)
-        self.assertEqual(F, G.previous_whole_note)
-        self.assertEqual(G, A.previous_whole_note)
+    def test_next_natural_note__from_flat(self):
+        self.assertEqual(B, A_flat.next_natural_note)
+        self.assertEqual(D, C_flat.next_natural_note)
+        self.assertEqual(E, D_flat.next_natural_note)
+        self.assertEqual(G, F_flat.next_natural_note)
+        self.assertEqual(A, G_flat.next_natural_note)
+        self.assertEqual(C, B_flat.next_natural_note)
+        self.assertEqual(F, E_flat.next_natural_note)
 
     ####################################################################
-    def test_previous_whole_note__from_sharp(self):
-        self.assertEqual(B, C_sharp.previous_whole_note)
-        self.assertEqual(C, D_sharp.previous_whole_note)
-        self.assertEqual(E, F_sharp.previous_whole_note)
-        self.assertEqual(F, G_sharp.previous_whole_note)
-        self.assertEqual(G, A_sharp.previous_whole_note)
+    def test_previous_natural_note__from_natural_note(self):
+        self.assertEqual(A, B.previous_natural_note)
+        self.assertEqual(B, C.previous_natural_note)
+        self.assertEqual(C, D.previous_natural_note)
+        self.assertEqual(D, E.previous_natural_note)
+        self.assertEqual(E, F.previous_natural_note)
+        self.assertEqual(F, G.previous_natural_note)
+        self.assertEqual(G, A.previous_natural_note)
 
-        # TODO: Decide if this is how I actually want previous_whole_note to work or not
-        self.assertEqual(A, B_sharp.previous_whole_note)
-        self.assertEqual(D, E_sharp.previous_whole_note)
+    ####################################################################
+    def test_previous_natural_note__from_sharp(self):
+        self.assertEqual(B, C_sharp.previous_natural_note)
+        self.assertEqual(C, D_sharp.previous_natural_note)
+        self.assertEqual(E, F_sharp.previous_natural_note)
+        self.assertEqual(F, G_sharp.previous_natural_note)
+        self.assertEqual(G, A_sharp.previous_natural_note)
+
+        self.assertEqual(A, B_sharp.previous_natural_note)
+        self.assertEqual(D, E_sharp.previous_natural_note)
 
     ####################################################################
     def test_not_equal(self):
@@ -161,7 +159,7 @@ class TestNote(TestCase):
         self.assertNotEqual(C_sharp, B_sharp)
 
     ####################################################################
-    def test_next__from_whole_to_sharp(self):
+    def test_next__from_natural_to_sharp(self):
         self.assertEqual(A_sharp, A.next())
         self.assertEqual(B_sharp, B.next())
         self.assertEqual(C_sharp, C.next())
@@ -171,7 +169,7 @@ class TestNote(TestCase):
         self.assertEqual(G_sharp, G.next())
 
     ####################################################################
-    def test_next__from_whole_to_flat(self):
+    def test_next__from_natural_to_flat(self):
         self.assertEqual(B_flat, A.next())
 
         self.assertEqual(D_flat, C.next())
@@ -181,12 +179,12 @@ class TestNote(TestCase):
         self.assertEqual(A_flat, G.next())
 
     ####################################################################
-    def test_next__from_whole_to_whole(self):
+    def test_next__from_natural_to_natural(self):
         self.assertEqual(C, B.next())
         self.assertEqual(F, E.next())
 
     ####################################################################
-    def test_next__from_sharp_to_whole(self):
+    def test_next__from_sharp_to_natural(self):
         self.assertEqual(B, A_sharp.next())
 
         self.assertEqual(D, C_sharp.next())
@@ -209,7 +207,7 @@ class TestNote(TestCase):
         self.assertEqual(G_flat, E_sharp.next())
 
     ####################################################################
-    def test_next__from_flat_to_whole(self):
+    def test_next__from_flat_to_natural(self):
         self.assertEqual(A, A_flat.next())
         self.assertEqual(B, B_flat.next())
         self.assertEqual(C, C_flat.next())
@@ -229,7 +227,7 @@ class TestNote(TestCase):
         self.assertEqual(F_flat, E_flat.next())
 
     ####################################################################
-    def test_previous__from_whole_to_sharp(self):
+    def test_previous__from_natural_to_sharp(self):
         self.assertEqual(G_sharp, A.previous())
         self.assertEqual(A_sharp, B.previous())
 
@@ -239,7 +237,7 @@ class TestNote(TestCase):
         self.assertEqual(F_sharp, G.previous())
 
     ####################################################################
-    def test_previous__from_whole_to_flat(self):
+    def test_previous__from_natural_to_flat(self):
         self.assertEqual(A_flat, A.previous())
         self.assertEqual(B_flat, B.previous())
 
@@ -249,12 +247,12 @@ class TestNote(TestCase):
         self.assertEqual(G_flat, G.previous())
 
     ####################################################################
-    def test_previous__from_whole_to_whole(self):
+    def test_previous__from_natural_to_natural(self):
         self.assertEqual(B, C.previous())
         self.assertEqual(E, F.previous())
 
     ####################################################################
-    def test_previous__from_sharp_to_whole(self):
+    def test_previous__from_sharp_to_natural(self):
         self.assertEqual(A, A_sharp.previous())
         self.assertEqual(B, B_sharp.previous())
         self.assertEqual(C, C_sharp.previous())
@@ -264,7 +262,7 @@ class TestNote(TestCase):
         self.assertEqual(G, G_sharp.previous())
 
     ####################################################################
-    def test_previous__from_flat_to_whole(self):
+    def test_previous__from_flat_to_natural(self):
         self.assertEqual(G, A_flat.previous())
         self.assertEqual(A, B_flat.previous())
 
