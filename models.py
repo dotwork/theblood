@@ -1,5 +1,8 @@
 from errors import InvalidNoteError, InvalidKeyError
 
+FLAT = '♭'
+SHARP = '♯'
+
 HALF_STEP = .5
 WHOLE_STEP = 1
 WHOLE_NOTES = ('A', 'B', 'C', 'D', 'E', 'F', 'G', 'A')
@@ -345,7 +348,7 @@ MajorThird = Interval(3)
 MinorThird = Interval(3, is_minor=True)
 
 MAJOR_CHORD_INTERVALS = [MajorThird, MinorThird]
-MINOR_CHORD_INTERVALS = []
+MINOR_CHORD_INTERVALS = [MinorThird, MajorThird]
 
 
 ########################################################################
@@ -355,9 +358,11 @@ class Chord:
     def __init__(self, name):
         self.root_note, self.quality = get_note_and_quality_from_music_element(name)
         self.name = f'{self.root_note.name}{self.quality}'
-        self.is_major = True
+        self.is_minor = self.quality.startswith('m')
+        self.is_major = not self.is_minor
         self.intervals = MAJOR_CHORD_INTERVALS if self.is_major else MINOR_CHORD_INTERVALS
         self.notes = self._generate_notes()
+        self. note_names = tuple(n.name for n in self.notes)
 
     ####################################################################
     def _generate_notes(self):
@@ -366,13 +371,13 @@ class Chord:
         for interval in self.intervals:
             previous_note = notes[-1]
             transposed = transpose(previous_note).up.steps(interval.steps)[0]
-            # for accidental in ('', '#', 'b', '##', 'bb'):
-            #     next_note = Note(previous_note.next_whole_note.whole_note_name + accidental)
-            #     if next_note == transposed:
-            #         transposed = next_note
-            #         break
-            # else:
-            #     raise Exception('Should be unreachable code.')
+            for accidental in ('', '#', 'b', '##', 'bb'):
+                next_note = Note(previous_note.next_whole_note.next_whole_note.whole_note_name + accidental)
+                if next_note == transposed:
+                    transposed = next_note
+                    break
+            else:
+                raise Exception('Should be unreachable code.')
             notes.append(transposed)
         return notes
 
