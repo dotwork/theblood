@@ -395,9 +395,9 @@ class Chord:
     ####################################################################
     def _generate_notes(self):
         key = Key(self.name)
-        first = key.notes[0]
-        third = key.notes[2]
-        fifth = key.notes[4]
+        first = key.get_scale_degree(1)
+        third = key.get_scale_degree(3)
+        fifth = key.get_scale_degree(5)
         notes = [first, third, fifth]
         return notes
 
@@ -413,6 +413,11 @@ class Key:
         self.steps = MINOR_KEY_STEPS if self.is_minor else MAJOR_KEY_STEPS
         self.notes = self._generate_notes()
         self.note_names = tuple(note.name for note in self.notes)
+
+    ####################################################################
+    def get_scale_degree(self, degree):
+        degree = int(degree)
+        return self.notes[degree - 1]
 
     ####################################################################
     def get_root_note_and_quality(self, key_name):
