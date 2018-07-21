@@ -107,7 +107,7 @@ class Note:
         return self.name in (C.name, F.name)
 
     ####################################################################
-    def next(self):
+    def next(self, use_flats=False):
         if self.is_standard_flat:
             return Note(self.natural_note_name)
         elif self.is_standard_sharp or self.is_B_or_E:
@@ -124,11 +124,13 @@ class Note:
             return Note(self.next_natural_note.natural_note_name + '#')
         elif self.is_double_flat:
             return Note(self.natural_note_name + 'b')
+        elif use_flats:
+            return Note(self.next_natural_note.name + 'b')
         else:
             return Note(self.name + "#")
 
     ####################################################################
-    def previous(self):
+    def previous(self, use_flats=False):
         if self.is_standard_flat:
             return self.previous_natural_note
         elif self.is_sharp:
@@ -139,9 +141,11 @@ class Note:
             return A_sharp
         elif self == F_flat:
             return D_sharp
-        else:
+        elif use_flats:
             assert self.name in NATURAL_NOTES
-            return Note(self.name + "♭")
+            return Note(self.name + '♭')
+        else:
+            return Note(self.previous_natural_note.name + '♯')
 
     ####################################################################
     @property
@@ -208,7 +212,7 @@ class Note:
         return Note(previous_note_name)
 
     ####################################################################
-    def __eq__(self, other):
+    def is_equal_pitch_to(self, other):
         if isinstance(other, str):
             other = Note(other)
         elif not isinstance(other, Note):
@@ -248,6 +252,10 @@ class Note:
                 elif self.is_double_flat and other.is_natural:
                     return True
             return False
+
+    ####################################################################
+    def __eq__(self, other):
+        return self.name == Note(other).name
 
 
 ########################################################################
@@ -442,7 +450,7 @@ class Key:
             transposed = transpose(previous_note).up.steps(step)[0]
             for accidental in ('', '#', 'b', '##', 'bb'):
                 next_note = Note(previous_note.next_natural_note.natural_note_name + accidental)
-                if next_note == transposed:
+                if next_note.is_equal_pitch_to(transposed):
                     transposed = next_note
                     break
             else:

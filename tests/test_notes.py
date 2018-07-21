@@ -34,36 +34,36 @@ class TestNote(TestCase):
         self.assertEqual(G, G)
 
     ####################################################################
-    def test_equals__sharps_and_flats__going_down(self):
-        self.assertEqual(A_sharp, B_flat)
-        self.assertEqual(C_sharp, D_flat)
-        self.assertEqual(D_sharp, E_flat)
-        self.assertEqual(F_sharp, G_flat)
-        self.assertEqual(G_sharp, A_flat)
+    def test_is_equal_pitch_to__standard_flats(self):
+        self.assertTrue(B_flat.is_equal_pitch_to(A_sharp))
+        self.assertTrue(D_flat.is_equal_pitch_to(C_sharp))
+        self.assertTrue(E_flat.is_equal_pitch_to(D_sharp))
+        self.assertTrue(G_flat.is_equal_pitch_to(F_sharp))
+        self.assertTrue(A_flat.is_equal_pitch_to(G_sharp))
 
     ####################################################################
-    def test_equals__sharps_and_flats__going_up(self):
-        self.assertEqual(B_flat, A_sharp)
-        self.assertEqual(D_flat, C_sharp)
-        self.assertEqual(E_flat, D_sharp)
-        self.assertEqual(G_flat, F_sharp)
-        self.assertEqual(A_flat, G_sharp)
+    def test_is_equal_pitch_to__standard_sharps(self):
+        self.assertTrue(A_sharp.is_equal_pitch_to(B_flat))
+        self.assertTrue(C_sharp.is_equal_pitch_to(D_flat))
+        self.assertTrue(D_sharp.is_equal_pitch_to(E_flat))
+        self.assertTrue(F_sharp.is_equal_pitch_to(G_flat))
+        self.assertTrue(G_sharp.is_equal_pitch_to(A_flat))
 
     ####################################################################
-    def test_B_sharp_C_flat(self):
-        self.assertEqual(B, C_flat)
-        self.assertEqual(C_flat, B)
+    def test_is_equal_pitch_to__non_standard_flats(self):
+        self.assertTrue(C_flat.is_equal_pitch_to(B))
+        self.assertTrue(F_flat.is_equal_pitch_to(E))
 
-        self.assertEqual(B_sharp, C)
-        self.assertEqual(C, B_sharp)
+        self.assertTrue(B.is_equal_pitch_to(C_flat))
+        self.assertTrue(E.is_equal_pitch_to(F_flat))
 
     ####################################################################
-    def test_E_sharp_F_flat(self):
-        self.assertEqual(E, F_flat)
-        self.assertEqual(F_flat, E)
+    def test_is_equal_pitch_to__non_standard_sharps(self):
+        self.assertTrue(C.is_equal_pitch_to(B_sharp))
+        self.assertTrue(B_sharp.is_equal_pitch_to(C))
 
-        self.assertEqual(E_sharp, F)
-        self.assertEqual(F, E_sharp)
+        self.assertTrue(F.is_equal_pitch_to(E_sharp))
+        self.assertTrue(E_sharp.is_equal_pitch_to(F))
 
     ####################################################################
     def test_next_natural_note__from_natural_note(self):
@@ -161,22 +161,30 @@ class TestNote(TestCase):
     ####################################################################
     def test_next__from_natural_to_sharp(self):
         self.assertEqual(A_sharp, A.next())
-        self.assertEqual(B_sharp, B.next())
         self.assertEqual(C_sharp, C.next())
         self.assertEqual(D_sharp, D.next())
-        self.assertEqual(E_sharp, E.next())
         self.assertEqual(F_sharp, F.next())
         self.assertEqual(G_sharp, G.next())
 
+        self.assertNotEqual(B_sharp, B.next())
+        self.assertNotEqual(E_sharp, E.next())
+
     ####################################################################
     def test_next__from_natural_to_flat(self):
-        self.assertEqual(B_flat, A.next())
+        self.assertNotEqual(B_flat, A.next())
+        self.assertEqual(B_flat, A.next(use_flats=True))
 
-        self.assertEqual(D_flat, C.next())
-        self.assertEqual(E_flat, D.next())
+        self.assertNotEqual(D_flat, C.next())
+        self.assertEqual(D_flat, C.next(use_flats=True))
 
-        self.assertEqual(G_flat, F.next())
-        self.assertEqual(A_flat, G.next())
+        self.assertNotEqual(E_flat, D.next())
+        self.assertEqual(E_flat, D.next(use_flats=True))
+
+        self.assertNotEqual(G_flat, F.next())
+        self.assertEqual(G_flat, F.next(use_flats=True))
+
+        self.assertNotEqual(A_flat, G.next())
+        self.assertEqual(A_flat, G.next(use_flats=True))
 
     ####################################################################
     def test_next__from_natural_to_natural(self):
@@ -200,11 +208,10 @@ class TestNote(TestCase):
 
     ####################################################################
     def test_next__from_sharp_to_flat(self):
-        self.assertEqual(C_flat, A_sharp.next())
-        self.assertEqual(D_flat, B_sharp.next())
-
-        self.assertEqual(F_flat, D_sharp.next())
-        self.assertEqual(G_flat, E_sharp.next())
+        self.assertNotEqual(C_flat, A_sharp.next())
+        self.assertNotEqual(D_flat, B_sharp.next())
+        self.assertNotEqual(F_flat, D_sharp.next())
+        self.assertNotEqual(G_flat, E_sharp.next())
 
     ####################################################################
     def test_next__from_flat_to_natural(self):
@@ -218,13 +225,13 @@ class TestNote(TestCase):
 
     ####################################################################
     def test_next__from_flat_to_sharp(self):
-        self.assertEqual(B_sharp, C_flat.next())
-        self.assertEqual(E_sharp, F_flat.next())
+        self.assertNotEqual(B_sharp, C_flat.next())
+        self.assertNotEqual(E_sharp, F_flat.next())
 
     ####################################################################
     def test_next__from_flat_to_flat(self):
-        self.assertEqual(C_flat, B_flat.next())
-        self.assertEqual(F_flat, E_flat.next())
+        self.assertNotEqual(C_flat, B_flat.next())
+        self.assertNotEqual(F_flat, E_flat.next())
 
     ####################################################################
     def test_previous__from_natural_to_sharp(self):
@@ -238,13 +245,13 @@ class TestNote(TestCase):
 
     ####################################################################
     def test_previous__from_natural_to_flat(self):
-        self.assertEqual(A_flat, A.previous())
-        self.assertEqual(B_flat, B.previous())
+        self.assertEqual(A_flat, A.previous(use_flats=True))
+        self.assertEqual(B_flat, B.previous(use_flats=True))
 
-        self.assertEqual(D_flat, D.previous())
-        self.assertEqual(E_flat, E.previous())
+        self.assertEqual(D_flat, D.previous(use_flats=True))
+        self.assertEqual(E_flat, E.previous(use_flats=True))
 
-        self.assertEqual(G_flat, G.previous())
+        self.assertEqual(G_flat, G.previous(use_flats=True))
 
     ####################################################################
     def test_previous__from_natural_to_natural(self):
