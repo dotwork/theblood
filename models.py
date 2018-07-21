@@ -394,25 +394,11 @@ class Chord:
 
     ####################################################################
     def _generate_notes(self):
-        notes = [self.root_note]
-
-        for interval in self.intervals:
-            # previous_note = notes[-1]
-            transposed = interval.from_note(self.root_note)
-            # transposed = transpose(self.root_note).up.steps(interval.steps)[0]
-            # for quality in ('', '#', 'b'):
-            #     next_note = Note(previous_note.next_natural_note.next_natural_note.natural_note_name + quality)
-            #     if next_note == transposed:
-            #         transposed = next_note
-            #         break
-            #     else:
-            #         next_note = Note(next_note.next_natural_note.natural_note_name + quality)
-            #         if next_note == transposed:
-            #             transposed = next_note
-            #             break
-            # else:
-            #     raise Exception('Should be unreachable code.')
-            notes.append(transposed)
+        key = Key(self.name)
+        first = key.notes[0]
+        third = key.notes[2]
+        fifth = key.notes[4]
+        notes = [first, third, fifth]
         return notes
 
 
