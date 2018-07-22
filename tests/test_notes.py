@@ -235,23 +235,19 @@ class TestNote(TestCase):
 
     ####################################################################
     def test_previous__from_natural_to_sharp(self):
-        self.assertEqual(G_sharp, A.previous())
-        self.assertEqual(A_sharp, B.previous())
-
-        self.assertEqual(C_sharp, D.previous())
-        self.assertEqual(D_sharp, E.previous())
-
-        self.assertEqual(F_sharp, G.previous())
+        self.assertEqual(G_sharp, A.previous(use_sharps=True))
+        self.assertEqual(A_sharp, B.previous(use_sharps=True))
+        self.assertEqual(C_sharp, D.previous(use_sharps=True))
+        self.assertEqual(D_sharp, E.previous(use_sharps=True))
+        self.assertEqual(F_sharp, G.previous(use_sharps=True))
 
     ####################################################################
     def test_previous__from_natural_to_flat(self):
-        self.assertEqual(A_flat, A.previous(use_flats=True))
-        self.assertEqual(B_flat, B.previous(use_flats=True))
-
-        self.assertEqual(D_flat, D.previous(use_flats=True))
-        self.assertEqual(E_flat, E.previous(use_flats=True))
-
-        self.assertEqual(G_flat, G.previous(use_flats=True))
+        self.assertEqual(A_flat, A.previous())
+        self.assertEqual(B_flat, B.previous())
+        self.assertEqual(D_flat, D.previous())
+        self.assertEqual(E_flat, E.previous())
+        self.assertEqual(G_flat, G.previous())
 
     ####################################################################
     def test_previous__from_natural_to_natural(self):

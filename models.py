@@ -122,28 +122,18 @@ class Note:
         return self.is_sharp and self.name not in (B_sharp.name, E_sharp.name)
 
     ####################################################################
-    @property
-    def is_B_or_E(self):
-        return self.name in (B.name, E.name)
-
-    ####################################################################
-    @property
-    def is_C_or_F(self):
-        return self.name in (C.name, F.name)
-
-    ####################################################################
     def next(self, use_flats=False):
         if self.is_standard_flat:
             return Note(self.natural_note_name)
-        elif self.is_standard_sharp or self.is_B_or_E:
+        elif self.is_standard_sharp or self == B or self == E:
             return self.next_natural_note
-        elif self.name == B_sharp.name:
+        elif self == B_sharp:
             return C_sharp
-        elif self.name == C_flat.name:
+        elif self == C_flat:
             return C
-        elif self.name == E_sharp.name:
+        elif self == E_sharp:
             return F_sharp
-        elif self.name == F_flat.name:
+        elif self == F_flat:
             return F
         elif self.is_double_sharp:
             return Note(self.next_natural_note.natural_note_name + '#')
@@ -155,22 +145,22 @@ class Note:
             return Note(self.name + "#")
 
     ####################################################################
-    def previous(self, use_flats=False):
+    def previous(self, use_sharps=False):
         if self.is_standard_flat:
             return self.previous_natural_note
         elif self.is_sharp:
             return Note(self.natural_note_name)
-        elif self.is_C_or_F:
+        elif self == C or self == F:
             return self.previous_natural_note
         elif self == C_flat:
             return A_sharp
         elif self == F_flat:
             return D_sharp
-        elif use_flats:
+        elif use_sharps:
+            return Note(self.previous_natural_note.name + '♯')
+        else:
             assert self.name in NATURAL_NOTES
             return Note(self.name + '♭')
-        else:
-            return Note(self.previous_natural_note.name + '♯')
 
     ####################################################################
     @property
@@ -458,7 +448,7 @@ class Chord:
         7 chord formula: 1 – 3 – 5 – ♭7
         The 7 chords add a diminished seventh, one semitone lower.
         """
-        diminished = self.seventh.previous(use_flats=True)
+        diminished = self.seventh.previous()
         return diminished
 
 
@@ -590,7 +580,8 @@ class Transposer:
                 if self.transpose_up:
                     transposed_note = transposed_note.next()
                 else:
-                    transposed_note = transposed_note.previous()
+                    transposed_note = transposed_note.previous(use_sharps=note.is_sharp)
+
             transposed.append(transposed_note)
         return transposed
 

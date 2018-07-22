@@ -1,6 +1,7 @@
 from unittest import TestCase
 
-from models import transpose, A, A_sharp, B, C, C_sharp, D, D_sharp, F, E, F_sharp, G, G_sharp, WHOLE_STEP
+from models import transpose, A, A_sharp, B, C, C_sharp, D, D_sharp, F, E, F_sharp, G, G_sharp, WHOLE_STEP, B_flat, \
+    D_flat, E_flat, A_flat
 
 
 ########################################################################
@@ -27,16 +28,16 @@ class TestTranspose(TestCase):
 
     ####################################################################
     def test_transpose_down_a_third(self):
-        self.assertEqual([C_sharp], transpose(F).down.third)
+        self.assertEqual([D_flat], transpose(F).down.third)
         self.assertEqual([D], transpose(F_sharp).down.third)
-        self.assertEqual([D_sharp], transpose(G).down.third)
+        self.assertEqual([E_flat], transpose(G).down.third)
         self.assertEqual([E], transpose(G_sharp).down.third)
         self.assertEqual([F], transpose(A).down.third)
         self.assertEqual([F_sharp], transpose(A_sharp).down.third)
         self.assertEqual([G], transpose(B).down.third)
-        self.assertEqual([G_sharp], transpose(C).down.third)
+        self.assertEqual([A_flat], transpose(C).down.third)
         self.assertEqual([A], transpose(C_sharp).down.third)
-        self.assertEqual([A_sharp], transpose(D).down.third)
+        self.assertEqual([B_flat], transpose(D).down.third)
         self.assertEqual([B], transpose(D_sharp).down.third)
         self.assertEqual([C], transpose(E).down.third)
 
@@ -57,7 +58,7 @@ class TestTranspose(TestCase):
 
     ####################################################################
     def test_transpose_down_a_fifth(self):
-        self.assertEqual([A_sharp], transpose(F).down.fifth)
+        self.assertEqual([B_flat], transpose(F).down.fifth)
         self.assertEqual([B], transpose(F_sharp).down.fifth)
         self.assertEqual([C], transpose(G).down.fifth)
         self.assertEqual([C_sharp], transpose(G_sharp).down.fifth)
@@ -81,7 +82,7 @@ class TestTransposeMultiple(TestCase):
 
     ####################################################################
     def test_transpose_multiple_notes_down_a_third(self):
-        self.assertEqual([G, D_sharp, F], transpose(B, G, A).down.third)
+        self.assertEqual([G, E_flat, F], transpose(B, G, A).down.third)
 
     ####################################################################
     def test_transpose_multiple_notes_up_a_fifth(self):
