@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from errors import InvalidKeyError
+from errors import InvalidKeyError, InvalidQualityError
 from models import Key, A, B, C, D, E, F, G, C_sharp, D_sharp, E_sharp, F_sharp, G_sharp, A_sharp, B_sharp
 
 
@@ -31,11 +31,14 @@ class TestKey(TestCase):
 
     ####################################################################
     def test_init__invalid(self):
-        with self.assertRaises(InvalidKeyError):
+        with self.assertRaises(InvalidQualityError):
             Key('A foo')
 
-        with self.assertRaises(InvalidKeyError):
-            Key('A majo r')
+        with self.assertRaises(InvalidQualityError):
+            Key('A major quack a doodle')
+
+        with self.assertRaises(InvalidQualityError):
+            Key('A 4000')
 
     ####################################################################
     def test_generate_notes(self):

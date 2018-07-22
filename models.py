@@ -1,5 +1,5 @@
 
-from errors import InvalidNoteError, InvalidKeyError
+from errors import InvalidNoteError, InvalidKeyError, InvalidQualityError
 
 NATURAL = ''
 FLAT = '♭'
@@ -37,21 +37,45 @@ SHARPS_AND_FLATS = {
 }
 
 
+QUALITIES = SHARPS_AND_FLATS.copy()
+QUALITIES.update({
+    'major': '',
+    'maj': '',
+
+    'minor': 'm',
+    'min': 'm',
+    'm': 'm',
+
+    '7': '7',
+    'minor7': 'm7',
+    'min7': 'm7',
+    'm7': 'm7',
+
+    '9': '9',
+    'minor9': 'm9',
+    'min9': 'm9',
+    'm9': 'm9',
+
+    '11': '11',
+    'minor11': 'm11',
+    'min11': 'm11',
+    'm11': 'm11',
+})
+
+
 ########################################################################
 def validate_and_clean_quality(quality):
-    cleaned = quality.lower().strip()
-    if cleaned in ('major', 'maj'):
-        cleaned = ''
-    elif cleaned in ('min', 'minor'):
-        cleaned = 'm'
-
-    return cleaned
+    try:
+        return QUALITIES[quality.lower().strip().replace(' ', '')]
+    except KeyError:
+        raise InvalidQualityError(f'"{quality}" is not a valid quality.')
 
 
 ########################################################################
 def get_note_and_quality_from_music_element(element_name):
     note = Note(element_name[0])
     remainder = element_name[1:]
+
     if remainder:
         for char in remainder:
             try:
@@ -59,7 +83,7 @@ def get_note_and_quality_from_music_element(element_name):
             except InvalidNoteError:
                 break
 
-    quality = element_name[len(note.name):]
+    quality = element_name[len(note.name):] or ''
     if quality:
         quality = validate_and_clean_quality(quality)
 
@@ -432,7 +456,7 @@ class Chord:
     def diminished_seventh(self):
         """
         7 chord formula: 1 – 3 – 5 – ♭7
-        The 7 chords add a dimished seventh, one semitone lower.
+        The 7 chords add a diminished seventh, one semitone lower.
         """
         diminished = self.seventh.previous(use_flats=True)
         return diminished
@@ -460,14 +484,15 @@ class Key:
         return self.notes[degree - 1]
 
     ####################################################################
-    def get_root_note_and_quality(self, key_name):
+    @classmethod
+    def get_root_note_and_quality(cls, key_name):
         note, quality = get_note_and_quality_from_music_element(key_name)
         try:
             if quality:
                 is_minor = quality.startswith('m')
                 if is_minor:
                     remainder = quality[1:]
-                    assert remainder in ('7', '9', '11')
+                    assert remainder in ('', '7', '9', '11')
         except AssertionError:
             raise InvalidKeyError(f'{key_name} is not a valid key. quality={quality}')
 
@@ -480,17 +505,20 @@ class Key:
     ####################################################################
     def _generate_notes(self):
         notes = [self.root_note]
+
         for step in self.steps:
             previous_note = notes[-1]
             transposed = transpose(previous_note).up.steps(step)[0]
-            for accidental in ('', '#', 'b', '##', 'bb'):
-                next_note = Note(previous_note.next_natural_note.natural_note_name + accidental)
+
+            for quality in ('', '#', 'b', '##', 'bb'):
+                note_name = previous_note.next_natural_note.name
+                next_note = Note(note_name + quality)
                 if next_note.is_equal_pitch_to(transposed):
-                    transposed = next_note
+                    notes.append(next_note)
                     break
             else:
                 raise Exception('Should be unreachable code.')
-            notes.append(transposed)
+
         return notes
 
 
