@@ -1,3 +1,4 @@
+
 from errors import InvalidNoteError, InvalidKeyError
 
 NATURAL = ''
@@ -386,6 +387,7 @@ class Chord:
     def __init__(self, name):
         self.root_note, self.quality = get_note_and_quality_from_music_element(name)
         self.name = f'{self.root_note.name}{self.quality}'
+        self.key = Key(self.name)
         self.is_minor = self.quality.startswith('m')
         self.is_major = not self.is_minor
         self.intervals = MAJOR_CHORD_INTERVALS if self.is_major else MINOR_CHORD_INTERVALS
@@ -394,12 +396,30 @@ class Chord:
 
     ####################################################################
     def _generate_notes(self):
-        key = Key(self.name)
-        first = key.get_scale_degree(1)
-        third = key.get_scale_degree(3)
-        fifth = key.get_scale_degree(5)
-        notes = [first, third, fifth]
+        notes = self.triad
+        if self.quality == '7':
+            notes.append(self.diminished_seventh)
         return notes
+
+    ####################################################################
+    @property
+    def triad(self):
+        """
+        Triad formula: 1 - 3 - 5
+        """
+        return self.key.get_scale_degrees(1, 3, 5)
+
+    ####################################################################
+    @property
+    def diminished_seventh(self):
+        """
+        7 chord formula: 1 – 3 – 5 – ♭7
+        Instead of playing the 7th note of the scale
+        you play a semitone lower, a diminished 7th
+        """
+        seventh = self.key.scale_degree(7)
+        diminished = seventh.previous(use_flats=True)
+        return diminished
 
 
 ########################################################################
@@ -416,10 +436,10 @@ class Key:
 
     ####################################################################
     def get_scale_degrees(self, *degrees):
-        return [self.get_scale_degree(d) for d in degrees]
+        return [self.scale_degree(d) for d in degrees]
 
     ####################################################################
-    def get_scale_degree(self, degree):
+    def scale_degree(self, degree):
         degree = int(degree)
         return self.notes[degree - 1]
 
@@ -427,7 +447,7 @@ class Key:
     def get_root_note_and_quality(self, key_name):
         note, quality = get_note_and_quality_from_music_element(key_name)
         try:
-            assert quality in ('', 'm')
+            assert quality in ('', 'm', '7')
         except AssertionError:
             raise InvalidKeyError(f'{key_name} is not a valid key. quality={quality}')
 
