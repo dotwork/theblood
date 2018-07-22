@@ -415,6 +415,10 @@ class Key:
         self.note_names = tuple(note.name for note in self.notes)
 
     ####################################################################
+    def get_scale_degrees(self, *degrees):
+        return [self.get_scale_degree(d) for d in degrees]
+
+    ####################################################################
     def get_scale_degree(self, degree):
         degree = int(degree)
         return self.notes[degree - 1]
