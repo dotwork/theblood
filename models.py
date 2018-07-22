@@ -397,8 +397,11 @@ class Chord:
     ####################################################################
     def _generate_notes(self):
         notes = self.triad
-        if self.quality == '7':
-            notes.append(self.diminished_seventh)
+        if self.is_a_seventh_chord:
+            if self.is_minor:
+                notes.append(self.seventh)
+            else:
+                notes.append(self.diminished_seventh)
         return notes
 
     ####################################################################
@@ -411,14 +414,27 @@ class Chord:
 
     ####################################################################
     @property
+    def is_a_seventh_chord(self):
+        return '7' in self.name
+
+    ####################################################################
+    @property
+    def seventh(self):
+        """
+        Minor 7th chord formula: 1 - 3 - 5 - 7
+        The m7 chords add a minor seventh.
+        """
+        seventh = self.key.scale_degree(7)
+        return seventh
+
+    ####################################################################
+    @property
     def diminished_seventh(self):
         """
         7 chord formula: 1 – 3 – 5 – ♭7
-        Instead of playing the 7th note of the scale
-        you play a semitone lower, a diminished 7th
+        The 7 chords add a dimished seventh, one semitone lower.
         """
-        seventh = self.key.scale_degree(7)
-        diminished = seventh.previous(use_flats=True)
+        diminished = self.seventh.previous(use_flats=True)
         return diminished
 
 
@@ -428,7 +444,7 @@ class Key:
     ####################################################################
     def __init__(self, name):
         self.root_note, quality = self.get_root_note_and_quality(name.strip())
-        self.is_minor = quality == 'm'
+        self.is_minor = quality.startswith('m')
         self.is_major = not self.is_minor
         self.steps = MINOR_KEY_STEPS if self.is_minor else MAJOR_KEY_STEPS
         self.notes = self._generate_notes()
@@ -447,7 +463,11 @@ class Key:
     def get_root_note_and_quality(self, key_name):
         note, quality = get_note_and_quality_from_music_element(key_name)
         try:
-            assert quality in ('', 'm', '7')
+            if quality:
+                is_minor = quality.startswith('m')
+                if is_minor:
+                    remainder = quality[1:]
+                    assert remainder in ('7', '9', '11')
         except AssertionError:
             raise InvalidKeyError(f'{key_name} is not a valid key. quality={quality}')
 
