@@ -73,7 +73,10 @@ def validate_and_clean_quality(quality):
 
 ########################################################################
 def get_note_and_quality_from_music_element(element_name):
-    note = Note(element_name[0])
+    try:
+        note = Note(element_name[0])
+    except IndexError:
+        raise InvalidNoteError(f'"{element_name}" does not contain a valid root note.')
     remainder = element_name[1:]
 
     if remainder:

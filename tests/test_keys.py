@@ -181,7 +181,30 @@ class TestMinorKey(TestCase):
         self.assertEqual(expected, key_notes)
 
     ####################################################################
-    def test_note_names__natural_note_root(self):
+    def test_notes__natural_majors(self):
+        expected = ['A', 'B', 'C♯', 'D', 'E', 'F♯', 'G♯']
+        self.assertEqual(expected, Key('A').notes)
+
+        expected = ['B', 'C♯', 'D♯', 'E', 'F♯', 'G♯', 'A♯']
+        self.assertEqual(expected, Key('B').notes)
+
+        expected = ['C', 'D', 'E', 'F', 'G', 'A', 'B']
+        self.assertEqual(expected, Key('C').notes)
+
+        expected = ['D', 'E', 'F♯', 'G', 'A', 'B', 'C♯']
+        self.assertEqual(expected, Key('D').notes)
+
+        expected = ['E', 'F♯', 'G♯', 'A', 'B', 'C♯', 'D♯']
+        self.assertEqual(expected, Key('E').notes)
+
+        expected = ['F', 'G', 'A', 'B♭', 'C', 'D', 'E']
+        self.assertEqual(expected, Key('F').notes)
+
+        expected = ['G', 'A', 'B', 'C', 'D', 'E', 'F♯']
+        self.assertEqual(expected, Key('G').notes)
+
+    ####################################################################
+    def test_notes__natural__minors(self):
         names = Key('A minor').note_names
         expected = ('A', 'B', 'C', 'D', 'E', 'F', 'G')
         self.assertEqual(expected, names)
