@@ -465,6 +465,26 @@ class Key:
         self.note_names = tuple(note.name for note in self.notes)
 
     ####################################################################
+    @property
+    def diatonic_scale(self):
+        notes = [self.root_note]
+
+        for step in self.steps:
+            semitones = int(step * 2)
+            for semitone in range(semitones):
+                previous_note = notes[-1]
+                if previous_note.is_standard_flat:
+                    next_note = Note(previous_note.natural_note_name)
+                elif previous_note.is_natural and not (previous_note == B or previous_note == E):
+                    next_note = Note(previous_note.name + SHARP)
+                else:
+                    next_note = previous_note.next_natural_note
+
+                notes.append(next_note)
+
+        return notes
+
+    ####################################################################
     def get_scale_degrees(self, *degrees):
         return [self.scale_degree(d) for d in degrees]
 

@@ -273,3 +273,20 @@ class TestMinorKey(TestCase):
         names = Key('F♭ minor').note_names
         expected = ('F♭', 'G♭', 'A♭♭', 'B♭♭', 'C♭', 'D♭♭', 'E♭♭')
         self.assertEqual(expected, names)
+
+    ####################################################################
+    def test_all_notes(self):  # ♯
+        diatonic = Key('A').diatonic_scale
+        expected = ['A', 'A#', 'B', 'C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#']
+        self.assertEqual(expected, diatonic)
+
+        diatonic = Key('B').diatonic_scale
+        expected = ['B', 'C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#']
+        self.assertEqual(expected, diatonic)
+
+        diatonic = Key('C').diatonic_scale
+        expected = ['C', 'C♯', 'D', 'D♯', 'E', 'F', 'F♯', 'G', 'G♯', 'A', 'A♯', 'B']
+        self.assertEqual(expected, diatonic)
+
+
+
