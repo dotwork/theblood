@@ -1,177 +1,63 @@
-from collections import OrderedDict, defaultdict
+import collections
 from decimal import Decimal
 
+from data import SHARP, FLAT, IN_TUNE, QUALITIES, NATURAL_NOTES, SHARPS_AND_FLATS, NATURAL, DOUBLE_SHARP, \
+    DOUBLE_FLAT, PITCHES
 from errors import InvalidNoteError, InvalidKeyError, InvalidQualityError
 
-IN_TUNE = "In Tune"
 
-NATURAL_NOTES = ('A', 'B', 'C', 'D', 'E', 'F', 'G')
+#######################################################################
+class _PitchMap(collections.OrderedDict):
+    """
+    This dictionary maps hz frequency values (pitches)
+    as Decimals to their corresponding notes and octaves.
+    It also maps the other way as well. Each note/octave
+    will correspond to the same Decimal hz value.
 
-NATURAL = ''
-FLAT = '♭'
-SHARP = '♯'
-DOUBLE_FLAT = '♭♭'
-DOUBLE_SHARP = '♯♯'
+    Here are a couple entries each way:
+        {
+            Decimal('16.35'): ['B#0', 'C0'],
+            Decimal('17.32'): ['C#0/Db0'],
+            ...
+            'B#0': Decimal('16.35'),
+            'C0': Decimal('16.35'),
+            'C#0': Decimal('17.32'),
+            ...
+        }
+    """
 
-NOTE_QUALITIES = ('♭♭', '♭', '', '♯', '♯♯')
+    ####################################################################
+    def __init__(self):
+        data = collections.OrderedDict()
+        note_to_hz_map = collections.OrderedDict()
 
-SHARPS_AND_FLATS = {
-    '♯♯': '♯♯',
-    '♭♭': '♭♭',
+        for _notes, _pitch in PITCHES.items():
+            _notes = _notes.split('/')
+            data[_pitch] = _notes
 
-    '##': '♯♯',
-    'bb': '♭♭',
+            for note in _notes:
+                if len(note) == 2:
+                    note, octave = note
+                    quality = ''
+                else:
+                    note, quality, octave = note
 
-    '♯': '♯',
-    '♭': '♭',
+                if quality:
+                    quality = QUALITIES[quality]
+                note_to_hz_map[f'{note}{quality}{octave}'] = _pitch
 
-    '#': '♯',
-    'b': '♭',
+        super(_PitchMap, self).__init__(data)
+        self.note_to_hz_map = note_to_hz_map
 
-    'sharp': '♯',
-    'flat': '♭',
+    ####################################################################
+    def __getitem__(self, item):
+        try:
+            return super(_PitchMap, self).__getitem__(item)
+        except KeyError:
+            return self.note_to_hz_map[item]
 
-    'double sharp': '♯♯',
-    'double flat': '♭♭',
-}
 
-
-QUALITIES = SHARPS_AND_FLATS.copy()
-QUALITIES.update({
-    '': 'maj',
-    'major': 'maj',
-    'maj': 'maj',
-
-    'minor': 'm',
-    'min': 'm',
-    'm': 'm',
-
-    '7': '7',
-    'minor7': 'm7',
-    'min7': 'm7',
-    'm7': 'm7',
-
-    '9': '9',
-    'minor9': 'm9',
-    'min9': 'm9',
-    'm9': 'm9',
-
-    '11': '11',
-    'minor11': 'm11',
-    'min11': 'm11',
-    'm11': 'm11',
-})
-
-PITCHES = OrderedDict((
-    ('C0', Decimal('16.35')),
-    ('C#0/Db0 ', Decimal('17.32')),
-    ('D0', Decimal('18.35')),
-    ('D#0/Eb0 ', Decimal('19.45')),
-    ('E0', Decimal('20.60')),
-    ('F0', Decimal('21.83')),
-    ('F#0/Gb0 ', Decimal('23.12')),
-    ('G0', Decimal('24.50')),
-    ('G#0/Ab0 ', Decimal('25.96')),
-    ('A0', Decimal('27.50')),
-    ('A#0/Bb0 ', Decimal('29.14')),
-    ('B0', Decimal('30.87')),
-    ('C1', Decimal('32.70')),
-    ('C#1/Db1 ', Decimal('34.65')),
-    ('D1', Decimal('36.71')),
-    ('D#1/Eb1 ', Decimal('38.89')),
-    ('E1', Decimal('41.20')),
-    ('F1', Decimal('43.65')),
-    ('F#1/Gb1 ', Decimal('46.25')),
-    ('G1', Decimal('49.00')),
-    ('G#1/Ab1 ', Decimal('51.91')),
-    ('A1', Decimal('55.00')),
-    ('A#1/Bb1 ', Decimal('58.27')),
-    ('B1', Decimal('61.74')),
-    ('C2', Decimal('65.41')),
-    ('C#2/Db2 ', Decimal('69.30')),
-    ('D2', Decimal('73.42')),
-    ('D#2/Eb2 ', Decimal('77.78')),
-    ('E2', Decimal('82.41')),
-    ('F2', Decimal('87.31')),
-    ('F#2/Gb2 ', Decimal('92.50')),
-    ('G2', Decimal('98.00')),
-    ('G#2/Ab2 ', Decimal('103.83')),
-    ('A2', Decimal('110.00')),
-    ('A#2/Bb2 ', Decimal('116.54')),
-    ('B2', Decimal('123.47')),
-    ('C3', Decimal('130.81')),
-    ('C#3/Db3 ', Decimal('138.59')),
-    ('D3', Decimal('146.83')),
-    ('D#3/Eb3 ', Decimal('155.56')),
-    ('E3', Decimal('164.81')),
-    ('F3', Decimal('174.61')),
-    ('F#3/Gb3 ', Decimal('185.00')),
-    ('G3', Decimal('196.00')),
-    ('G#3/Ab3 ', Decimal('207.65')),
-    ('A3', Decimal('220.00')),
-    ('A#3/Bb3 ', Decimal('233.08')),
-    ('B3', Decimal('246.94')),
-    ('C4', Decimal('261.63')),
-    ('C#4/Db4 ', Decimal('277.18')),
-    ('D4', Decimal('293.66')),
-    ('D#4/Eb4 ', Decimal('311.13')),
-    ('E4', Decimal('329.63')),
-    ('F4', Decimal('349.23')),
-    ('F#4/Gb4 ', Decimal('369.99')),
-    ('G4', Decimal('392.00')),
-    ('G#4/Ab4 ', Decimal('415.30')),
-    ('A4', Decimal('440.00')),
-    ('A#4/Bb4 ', Decimal('466.16')),
-    ('B4', Decimal('493.88')),
-    ('C5', Decimal('523.25')),
-    ('C#5/Db5 ', Decimal('554.37')),
-    ('D5', Decimal('587.33')),
-    ('D#5/Eb5 ', Decimal('622.25')),
-    ('E5', Decimal('659.25')),
-    ('F5', Decimal('698.46')),
-    ('F#5/Gb5 ', Decimal('739.99')),
-    ('G5', Decimal('783.99')),
-    ('G#5/Ab5 ', Decimal('830.61')),
-    ('A5', Decimal('880.00')),
-    ('A#5/Bb5 ', Decimal('932.33')),
-    ('B5', Decimal('987.77')),
-    ('C6', Decimal('1046.50')),
-    ('C#6/Db6 ', Decimal('1108.73')),
-    ('D6', Decimal('1174.66')),
-    ('D#6/Eb6 ', Decimal('1244.51')),
-    ('E6', Decimal('1318.51')),
-    ('F6', Decimal('1396.91')),
-    ('F#6/Gb6 ', Decimal('1479.98')),
-    ('G6', Decimal('1567.98')),
-    ('G#6/Ab6 ', Decimal('1661.22')),
-    ('A6', Decimal('1760.00')),
-    ('A#6/Bb6 ', Decimal('1864.66')),
-    ('B6', Decimal('1975.53')),
-    ('C7', Decimal('2093.00')),
-    ('C#7/Db7 ', Decimal('2217.46')),
-    ('D7', Decimal('2349.32')),
-    ('D#7/Eb7 ', Decimal('2489.02')),
-    ('E7', Decimal('2637.02')),
-    ('F7', Decimal('2793.83')),
-    ('F#7/Gb7 ', Decimal('2959.96')),
-    ('G7', Decimal('3135.96')),
-    ('G#7/Ab7 ', Decimal('3322.44')),
-    ('A7', Decimal('3520.00')),
-    ('A#7/Bb7 ', Decimal('3729.31')),
-    ('B7', Decimal('3951.07')),
-    ('C8', Decimal('4186.01')),
-    ('C#8/Db8 ', Decimal('4434.92')),
-    ('D8', Decimal('4698.63')),
-    ('D#8/Eb8 ', Decimal('4978.03')),
-    ('E8', Decimal('5274.04')),
-    ('F8', Decimal('5587.65')),
-    ('F#8/Gb8 ', Decimal('5919.91')),
-    ('G8', Decimal('6271.93')),
-    ('G#8/Ab8 ', Decimal('6644.88')),
-    ('A8', Decimal('7040.00')),
-    ('A#8/Bb8 ', Decimal('7458.62')),
-    ('B8', Decimal('7902.13')),
-))
+PitchMap = _PitchMap()
 
 
 ########################################################################
@@ -231,8 +117,13 @@ class Pitch:
     ####################################################################
     @property
     def notes(self):
-        note_names = FUNDAMENTAL_PITCH_TO_NOTES_MAP[self.hz]
-        return [Note(n) for n in note_names]
+        note_names = PitchMap[self.hz]
+        notes_list = []
+        for name in note_names:
+            note = name[:-1]
+            octave = name[-1]
+            notes_list.append(Note(note, octave=octave))
+        return notes_list
 
     ####################################################################
     @property
@@ -253,44 +144,13 @@ class Pitch:
     def increase(self, semitones):
         increased = 0
 
-        for hz in FUNDAMENTAL_PITCH_TO_NOTES_MAP:
+        for hz in PitchMap:
             if hz > self.hz:
                 increased += 1
             if increased == semitones:
                 break
 
         return Pitch(hz)
-
-
-NOTE_TO_FUNDAMENTAL_PITCH_MAP = OrderedDict((
-    ('B♯', Decimal('16.35')),
-    ('C', Decimal('16.35')),
-    ('C♯', Decimal('17.32')),
-    ('D♭', Decimal('17.32')),
-    ('D', Decimal('18.35')),
-    ('D♯', Decimal('19.45')),
-    ('E♭', Decimal('19.45')),
-    ('E', Decimal('20.60')),
-    ('F♭', Decimal('20.60')),
-    ('E♯', Decimal('21.83')),
-    ('F', Decimal('21.83')),
-    ('F♯', Decimal('23.12')),
-    ('G♭', Decimal('23.12')),
-    ('G', Decimal('24.50')),
-    ('G♯', Decimal('25.96')),
-    ('A♭', Decimal('25.96')),
-    ('A', Decimal('27.50')),
-    ('A♯', Decimal('29.14')),
-    ('B♭', Decimal('29.14')),
-    ('B', Decimal('30.87')),
-    ('C♭', Decimal('30.87')),
-    ('B♯', Decimal('32.70')),
-    ('C', Decimal('32.70')),
-))
-
-FUNDAMENTAL_PITCH_TO_NOTES_MAP = defaultdict(list)
-for _note, _pitch in NOTE_TO_FUNDAMENTAL_PITCH_MAP.items():
-    FUNDAMENTAL_PITCH_TO_NOTES_MAP[_pitch].append(_note)
 
 
 ########################################################################
@@ -327,10 +187,11 @@ def get_note_and_quality_from_music_element(element_name):
 class Note:
 
     ####################################################################
-    def __init__(self, note):
+    def __init__(self, note, octave=4):
         if isinstance(note, Note):
             self.name = note.name
             self.quality = note.quality
+            self.octave = octave or note.octave
         else:
             name = note[:1].upper().strip()
             assert name in NATURAL_NOTES, f'"{name}" is not a valid note.'
@@ -343,8 +204,11 @@ class Note:
 
             self.name = f'{name}{quality}'
             self.quality = quality
+            self.octave = octave
 
-        self.fundamental = Pitch(NOTE_TO_FUNDAMENTAL_PITCH_MAP[self.name])
+        self.octave = int(octave)
+        pitch_name = f'{self.name}{self.octave}'
+        self.fundamental = Pitch(PitchMap[pitch_name])
 
     ####################################################################
     def __str__(self):
@@ -660,6 +524,7 @@ class Key:
         self.quality = quality
         self.steps = self.STEPS_MAP[self.quality]
         self.notes = self._generate_notes()
+        self.note_names = tuple(n.name for n in self.notes)
 
     ####################################################################
     @classmethod

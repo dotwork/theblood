@@ -45,7 +45,7 @@ class TestKey(TestCase):
         self.assertEqual(expected, key_notes)
 
     ####################################################################
-    def test_note_names__natural_note_root(self):
+    def test_note_names__major__natural_root(self):
         names = Key('A').note_names
         expected = ('A', 'B', 'C♯', 'D', 'E', 'F♯', 'G♯')
         self.assertEqual(expected, names)

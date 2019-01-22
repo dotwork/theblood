@@ -1,7 +1,27 @@
+
 from decimal import Decimal
 from unittest import TestCase
 
+from data import PitchMap, PITCHES
 from models import Pitch, B_sharp, C, A, IN_TUNE, FLAT, SHARP
+
+
+#######################################################################
+class TestPitchMap(TestCase):
+
+    ###################################################################
+    def test_pitch_map(self):
+        # Should be able to get a list of notes that match a pitch
+        self.assertEqual(['B#0', 'C0'], PitchMap[Decimal('16.35')])
+
+        # And should be able to get the pitch for every note/octave
+        self.assertEqual(Decimal('16.35'), PitchMap['C0'])
+        self.assertEqual(Decimal('16.35'), PitchMap['B#0'])
+
+        # Iterating through it should iterate through the distinct
+        # pitch values, rather than the notes which have duplicates
+        # (harmonically equivalent notes such as A# and B#)
+        self.assertEqual(len(PITCHES), len(PitchMap))
 
 
 #######################################################################
