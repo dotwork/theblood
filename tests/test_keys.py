@@ -5,7 +5,7 @@ from models import Key, A, B, C, D, E, F, G, C_sharp, D_sharp, E_sharp, F_sharp,
 
 
 ########################################################################
-class TestKey(TestCase):
+class TestMajorKey(TestCase):
 
     ####################################################################
     def test_init(self):
@@ -33,19 +33,19 @@ class TestKey(TestCase):
             Key('A 4000')
 
     ####################################################################
-    def test_notes__natural_major_keys(self):
+    def test_notes__natural(self):
         key_notes = Key('C').notes
         expected = [C, D, E, F, G, A, B]
         self.assertEqual(expected, key_notes)
 
     ####################################################################
-    def test_notes__sharp_major_keys(self):
+    def test_notes__sharp(self):
         key_notes = Key('C#').notes
         expected = [C_sharp, D_sharp, E_sharp, F_sharp, G_sharp, A_sharp, B_sharp]
         self.assertEqual(expected, key_notes)
 
     ####################################################################
-    def test_note_names__major__natural_root(self):
+    def test_note_names__natural(self):
         names = Key('A').note_names
         expected = ('A', 'B', 'C♯', 'D', 'E', 'F♯', 'G♯')
         self.assertEqual(expected, names)
@@ -107,7 +107,7 @@ class TestKey(TestCase):
         self.assertEqual(expected, names)
 
     ####################################################################
-    def test_note_names__flat(self):
+    def test_note_names__flats(self):
         names = Key('A♭').note_names
         expected = ('A♭', 'B♭', 'C', 'D♭', 'E♭', 'F', 'G')
         self.assertEqual(expected, names)

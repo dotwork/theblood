@@ -37,14 +37,16 @@ class _PitchMap(collections.OrderedDict):
 
             for note in _notes:
                 if len(note) == 2:
-                    note, octave = note
+                    name, octave = note
                     quality = ''
                 else:
-                    note, quality, octave = note
+                    name = note[0]
+                    octave = note[-1]
+                    quality = note[1:-1]
 
                 if quality:
                     quality = QUALITIES[quality]
-                note_to_hz_map[f'{note}{quality}{octave}'] = _pitch
+                note_to_hz_map[f'{name}{quality}{octave}'] = _pitch
 
         super(_PitchMap, self).__init__(data)
         self.note_to_hz_map = note_to_hz_map
@@ -54,6 +56,10 @@ class _PitchMap(collections.OrderedDict):
         try:
             return super(_PitchMap, self).__getitem__(item)
         except KeyError:
+            note = item[0].upper()
+            octave = item[-1]
+            quality = QUALITIES[item[1:-1]]
+            item = f'{note}{quality}{octave}'
             return self.note_to_hz_map[item]
 
 
@@ -513,8 +519,8 @@ class Chord:
 ########################################################################
 class Key:
     STEPS_MAP = {
-        'maj': MAJOR_KEY_STEPS,
-        'min': MINOR_KEY_STEPS,
+        '': MAJOR_KEY_STEPS,
+        'm': MINOR_KEY_STEPS,
     }
 
     ####################################################################
@@ -522,6 +528,7 @@ class Key:
         root, quality = get_note_and_quality_from_music_element(name.strip())
         self.root_note = root
         self.quality = quality
+        self.name = f'{self.root_note.name}{self.quality}'
         self.steps = self.STEPS_MAP[self.quality]
         self.notes = self._generate_notes()
         self.note_names = tuple(n.name for n in self.notes)
@@ -534,7 +541,7 @@ class Key:
 
     ####################################################################
     def __str__(self):
-        return f'Key of {self.root_note.name}'
+        return self.name
 
     ####################################################################
     def _generate_notes(self):
