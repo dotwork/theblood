@@ -67,63 +67,14 @@ PitchMap = _PitchMap()
 
 
 ########################################################################
-class Pitch:
+class Pitch(Decimal):
 
     __interval_increase = Decimal('1.0595')
 
     ####################################################################
-    def __init__(self, hz):
-        if isinstance(hz, Pitch):
-            hz = hz.hz
-        self.hz = Decimal(hz)
-
-    ####################################################################
-    def __eq__(self, other):
-        return self.hz == Pitch(other).hz
-
-    ####################################################################
-    def __add__(self, other):
-        hz = self.hz + Pitch(other).hz
-        return Pitch(hz)
-
-    ####################################################################
-    def __sub__(self, other):
-        hz = self.hz - Pitch(other).hz
-        return Pitch(hz)
-
-    ####################################################################
-    def __rsub__(self, other):
-        hz = Pitch(other).hz - self.hz
-        return Pitch(hz)
-
-    ####################################################################
-    def __mul__(self, other):
-        hz = self.hz * Pitch(other).hz
-        return Pitch(hz)
-    __rmul__ = __mul__
-
-    ####################################################################
-    def __truediv__(self, other):
-        hz = self.hz / Pitch(other).hz
-        return Pitch(hz)
-
-    ####################################################################
-    def __rtruediv__(self, other):
-        hz = Pitch(other).hz / self.hz
-        return Pitch(hz)
-
-    ####################################################################
-    def __gt__(self, other):
-        return self.hz > Pitch(other).hz
-
-    ####################################################################
-    def __lt__(self, other):
-        return self.hz < Pitch(other).hz
-
-    ####################################################################
     @property
     def notes(self):
-        note_names = PitchMap[self.hz]
+        note_names = PitchMap[Decimal(self)]
         notes_list = []
         for name in note_names:
             note = name[:-1]
@@ -134,12 +85,12 @@ class Pitch:
     ####################################################################
     @property
     def next_pitch(self):
-        next_hz = self.hz * self.__interval_increase
+        next_hz = self * self.__interval_increase
         return Pitch(next_hz)
 
     ####################################################################
     def in_tune(self, pitch_2):
-        diff = pitch_2 / self.hz
+        diff = pitch_2 / self
         if diff > Decimal('1.05'):
             return SHARP
         elif diff < Decimal('0.95'):
@@ -151,7 +102,7 @@ class Pitch:
         increased = 0
 
         for hz in PitchMap:
-            if hz > self.hz:
+            if hz > self:
                 increased += 1
             if increased == semitones:
                 break
@@ -321,7 +272,9 @@ class Note:
 
 ########################################################################
 A_flat = Note('A♭')
+G_double_sharp = Note('G♯♯')
 A = Note('A')
+B_double_flat = Note('B♭♭')
 A_sharp = Note('A♯')
 
 B_flat = Note('B♭')
@@ -331,6 +284,7 @@ B_sharp = Note('B♯')
 C_flat = Note('C♭')
 C = Note('C')
 C_sharp = Note('C♯')
+D_double_flat = Note('D♭♭')
 
 D_flat = Note('D♭')
 D = Note('D')
@@ -354,7 +308,7 @@ class Interval:
 
     ####################################################################
     def __init__(self, number, is_minor=False):
-        self.degree = self.clean_degree(number)
+        self.degree = int(number)
         self.is_minor = is_minor
         self.is_major = not is_minor
         self.quality = ''
@@ -363,16 +317,6 @@ class Interval:
     @property
     def semitones(self):
         raise NotImplementedError()
-
-    ####################################################################
-    def clean_degree(self, number):
-        try:
-            degree = int(number)
-        except Exception:
-            print('Provide a number for the interval, ie. for a Third, provide "3".')
-            raise
-
-        return degree
 
     ####################################################################
     @classmethod
@@ -410,110 +354,6 @@ W = WHOLE_STEP
 
 MAJOR_KEY_STEPS = (WHOLE_STEP, WHOLE_STEP, HALF_STEP, WHOLE_STEP, WHOLE_STEP, WHOLE_STEP)
 MINOR_KEY_STEPS = (WHOLE_STEP, HALF_STEP, WHOLE_STEP, WHOLE_STEP, HALF_STEP, WHOLE_STEP)
-
-
-####################################################################
-class Scale:
-
-    ################################################################
-    def __init__(self):
-        self.notes = None
-        self.intervals = None
-
-    ####################################################################
-    @classmethod
-    def from_notes(cls, notes):
-        raise NotImplementedError()
-
-    ####################################################################
-    def from_root(self, root_note, intervals):
-        raise NotImplementedError()
-
-    ####################################################################
-    def is_major(self):
-        raise NotImplementedError()
-
-    ####################################################################
-    def is_minor(self):
-        raise NotImplementedError()
-
-
-########################################################################
-class Chord:
-
-    ####################################################################
-    def __init__(self, name):
-        root_note, quality = get_note_and_quality_from_music_element(name)
-
-        self.root_note = root_note
-        self.quality = quality
-        self.name = f'{self.root_note.name}{self.quality}'
-        self._notes = []
-        self._intervals = []
-
-    ####################################################################
-    def __len__(self):
-        return len(self._notes)
-
-    ####################################################################
-    @classmethod
-    def get_chord_name(cls, notes):
-        """
-        Figure out the chord's name based on the notes.
-        """
-        raise NotImplementedError()
-
-    ####################################################################
-    @classmethod
-    def from_notes(cls, notes):
-        notes = [Note(n) for n in notes]
-        chord_name = cls.get_chord_name(notes)
-        chord = Chord(chord_name)
-        chord._notes = notes
-
-        intervals = []
-        last_note = notes[0]
-        for note in notes[:-1]:
-            interval = Interval.from_notes_difference(last_note, note)
-            intervals.append(interval)
-        chord._intervals = intervals
-
-        return chord
-
-    ####################################################################
-    @classmethod
-    def from_root_note(cls, root_note, intervals):
-        raise NotImplementedError()
-
-    ####################################################################
-    @classmethod
-    def from_scale_interval(cls, scale, interval):
-        raise NotImplementedError()
-
-    ####################################################################
-    @classmethod
-    def from_chord_interval(cls, chord, interval):
-        raise NotImplementedError()
-
-    ####################################################################
-    def notes(self):
-        if self._notes:
-            return self._notes
-        else:
-            self._notes = [self.root_note]
-            for interval in self.intervals:
-                last_note = self._notes[-1]
-                next_note = interval.up_from_note(last_note)
-                self._notes.append(next_note)
-            return self._notes
-
-    ####################################################################
-    @property
-    def intervals(self):
-        if self._intervals:
-            return self._intervals
-        else:
-            raise NotImplementedError()
 
 
 ########################################################################
