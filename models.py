@@ -269,6 +269,15 @@ class Note:
     def harmonically_equivalent_to(self, other):
         return self.fundamental == other.fundamental
 
+    ####################################################################
+    @classmethod
+    def get_note_with_letter(cls, name, notes):
+        for note in notes:
+            if name.startswith(note.natural_name):
+                return note
+        else:
+            raise InvalidKeyError(f'Did not find a {name} note in {notes}.')
+
 
 ########################################################################
 A_flat = Note('A♭')
@@ -307,44 +316,14 @@ G_sharp = Note('G♯')
 class Interval:
 
     ####################################################################
-    def __init__(self, number, is_minor=False):
+    def __init__(self, number, quality=''):
         self.degree = int(number)
-        self.is_minor = is_minor
-        self.is_major = not is_minor
-        self.quality = ''
-
-    ####################################################################
-    @property
-    def semitones(self):
-        raise NotImplementedError()
-
-    ####################################################################
-    @classmethod
-    def from_notes_difference(cls, note1, note2):
-        raise NotImplementedError()
-
-    ####################################################################
-    def up_from_note(self, note):
-        current_index = NATURAL_NOTES.index(note.natural_name)
-
-        interval_note_index = current_index + self.degree - 1
-        interval_note_name = (NATURAL_NOTES + NATURAL_NOTES)[interval_note_index]
-
-        for quality in (NATURAL, SHARP, FLAT, DOUBLE_SHARP, DOUBLE_FLAT):
-            interval_note = Note(interval_note_name + quality)
-            semitone_difference = interval_note.semitones_up_from(note)
-            if semitone_difference == self.semitones:
-                return interval_note
-        else:
-            raise Exception('This should be unreachable code.')
+        self.quality = QUALITIES[quality]
 
 
 MajorThird = Interval(3)
-MinorThird = Interval(3, is_minor=True)
-PerfectFifth = Interval(5)
-
-MAJOR_CHORD_INTERVALS = [MajorThird, MinorThird]
-MINOR_CHORD_INTERVALS = [MinorThird, MajorThird]
+MinorThird = Interval(3, quality='min')
+PerfectFifth = Interval(5, quality='perfect')
 
 HALF_STEP = .5
 H = HALF_STEP
@@ -390,7 +369,9 @@ class Key:
 
         for step in self.steps:
 
-            # Take the current pitch, and increase it by 2 semitones
+            # Each note is 1 semitone, or half-step apart from the note below and above.
+            # Since there are 2 semitones in a step, multiply the current step by 2
+            # to get the total amount of semitones we need to increase for out next note.
             semitones = step * 2
             pitch = pitch.increase(semitones)
 
@@ -399,27 +380,33 @@ class Key:
 
             # Find which of the equivalent notes is named with the next letter for our key
             next_note_natural_name = notes[-1].next_natural_note.name
-            for note in equivalent_notes:
-                if next_note_natural_name.startswith(note.natural_name):
-                    # And add that note to the list
-                    notes.append(note)
-                    break  # out of this inner forloop, and back to the outer forloop
-            else:
-                msg = f'Did not find a {next_note_natural_name} note in {equivalent_notes}.'
-                raise InvalidKeyError(msg)
+            note = Note.get_note_with_letter(next_note_natural_name, equivalent_notes)
+
+            # And add that note to the list
+            notes.append(note)
 
         return notes
 
 
 ########################################################################
-class Transposer:
+class Transpose:
 
     ####################################################################
-    def __init__(self, notes):
-        self.notes = [Note(n) for n in notes]
+    def __init__(self, *notes):
+        self.notes = tuple(Note(n) for n in notes)
         self.transpose_up = False
         self.transpose_down = False
         self._steps = 0
+
+    ####################################################################
+    def _semitones(self):
+        semitones = self._steps * 2
+        return int(semitones)
+
+    ####################################################################
+    def steps(self, *steps):
+        self._steps = sum(steps)
+        return self._transpose()
 
     ####################################################################
     @property
@@ -438,59 +425,33 @@ class Transposer:
     ####################################################################
     @property
     def half_step(self):
-        self._steps = .5
+        self._steps = HALF_STEP
         return self._transpose()
 
     ####################################################################
     @property
     def whole_step(self):
-        self._steps = 1
+        self._steps = WHOLE_STEP
         return self._transpose()
 
     ####################################################################
     @property
     def third(self):
-        self._steps = 2
+        self._steps = WHOLE_STEP + WHOLE_STEP
+        return self._transpose()
+
+    ####################################################################
+    @property
+    def minor_third(self):
+        self._steps = WHOLE_STEP + HALF_STEP
         return self._transpose()
 
     ####################################################################
     @property
     def fifth(self):
-        self._steps = 3.5
+        self._steps = sum((WHOLE_STEP, WHOLE_STEP, WHOLE_STEP, HALF_STEP))
         return self._transpose()
-
-    ####################################################################
-    def steps(self, *steps):
-        self._steps = sum(steps)
-        return self._transpose()
-
-    ####################################################################
-    def _get_number_of_semitones(self):
-        semitones = self._steps * 2
-        return int(semitones)
 
     ####################################################################
     def _transpose(self):
-        transposed = []
-        semitones = self._get_number_of_semitones()
-        for note in self.notes:
-            transposed_note = note
-            for i in range(semitones):
-                if self.transpose_up:
-                    transposed_note = transposed_note.next()
-                else:
-                    transposed_note = transposed_note.previous(use_sharps=note.is_sharp)
-
-            transposed.append(transposed_note)
-        return transposed
-
-
-########################################################################
-def transpose(*notes):
-    _notes = []
-    for n in notes:
-        if isinstance(n, (str, Note)):
-            _notes.append(n)
-        else:
-            _notes.extend(n)
-    return Transposer(_notes)
+        raise NotImplementedError()
