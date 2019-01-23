@@ -353,32 +353,35 @@ class Key:
         self.note_names = tuple(n.name for n in self.notes)
 
     ####################################################################
-    @classmethod
-    def get_root_note_and_quality(cls, key_name):
-        note, quality = get_note_and_quality_from_music_element(key_name)
-        return note, quality
-
-    ####################################################################
     def __str__(self):
         return self.name
 
     ####################################################################
     def _generate_notes(self):
+        # We already know the root note, so create a list starting with that
         notes = [self.root_note]
+        # Get the base pitch to start with from our root note
         pitch = self.root_note.fundamental
 
+        # A key has a set of whole and half steps that determine what notes
+        # fall into the key, starting from the root note. Iterate through
+        # each step to add each successive note to the key.
         for step in self.steps:
 
-            # Each note is 1 semitone, or half-step apart from the note below and above.
-            # Since there are 2 semitones in a step, multiply the current step by 2
+            # All 12 notes are 1 semitone, or half-step, apart from the note below and above.
+            # Since there are 2 semitones in a step, multiply the current step in this loop by 2
             # to get the total amount of semitones we need to increase for out next note.
             semitones = step * 2
+
+            # Increase it to the pitch we want for the next note.
             pitch = pitch.increase(semitones)
 
-            # Now get the list of harmonically equivalent notes for the increased pitch
+            # Get the list of harmonically equivalent notes for the increased pitch
             equivalent_notes = pitch.notes
 
             # Find which of the equivalent notes is named with the next letter for our key
+            # For example, if the last note was some kind of A (A, A#, or Ab)
+            # the next note must be a B (B, B#, or Bb)
             next_note_natural_name = notes[-1].next_natural_note.name
             note = Note.get_note_with_letter(next_note_natural_name, equivalent_notes)
 

@@ -39,6 +39,7 @@ QUALITIES.update({
     '': '',
     'major': '',
     'maj': '',
+    'perfect': '',
 
     'minor': 'm',
     'min': 'm',
