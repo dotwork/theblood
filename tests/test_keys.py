@@ -146,23 +146,15 @@ class TestMinorKey(TestCase):
     def test_init(self):
         a_minor = Key('A minor')
         self.assertEqual(A, a_minor.root_note)
-        self.assertTrue(a_minor.is_minor)
-        self.assertFalse(a_minor.is_major)
 
         a_minor = Key('Am')
         self.assertEqual(A, a_minor.root_note)
-        self.assertTrue(a_minor.is_minor)
-        self.assertFalse(a_minor.is_major)
 
         a_minor = Key('A min')
         self.assertEqual(A, a_minor.root_note)
-        self.assertTrue(a_minor.is_minor)
-        self.assertFalse(a_minor.is_major)
 
         a_minor = Key('Amin')
         self.assertEqual(A, a_minor.root_note)
-        self.assertTrue(a_minor.is_minor)
-        self.assertFalse(a_minor.is_major)
 
     ####################################################################
     def test_generate_notes(self):
@@ -290,33 +282,3 @@ class TestMinorKey(TestCase):
         names = Key('F♭ minor').note_names
         expected = ('F♭', 'G♭', 'A♭♭', 'B♭♭', 'C♭', 'D♭♭', 'E♭♭')
         self.assertEqual(expected, names)
-
-    ####################################################################
-    def test_all_notes(self):
-        diatonic = Key('A').all_notes
-        expected = ['A', 'A♯', 'B', 'C', 'C♯', 'D', 'D♯', 'E', 'F', 'F♯', 'G', 'G♯']
-        self.assertEqual(expected, diatonic)
-
-        diatonic = Key('B').all_notes
-        expected = ['B', 'C', 'C♯', 'D', 'D♯', 'E', 'F', 'F♯', 'G', 'G♯', 'A', 'A♯']
-        self.assertEqual(expected, diatonic)
-
-        diatonic = Key('C').all_notes
-        expected = ['C', 'C♯', 'D', 'D♯', 'E', 'F', 'F♯', 'G', 'G♯', 'A', 'A♯', 'B']
-        self.assertEqual(expected, diatonic)
-
-        diatonic = Key('D').all_notes
-        expected = ['D', 'D♯', 'E', 'F', 'F♯', 'G', 'G♯', 'A', 'A♯', 'B', 'C', 'C♯']
-        self.assertEqual(expected, diatonic)
-
-        diatonic = Key('E').all_notes
-        expected = ['E', 'F', 'F♯', 'G', 'G♯', 'A', 'A♯', 'B', 'C', 'C♯', 'D', 'D♯']
-        self.assertEqual(expected, diatonic)
-
-        diatonic = Key('F').all_notes
-        expected = ['F', 'F♯', 'G', 'G♯', 'A', 'B♭', 'B', 'C', 'C♯', 'D', 'D♯', 'E']
-        self.assertEqual(expected, diatonic)
-
-        # diatonic = Key('').diatonic_scale
-        # expected = ['', '', '', '', '', '', '', '', '', '', '', '']
-        # self.assertEqual(expected, diatonic)
