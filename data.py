@@ -1,6 +1,8 @@
 import collections
 from decimal import Decimal
 
+from errors import InvalidQualityError
+
 HALF_STEP = .5
 H = HALF_STEP
 WHOLE_STEP = 1

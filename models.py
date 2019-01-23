@@ -1,9 +1,18 @@
 import collections
 from decimal import Decimal
 
-from data import SHARP, FLAT, IN_TUNE, QUALITIES, NATURAL_NOTES, SHARPS_AND_FLATS, NATURAL, DOUBLE_SHARP, \
-    DOUBLE_FLAT, PITCHES, MAJOR_KEY_STEPS, MINOR_KEY_STEPS, MAJOR, MINOR, WHOLE_STEP, HALF_STEP
+from data import SHARP, FLAT, IN_TUNE, NATURAL_NOTES, SHARPS_AND_FLATS, PITCHES, MAJOR_KEY_STEPS, \
+    MINOR_KEY_STEPS, MAJOR, MINOR, WHOLE_STEP, HALF_STEP, QUALITIES
 from errors import InvalidNoteError, InvalidKeyError, InvalidQualityError
+
+
+#######################################################################
+def clean_quality(quality):
+    cleaned = quality.lower().strip().replace(' ', '')
+    try:
+        return QUALITIES[cleaned]
+    except KeyError:
+        raise InvalidQualityError(f'"{quality}" is not a valid quality.')
 
 
 #######################################################################
@@ -36,31 +45,25 @@ class _PitchMap(collections.OrderedDict):
             data[_pitch] = _notes
 
             for note in _notes:
-                if len(note) == 2:
-                    name, octave = note
-                    quality = ''
-                else:
-                    name = note[0]
-                    octave = note[-1]
-                    quality = note[1:-1]
-
-                if quality:
-                    quality = QUALITIES[quality]
-                note_to_hz_map[f'{name}{quality}{octave}'] = _pitch
+                note_to_hz_map[self._make_key(note)] = _pitch
 
         super(_PitchMap, self).__init__(data)
         self.note_to_hz_map = note_to_hz_map
+
+    ####################################################################
+    @staticmethod
+    def _make_key(note_with_octave):
+        name = note_with_octave[0]  # first character
+        octave = note_with_octave[-1]  # last character
+        quality = clean_quality(note_with_octave[1:-1])  # any/every thing in the middle
+        return f'{name}{quality}{octave}'
 
     ####################################################################
     def __getitem__(self, item):
         try:
             return super(_PitchMap, self).__getitem__(item)
         except KeyError:
-            note = item[0].upper()
-            octave = item[-1]
-            quality = QUALITIES[item[1:-1]]
-            item = f'{note}{quality}{octave}'
-            return self.note_to_hz_map[item]
+            return self.note_to_hz_map[self._make_key(item)]
 
 
 PitchMap = _PitchMap()
@@ -111,15 +114,6 @@ class Pitch(Decimal):
 
 
 ########################################################################
-def validate_and_clean_quality(quality):
-    cleaned = quality.lower().strip().replace(' ', '')
-    try:
-        return QUALITIES[cleaned]
-    except KeyError:
-        raise InvalidQualityError(f'"{quality}" is not a valid quality.')
-
-
-########################################################################
 def get_note_and_quality_from_music_element(element_name):
     try:
         note = Note(element_name[0])
@@ -135,7 +129,7 @@ def get_note_and_quality_from_music_element(element_name):
                 break
 
     quality = element_name[len(note.name):] or ''
-    quality = validate_and_clean_quality(quality)
+    quality = clean_quality(quality)
 
     return note, quality
 
@@ -318,7 +312,7 @@ class Interval:
     ####################################################################
     def __init__(self, number, quality=''):
         self.degree = int(number)
-        self.quality = QUALITIES[quality]
+        self.quality = clean_quality(quality)
 
 
 MajorThird = Interval(3)
@@ -380,6 +374,11 @@ class Key:
             notes.append(note)
 
         return notes
+
+
+########################################################################
+class Chord:
+    pass
 
 
 ########################################################################
