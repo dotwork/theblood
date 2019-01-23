@@ -323,7 +323,7 @@ class Interval:
 
 MajorThird = Interval(3)
 MinorThird = Interval(3, quality='min')
-PerfectFifth = Interval(5, quality='perfect')
+# PerfectFifth = Interval(5, quality='perfect')
 
 HALF_STEP = .5
 H = HALF_STEP
@@ -331,8 +331,8 @@ WHOLE_STEP = 1
 W = WHOLE_STEP
 
 
-MAJOR_KEY_STEPS = (WHOLE_STEP, WHOLE_STEP, HALF_STEP, WHOLE_STEP, WHOLE_STEP, WHOLE_STEP)
-MINOR_KEY_STEPS = (WHOLE_STEP, HALF_STEP, WHOLE_STEP, WHOLE_STEP, HALF_STEP, WHOLE_STEP)
+MAJOR_KEY_STEPS = (W, W, H, W, W, W)
+MINOR_KEY_STEPS = (W, H, W, W, H, W)
 
 
 ########################################################################
