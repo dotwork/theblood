@@ -1,6 +1,14 @@
 import collections
 from decimal import Decimal
 
+HALF_STEP = .5
+H = HALF_STEP
+WHOLE_STEP = 1
+W = WHOLE_STEP
+
+MAJOR_KEY_STEPS = (W, W, H, W, W, W)
+MINOR_KEY_STEPS = (W, H, W, W, H, W)
+
 IN_TUNE = "In Tune"
 
 NATURAL_NOTES = ('A', 'B', 'C', 'D', 'E', 'F', 'G')
@@ -10,55 +18,58 @@ FLAT = '♭'
 SHARP = '♯'
 DOUBLE_FLAT = '♭♭'
 DOUBLE_SHARP = '♯♯'
+MAJOR = ''
+MINOR = 'm'
+SEVENTH = '7'
+NINTH = '9'
+ELEVENTH = '11'
 
 NOTE_QUALITIES = ('♭♭', '♭', '', '♯', '♯♯')
 
 SHARPS_AND_FLATS = {
-    '♯♯': '♯♯',
-    '♭♭': '♭♭',
+    '♯♯': DOUBLE_SHARP,
+    '##': DOUBLE_SHARP,
+    'double sharp': DOUBLE_SHARP,
 
-    '##': '♯♯',
-    'bb': '♭♭',
+    '♭♭': DOUBLE_FLAT,
+    'bb': DOUBLE_FLAT,
+    'double flat': DOUBLE_FLAT,
 
-    '♯': '♯',
-    '♭': '♭',
+    '♯': SHARP,
+    '#': SHARP,
+    'sharp': SHARP,
 
-    '#': '♯',
-    'b': '♭',
-
-    'sharp': '♯',
-    'flat': '♭',
-
-    'double sharp': '♯♯',
-    'double flat': '♭♭',
+    '♭': FLAT,
+    'b': FLAT,
+    'flat': FLAT,
 }
 
 
 QUALITIES = SHARPS_AND_FLATS.copy()
 QUALITIES.update({
-    '': '',
-    'major': '',
-    'maj': '',
-    'perfect': '',
+    '': MAJOR,
+    'major': MAJOR,
+    'maj': MAJOR,
+    'perfect': MAJOR,
 
-    'minor': 'm',
-    'min': 'm',
-    'm': 'm',
+    'minor': MINOR,
+    'min': MINOR,
+    'm': MINOR,
 
-    '7': '7',
-    'minor7': 'm7',
-    'min7': 'm7',
-    'm7': 'm7',
+    '7': SEVENTH,
+    'minor7': SEVENTH,
+    'min7': MINOR + SEVENTH,
+    'm7': MINOR + SEVENTH,
 
-    '9': '9',
-    'minor9': 'm9',
-    'min9': 'm9',
-    'm9': 'm9',
+    '9': NINTH,
+    'minor9': MINOR + NINTH,
+    'min9': MINOR + NINTH,
+    'm9': MINOR + NINTH,
 
-    '11': '11',
-    'minor11': 'm11',
-    'min11': 'm11',
-    'm11': 'm11',
+    '11': ELEVENTH,
+    'minor11': MINOR + ELEVENTH,
+    'min11': MINOR + ELEVENTH,
+    'm11': MINOR + ELEVENTH,
 })
 
 PITCHES = collections.OrderedDict((

@@ -2,7 +2,7 @@ import collections
 from decimal import Decimal
 
 from data import SHARP, FLAT, IN_TUNE, QUALITIES, NATURAL_NOTES, SHARPS_AND_FLATS, NATURAL, DOUBLE_SHARP, \
-    DOUBLE_FLAT, PITCHES
+    DOUBLE_FLAT, PITCHES, MAJOR_KEY_STEPS, MINOR_KEY_STEPS, MAJOR, MINOR, WHOLE_STEP, HALF_STEP
 from errors import InvalidNoteError, InvalidKeyError, InvalidQualityError
 
 
@@ -325,21 +325,12 @@ MajorThird = Interval(3)
 MinorThird = Interval(3, quality='min')
 # PerfectFifth = Interval(5, quality='perfect')
 
-HALF_STEP = .5
-H = HALF_STEP
-WHOLE_STEP = 1
-W = WHOLE_STEP
-
-
-MAJOR_KEY_STEPS = (W, W, H, W, W, W)
-MINOR_KEY_STEPS = (W, H, W, W, H, W)
-
 
 ########################################################################
 class Key:
     STEPS_MAP = {
-        '': MAJOR_KEY_STEPS,
-        'm': MINOR_KEY_STEPS,
+        MAJOR: MAJOR_KEY_STEPS,
+        MINOR: MINOR_KEY_STEPS,
     }
 
     ####################################################################
