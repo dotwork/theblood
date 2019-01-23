@@ -7,12 +7,21 @@ from errors import InvalidNoteError, InvalidKeyError, InvalidQualityError
 
 
 #######################################################################
-def clean_quality(quality):
-    cleaned = quality.lower().strip().replace(' ', '')
-    try:
-        return QUALITIES[cleaned]
-    except KeyError:
-        raise InvalidQualityError(f'"{quality}" is not a valid quality.')
+class Quality(str):
+
+    ###################################################################
+    def __new__(cls, quality):
+        cleaned_q = cls.clean(quality)
+        return super().__new__(Quality, cleaned_q)
+
+    ###################################################################
+    @classmethod
+    def clean(cls, quality):
+        cleaned = quality.lower().strip().replace(' ', '')
+        try:
+            return QUALITIES[cleaned]
+        except KeyError:
+            raise InvalidQualityError(f'"{quality}" is not a valid quality.')
 
 
 #######################################################################
@@ -55,7 +64,7 @@ class _PitchMap(collections.OrderedDict):
     def _make_key(note_with_octave):
         name = note_with_octave[0]  # first character
         octave = note_with_octave[-1]  # last character
-        quality = clean_quality(note_with_octave[1:-1])  # any/every thing in the middle
+        quality = Quality(note_with_octave[1:-1])  # any/every thing in the middle
         return f'{name}{quality}{octave}'
 
     ####################################################################
@@ -129,7 +138,7 @@ def get_note_and_quality_from_music_element(element_name):
                 break
 
     quality = element_name[len(note.name):] or ''
-    quality = clean_quality(quality)
+    quality = Quality(quality)
 
     return note, quality
 
@@ -312,7 +321,7 @@ class Interval:
     ####################################################################
     def __init__(self, number, quality=''):
         self.degree = int(number)
-        self.quality = clean_quality(quality)
+        self.quality = Quality(quality)
 
 
 MajorThird = Interval(3)
