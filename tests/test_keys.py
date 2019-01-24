@@ -1,7 +1,8 @@
 from unittest import TestCase
 
 from errors import InvalidQualityError
-from models import Key, A, B, C, D, E, F, G, C_sharp, D_sharp, E_sharp, F_sharp, G_sharp, A_sharp, B_sharp
+from models import Key
+from objects import A, A_sharp, B, B_sharp, C, C_sharp, D, D_sharp, E, E_sharp, F, F_sharp, G, G_sharp
 
 
 ########################################################################

@@ -1,7 +1,7 @@
 from unittest import TestCase
 
-from models import Transpose, A, A_sharp, B, C, C_sharp, D, D_sharp, F, E, F_sharp, G, G_sharp, WHOLE_STEP, B_flat, \
-    D_flat, E_flat, A_flat
+from models import Transpose, WHOLE_STEP
+from objects import A_flat, A, A_sharp, B_flat, B, C, C_sharp, D_flat, D, D_sharp, E_flat, E, F, F_sharp, G, G_sharp
 
 
 ########################################################################

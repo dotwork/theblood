@@ -1,7 +1,8 @@
 from unittest import TestCase
 
-from models import A, A_sharp, B, F, E, G, F_flat, B_flat, G_sharp, A_flat, E_sharp, B_sharp, C_flat, C_sharp, D_flat, \
-    D_sharp, E_flat, F_sharp, G_flat, C, D, Note, InvalidNoteError
+from models import Note, InvalidNoteError
+from objects import A_flat, A, A_sharp, B_flat, B, B_sharp, C_flat, C, C_sharp, D_flat, D, D_sharp, E_flat, E, E_sharp, \
+    F_flat, F, F_sharp, G_flat, G, G_sharp
 
 
 ########################################################################

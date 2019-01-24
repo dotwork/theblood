@@ -1,9 +1,9 @@
-
 from decimal import Decimal
 from unittest import TestCase
 
 from data import PITCHES
-from models import Pitch, B_sharp, C, A, IN_TUNE, FLAT, SHARP, PitchMap, D_double_flat, G_double_sharp, B_double_flat
+from models import Pitch, IN_TUNE, FLAT, SHARP, PitchMap
+from objects import G_double_sharp, A, B_double_flat, B_sharp, C, D_double_flat
 
 
 #######################################################################
@@ -11,7 +11,6 @@ class TestPitchMap(TestCase):
 
     ###################################################################
     def test_pitch_map__pitch_to_notes(self):
-        # Should be able to get a list of notes that match a pitch
         self.assertEqual(['B#0', 'C0', 'Dbb0'], PitchMap[Decimal('16.35')])
 
     ###################################################################

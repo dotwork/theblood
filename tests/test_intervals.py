@@ -1,6 +1,7 @@
 from unittest import TestCase
 
-from models import E, MajorThird, C, D, F, G, A, B, C_sharp, D_sharp, F_sharp, G_sharp
+from models import MajorThird
+from objects import A, B, C, C_sharp, D, D_sharp, E, F, F_sharp, G, G_sharp
 
 
 ########################################################################
