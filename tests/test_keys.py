@@ -1,8 +1,7 @@
 from unittest import TestCase
 
 from errors import InvalidQualityError
-from models import Key
-from objects import A, A_sharp, B, B_sharp, C, C_sharp, D, D_sharp, E, E_sharp, F, F_sharp, G, G_sharp
+from models import Key, A, A_sharp, B, B_sharp, C, C_sharp, D, D_sharp, E, E_sharp, F, F_sharp, G, G_sharp
 
 
 ########################################################################
@@ -77,34 +76,34 @@ class TestMajorKey(TestCase):
 
     ####################################################################
     def test_note_names__sharps(self):
-        names = Key('A♯').note_names
-        expected = ('A♯', 'B♯', 'C♯♯', 'D♯', 'E♯', 'F♯♯', 'G♯♯')
-        self.assertEqual(expected, names)
-
         names = Key('C♯').note_names
         expected = ('C♯', 'D♯', 'E♯', 'F♯', 'G♯', 'A♯', 'B♯')
-        self.assertEqual(expected, names)
-
-        names = Key('D♯').note_names
-        expected = ('D♯', 'E♯', 'F♯♯', 'G♯', 'A♯', 'B♯', 'C♯♯')
         self.assertEqual(expected, names)
 
         names = Key('F♯').note_names
         expected = ('F♯', 'G♯', 'A♯', 'B', 'C♯', 'D♯', 'E♯')
         self.assertEqual(expected, names)
 
-        names = Key('G♯').note_names
-        expected = ('G♯', 'A♯', 'B♯', 'C♯', 'D♯', 'E♯', 'F♯♯')
-        self.assertEqual(expected, names)
-
     ####################################################################
     def test_note_names__non_standard_sharps(self):
+        names = Key('A♯').note_names
+        expected = ('A♯', 'B♯', 'C♯♯', 'D♯', 'E♯', 'F♯♯', 'G♯♯')
+        self.assertEqual(expected, names)
+
         names = Key('B♯').note_names
         expected = ('B♯', 'C♯♯', 'D♯♯', 'E♯', 'F♯♯', 'G♯♯', 'A♯♯')
         self.assertEqual(expected, names)
 
+        names = Key('D♯').note_names
+        expected = ('D♯', 'E♯', 'F♯♯', 'G♯', 'A♯', 'B♯', 'C♯♯')
+        self.assertEqual(expected, names)
+
         names = Key('E♯').note_names
         expected = ('E♯', 'F♯♯', 'G♯♯', 'A♯', 'B♯', 'C♯♯', 'D♯♯')
+        self.assertEqual(expected, names)
+
+        names = Key('G♯').note_names
+        expected = ('G♯', 'A♯', 'B♯', 'C♯', 'D♯', 'E♯', 'F♯♯')
         self.assertEqual(expected, names)
 
     ####################################################################
@@ -115,6 +114,10 @@ class TestMajorKey(TestCase):
 
         names = Key('B♭').note_names
         expected = ('B♭', 'C', 'D', 'E♭', 'F', 'G', 'A')
+        self.assertEqual(expected, names)
+
+        names = Key('C♭').note_names
+        expected = ('C♭', 'D♭', 'E♭', 'F♭', 'G♭', 'A♭', 'B♭')
         self.assertEqual(expected, names)
 
         names = Key('D♭').note_names
@@ -131,10 +134,6 @@ class TestMajorKey(TestCase):
 
     ####################################################################
     def test_note_names__non_standard_flats(self):
-        names = Key('C♭').note_names
-        expected = ('C♭', 'D♭', 'E♭', 'F♭', 'G♭', 'A♭', 'B♭')
-        self.assertEqual(expected, names)
-
         names = Key('F♭').note_names
         expected = ('F♭', 'G♭', 'A♭', 'B♭♭', 'C♭', 'D♭', 'E♭')
         self.assertEqual(expected, names)

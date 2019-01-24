@@ -1,8 +1,6 @@
 import collections
 from decimal import Decimal
 
-from errors import InvalidQualityError
-
 HALF_STEP = .5
 H = HALF_STEP
 WHOLE_STEP = 1
@@ -26,8 +24,6 @@ SEVENTH = '7'
 NINTH = '9'
 ELEVENTH = '11'
 
-NOTE_QUALITIES = ('♭♭', '♭', '', '♯', '♯♯')
-
 SHARPS_AND_FLATS = {
     '♯♯': DOUBLE_SHARP,
     '##': DOUBLE_SHARP,
@@ -49,6 +45,8 @@ SHARPS_AND_FLATS = {
 
 QUALITIES = SHARPS_AND_FLATS.copy()
 QUALITIES.update({
+    'natural': '♮',
+
     '': MAJOR,
     'major': MAJOR,
     'maj': MAJOR,
@@ -73,6 +71,7 @@ QUALITIES.update({
     'min11': MINOR + ELEVENTH,
     'm11': MINOR + ELEVENTH,
 })
+
 
 PITCHES = collections.OrderedDict((
     ('B#0/C0/Dbb0', Decimal('16.35')),

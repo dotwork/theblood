@@ -4,7 +4,6 @@ from decimal import Decimal
 from data import SHARP, FLAT, IN_TUNE, NATURAL_NOTES, SHARPS_AND_FLATS, PITCHES, MAJOR_KEY_STEPS, \
     MINOR_KEY_STEPS, MAJOR, MINOR, WHOLE_STEP, HALF_STEP, QUALITIES
 from errors import InvalidNoteError, InvalidKeyError, InvalidQualityError
-from objects import B_sharp, C_flat, E_sharp, F_flat
 
 
 #######################################################################
@@ -281,6 +280,32 @@ class Note:
                 return note
         else:
             raise InvalidKeyError(f'Did not find a {name} note in {notes}.')
+
+
+A_flat = Note('A♭')
+G_double_sharp = Note('G♯♯')
+A = Note('A')
+B_double_flat = Note('B♭♭')
+A_sharp = Note('A♯')
+B_flat = Note('B♭')
+B = Note('B')
+B_sharp = Note('B♯')
+C_flat = Note('C♭')
+C = Note('C')
+C_sharp = Note('C♯')
+D_double_flat = Note('D♭♭')
+D_flat = Note('D♭')
+D = Note('D')
+D_sharp = Note('D♯')
+E_flat = Note('E♭')
+E = Note('E')
+E_sharp = Note('E♯')
+F_flat = Note('F♭')
+F = Note('F')
+F_sharp = Note('F♯')
+G_flat = Note('G♭')
+G = Note('G')
+G_sharp = Note('G♯')
 
 
 ########################################################################

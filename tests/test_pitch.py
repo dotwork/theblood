@@ -2,8 +2,7 @@ from decimal import Decimal
 from unittest import TestCase
 
 from data import PITCHES
-from models import Pitch, IN_TUNE, FLAT, SHARP, PitchMap
-from objects import G_double_sharp, A, B_double_flat, B_sharp, C, D_double_flat
+from models import Pitch, IN_TUNE, FLAT, SHARP, PitchMap, G_double_sharp, A, B_double_flat, B_sharp, C, D_double_flat
 
 
 #######################################################################
