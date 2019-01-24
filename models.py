@@ -4,12 +4,10 @@ from decimal import Decimal
 from data import SHARP, FLAT, IN_TUNE, NATURAL_NOTES, SHARPS_AND_FLATS, PITCHES, MAJOR_KEY_STEPS, \
     MINOR_KEY_STEPS, MAJOR, MINOR, WHOLE_STEP, HALF_STEP, QUALITIES
 from errors import InvalidNoteError, InvalidKeyError, InvalidQualityError
-
-
-#######################################################################
 from objects import B_sharp, C_flat, E_sharp, F_flat
 
 
+#######################################################################
 class Quality(str):
 
     ###################################################################
@@ -283,20 +281,6 @@ class Note:
                 return note
         else:
             raise InvalidKeyError(f'Did not find a {name} note in {notes}.')
-
-
-########################################################################
-class Interval:
-
-    ####################################################################
-    def __init__(self, number, quality=''):
-        self.degree = int(number)
-        self.quality = Quality(quality)
-
-
-MajorThird = Interval(3)
-MinorThird = Interval(3, quality='min')
-# PerfectFifth = Interval(5, quality='perfect')
 
 
 ########################################################################
