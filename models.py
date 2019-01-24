@@ -285,7 +285,7 @@ class Note:
 
 ########################################################################
 class Key:
-    STEPS_MAP = {
+    steps_map = {
         MAJOR: MAJOR_KEY_STEPS,
         MINOR: MINOR_KEY_STEPS,
     }
@@ -293,11 +293,12 @@ class Key:
     ####################################################################
     def __init__(self, name):
         root, quality = get_note_and_quality_from_music_element(name.strip())
+
         self.root_note = root
         self.quality = quality
         self.name = f'{self.root_note.name}{self.quality}'
-        self.steps = self.STEPS_MAP[self.quality]
-        self.notes = self._generate_notes()
+        self.steps = self.steps_map[self.quality]
+        self.notes = tuple(self._generate_notes())
         self.note_names = tuple(n.name for n in self.notes)
 
     ####################################################################
@@ -308,6 +309,7 @@ class Key:
     def _generate_notes(self):
         # We already know the root note, so create a list starting with that
         notes = [self.root_note]
+
         # Get the base pitch to start with from our root note
         pitch = self.root_note.fundamental
 
