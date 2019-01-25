@@ -1,9 +1,10 @@
 import collections
 from decimal import Decimal
 
-from data import SHARP, FLAT, IN_TUNE, NATURAL_NOTES, SHARPS_AND_FLATS, PITCHES, MAJOR_KEY_STEPS, \
-    MINOR_KEY_STEPS, MAJOR, MINOR, WHOLE_STEP, HALF_STEP, QUALITIES
-from errors import InvalidNoteError, InvalidKeyError, InvalidQualityError
+from data import SHARP, FLAT, IN_TUNE, NATURAL_NOTES, SHARPS_AND_FLATS, PITCHES, MINOR, WHOLE_STEP, HALF_STEP, \
+    QUALITIES, W, H, MAJOR_SCALE_NAME, MINOR_SCALE_NAME, IONIAN_SCALE_NAME, DORIAL_SCALE_NAME, PHRYGIAN_SCALE_NAME, \
+    LYDIAN_SCALE_NAME, MIXOLYDIAN_SCALE_NAME, AEOLIAN_SCALE_NAME, LOCRIAN_SCALE_NAME
+from errors import InvalidNoteError, InvalidKeyError, InvalidQualityError, InvalidScaleError
 
 
 #######################################################################
@@ -308,27 +309,127 @@ G = Note('G')
 G_sharp = Note('G♯')
 
 
-########################################################################
-class Key:
-    steps_map = {
-        MAJOR: MAJOR_KEY_STEPS,
-        MINOR: MINOR_KEY_STEPS,
-    }
+MAJOR_INTERVALS = (W, W, H, W, W, W, H)
+MINOR_INTERVALS = (W, H, W, W, H, W, W)
+
+# https://music.stackexchange.com/questions/73110/what-are-the-interval-patterns-for-the-modes
+IONIAN_INTERVALS = (W, W, H, W, W, W, H)
+DORIAL_INTERVALS = (W, H, W, W, W, H, W)
+PHRYGIAN_INTERVALS = (H, W, W, W, H, W, W)
+LYDIAN_INTERVALS = (W, W, W, H, W, W, H)
+MIXOLYDIAN_INTERVALS = (W, W, H, W, W, H, W)
+AEOLIAN_INTERVALS = (W, H, W, W, H, W, W)
+LOCRIAN_INTERVALS = (H, W, W, H, W, W, W)
+
+SCALE_TO_INTERVALS_MAP = {
+    MAJOR_SCALE_NAME: MAJOR_INTERVALS,
+    MINOR_SCALE_NAME: MINOR_INTERVALS,
+    IONIAN_SCALE_NAME: IONIAN_INTERVALS,
+    DORIAL_SCALE_NAME: DORIAL_INTERVALS,
+    PHRYGIAN_SCALE_NAME: PHRYGIAN_INTERVALS,
+    LYDIAN_SCALE_NAME: LYDIAN_INTERVALS,
+    MIXOLYDIAN_SCALE_NAME: MIXOLYDIAN_INTERVALS,
+    AEOLIAN_SCALE_NAME: AEOLIAN_INTERVALS,
+    LOCRIAN_SCALE_NAME: LOCRIAN_INTERVALS,
+}
+
+KEY_INTERVALS_TO_NAME_MAP = {
+    MAJOR_INTERVALS: MAJOR_SCALE_NAME,
+    MINOR_INTERVALS: MINOR_SCALE_NAME,
+}
+
+MODAL_INTERVALS_TO_NAME_MAP = {
+    IONIAN_INTERVALS: IONIAN_SCALE_NAME,
+    DORIAL_INTERVALS: DORIAL_SCALE_NAME,
+    PHRYGIAN_INTERVALS: PHRYGIAN_SCALE_NAME,
+    LYDIAN_INTERVALS: LYDIAN_SCALE_NAME,
+    MIXOLYDIAN_INTERVALS: MIXOLYDIAN_SCALE_NAME,
+    AEOLIAN_INTERVALS: AEOLIAN_SCALE_NAME,
+    LOCRIAN_INTERVALS: LOCRIAN_SCALE_NAME,
+}
+
+
+finger_positions = ('tonic', 'second', 'third', 'fourth', 'fifth', 'sixth', 'seventh',
+                    'eighth', 'ninth', 'tenth', 'eleventh', 'twelfth', 'thirteenth',
+                    'fourteenth', 'fifteenth', 'sixteenth')
+
+
+#######################################################################
+class BaseScale:
 
     ####################################################################
-    def __init__(self, name):
-        root, quality = get_note_and_quality_from_music_element(name.strip())
+    def __init__(self, name='', intervals=None):
+        name, intervals = self.clean_name_and_intervals(name, intervals)
+        num_intervals = len(intervals)
 
-        self.root_note = root
-        self.quality = quality
-        self.name = f'{self.root_note.name}{self.quality}'
-        self.steps = self.steps_map[self.quality]
+        self.name = name
+        self.intervals = tuple(intervals or [])
+        self.tonic = intervals[0]
+
+        self.second = intervals[1] if num_intervals > 1 else None
+        self.third = intervals[2] if num_intervals > 2 else None
+        self.fourth = intervals[3] if num_intervals > 3 else None
+        self.fifth = intervals[4] if num_intervals > 4 else None
+        self.sixth = intervals[5] if num_intervals > 5 else None
+        self.seventh = intervals[6] if num_intervals > 6 else None
+        self.eighth = intervals[7] if num_intervals > 7 else None
+        self.ninth = intervals[8] if num_intervals > 8 else None
+        self.tenth = intervals[9] if num_intervals > 9 else None
+        self.eleventh = intervals[10] if num_intervals > 10 else None
+        self.twelfth = intervals[11] if num_intervals > 11 else None
+        self.thirteenth = intervals[12] if num_intervals > 12 else None
+        self.fourteenth = intervals[13] if num_intervals > 13 else None
+        self.fifteenth = intervals[14] if num_intervals > 14 else None
+        self.sixteenth = intervals[15] if num_intervals > 15 else None
+
+    ####################################################################
+    @classmethod
+    def clean_name_and_intervals(cls, name, intervals):
+        assert name or intervals, 'A name or iterable of intervals must be provided.'
+
+        name = name.strip().capitalize() if name else ''
+        if intervals:
+            intervals = tuple(intervals)
+
+        adding_new_scale = bool(name and intervals)
+        if adding_new_scale:
+            err = "A scale with this {} already exists."
+            assert name not in SCALE_TO_INTERVALS_MAP, err.format('name')
+            assert intervals not in SCALE_TO_INTERVALS_MAP, err.format('set of intervals')
+        else:
+            # fetching a known scale by name or intervals
+            try:
+                intervals = SCALE_TO_INTERVALS_MAP[name]
+            except KeyError:
+                try:
+                    name = KEY_INTERVALS_TO_NAME_MAP[intervals]
+                except KeyError:
+                    try:
+                        name = MODAL_INTERVALS_TO_NAME_MAP[intervals]
+                    except KeyError:
+                        argument = name or intervals
+                        raise InvalidScaleError(f'{argument} is not a recognized scale.')
+
+        return name, intervals
+
+    ####################################################################
+    def __iter__(self):
+        for interval in self.intervals:
+            yield interval
+
+
+#######################################################################
+class Scale(BaseScale):
+
+    ####################################################################
+    def __init__(self, root_note, name='', intervals=None):
+        super().__init__(name, intervals)
+        self.root_note = Note(root_note)
         self.notes = tuple(self._generate_notes())
-        self.note_names = tuple(n.name for n in self.notes)
 
     ####################################################################
-    def __str__(self):
-        return self.name
+    def __eq__(self, other):
+        return tuple(self) == tuple(other)
 
     ####################################################################
     def _generate_notes(self):
@@ -341,14 +442,12 @@ class Key:
         # A key has a set of whole and half steps that determine what notes
         # fall into the key, starting from the root note. Iterate through
         # each step to add each successive note to the key.
-        for step in self.steps:
-
-            # All 12 notes are 1 semitone, or half-step, apart from the note below and above.
-            # Since there are 2 semitones in a step, multiply the current step in this loop by 2
-            # to get the total amount of semitones we need to increase for out next note.
-            semitones = step * 2
+        for step in self.intervals[:-1]:  # iterating up to the last one with [:-1] because since we're
+            # just generating notes, we don't need the last step because it will lead us to C,
+            # which we already have.
 
             # Increase it to the pitch we want for the next note.
+            semitones = step * 2
             pitch = pitch.increase(semitones)
 
             # Get the list of harmonically equivalent notes for the increased pitch
@@ -364,6 +463,45 @@ class Key:
             notes.append(note)
 
         return notes
+
+    ####################################################################
+    def __getitem__(self, item):
+        try:
+            i = int(item)
+            return self.notes[i]
+        except IndexError:
+            raise Exception(f'This scale does not have {i + 1} notes: {self.notes}')
+        except ValueError:
+            return getattr(self, item)
+
+    ####################################################################
+    def __iter__(self):
+        for note in self.notes:
+            yield note
+
+
+########################################################################
+class Key:
+
+    ####################################################################
+    def __init__(self, name):
+        root, quality = get_note_and_quality_from_music_element(name.strip())
+
+        self.root_note = root
+        self.quality = quality
+        self.name = f'{self.root_note.name}{self.quality}'
+        self.intervals = MINOR_INTERVALS if quality == MINOR else MAJOR_INTERVALS
+        self.scale = Scale(self.root_note, intervals=self.intervals)
+        self.note_names = tuple(n.name for n in self.scale.notes)
+
+    ####################################################################
+    def __str__(self):
+        return self.name
+
+    ####################################################################
+    def __iter__(self):
+        for note in self.scale:
+            yield note
 
 
 ########################################################################
@@ -384,7 +522,6 @@ class Chord:
 
         # Get the base pitch to start with from our root note
         pitch = self.root_note.fundamental
-
 
         # A key has a set of whole and half steps that determine what notes
         # fall into the key, starting from the root note. Iterate through

@@ -11,3 +11,8 @@ class InvalidNoteError(Exception):
 ########################################################################
 class InvalidKeyError(Exception):
     pass
+
+
+#######################################################################
+class InvalidScaleError(Exception):
+    pass

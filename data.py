@@ -6,9 +6,6 @@ H = HALF_STEP
 WHOLE_STEP = 1
 W = WHOLE_STEP
 
-MAJOR_KEY_STEPS = (W, W, H, W, W, W)
-MINOR_KEY_STEPS = (W, H, W, W, H, W)
-
 IN_TUNE = "In Tune"
 
 NATURAL_NOTES = ('A', 'B', 'C', 'D', 'E', 'F', 'G')
@@ -57,7 +54,7 @@ QUALITIES.update({
     'm': MINOR,
 
     '7': SEVENTH,
-    'minor7': SEVENTH,
+    'minor7': MINOR + SEVENTH,
     'min7': MINOR + SEVENTH,
     'm7': MINOR + SEVENTH,
 
@@ -183,3 +180,23 @@ PITCHES = collections.OrderedDict((
     ('A#8/Bb8', Decimal('7458.62')),
     ('A##8/B8/Cb8', Decimal('7902.13')),
 ))
+
+SCALE_NAMES = {
+    "major": MAJOR,
+    "maj": MAJOR,
+    "": MAJOR,
+
+    "minor": MINOR,
+    "min": MINOR,
+    "m": MINOR
+}
+
+MAJOR_SCALE_NAME = 'Major'
+MINOR_SCALE_NAME = 'Minor'
+IONIAN_SCALE_NAME = 'Ionian'
+DORIAL_SCALE_NAME = 'Dorian'
+PHRYGIAN_SCALE_NAME = 'Phrygian'
+LYDIAN_SCALE_NAME = 'Lydian'
+MIXOLYDIAN_SCALE_NAME = 'Mixolydian'
+AEOLIAN_SCALE_NAME = 'Aeolian'
+LOCRIAN_SCALE_NAME = 'Locrian'
