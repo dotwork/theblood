@@ -1,7 +1,8 @@
 from unittest import TestCase
 
 from errors import InvalidQualityError
-from models import Key, A, A_sharp, B, B_sharp, C, C_sharp, D, D_sharp, E, E_sharp, F, F_sharp, G, G_sharp
+from models import Key, A, A_sharp, B, B_sharp, C, C_sharp, D, D_sharp, E, E_sharp, F, F_sharp, G, G_sharp, E_flat, \
+    B_flat
 
 
 ########################################################################
@@ -282,3 +283,26 @@ class TestMinorKey(TestCase):
         names = Key('F♭ minor').note_names
         expected = ('F♭', 'G♭', 'A♭♭', 'B♭♭', 'C♭', 'D♭♭', 'E♭♭')
         self.assertEqual(expected, names)
+
+
+#######################################################################
+class TestModes(TestCase):
+
+    ####################################################################
+    def test_ionian(self):
+        c = Key('C')
+        expected = (C, D, E, F, G, A, B)
+        self.assertEqual(expected, c.ionian_in_key())
+        self.assertEqual(expected, c.ionian())
+
+    ####################################################################
+    def test_dorian(self):
+        c = Key('C')
+
+        # Starting on D, playing dorian scale to stay in key of C
+        expected = (D, E, F, G, A, B, C)
+        self.assertEqual(expected, c.dorian_in_key())
+
+        # The dorian scale starting on C, puts us in key of B flat
+        expected = (C, D, E_flat, F, G, A, B_flat)
+        self.assertEqual(expected, c.dorian)
