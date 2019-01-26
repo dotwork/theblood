@@ -34,15 +34,15 @@ class TestMajorKey(TestCase):
 
     ####################################################################
     def test_notes__natural(self):
-        key_notes = Key('C').scale
+        key_notes = Key('C').scale.notes
         expected = (C, D, E, F, G, A, B)
         self.assertEqual(expected, key_notes)
 
     ####################################################################
     def test_notes__sharp(self):
-        key_notes = Key('C#').scale
-        expected = (C_sharp, D_sharp, E_sharp, F_sharp, G_sharp, A_sharp, B_sharp)
-        self.assertEqual(expected, key_notes)
+        key_notes = Key('C#').scale.notes
+        expected_notes = (C_sharp, D_sharp, E_sharp, F_sharp, G_sharp, A_sharp, B_sharp)
+        self.assertEqual(expected_notes, key_notes)
 
     ####################################################################
     def test_note_names__natural(self):
@@ -158,36 +158,36 @@ class TestMinorKey(TestCase):
 
     ####################################################################
     def test_generate_notes(self):
-        key_notes = Key('C# minor').scale
+        key_notes = Key('C# minor').scale.notes
         expected = (C_sharp, D_sharp, E, F_sharp, G_sharp, A, B)
         self.assertEqual(expected, key_notes)
 
-        key_notes = Key('C#').scale
+        key_notes = Key('C#').scale.notes
         expected = (C_sharp, D_sharp, E_sharp, F_sharp, G_sharp, A_sharp, B_sharp)
         self.assertEqual(expected, key_notes)
 
     ####################################################################
     def test_notes__natural_majors(self):
         expected = ('A', 'B', 'C♯', 'D', 'E', 'F♯', 'G♯')
-        self.assertEqual(expected, Key('A').scale)
+        self.assertEqual(expected, Key('A').scale.notes)
 
         expected = ('B', 'C♯', 'D♯', 'E', 'F♯', 'G♯', 'A♯')
-        self.assertEqual(expected, Key('B').scale)
+        self.assertEqual(expected, Key('B').scale.notes)
 
         expected = ('C', 'D', 'E', 'F', 'G', 'A', 'B')
-        self.assertEqual(expected, Key('C').scale)
+        self.assertEqual(expected, Key('C').scale.notes)
 
         expected = ('D', 'E', 'F♯', 'G', 'A', 'B', 'C♯')
-        self.assertEqual(expected, Key('D').scale)
+        self.assertEqual(expected, Key('D').scale.notes)
 
         expected = ('E', 'F♯', 'G♯', 'A', 'B', 'C♯', 'D♯')
-        self.assertEqual(expected, Key('E').scale)
+        self.assertEqual(expected, Key('E').scale.notes)
 
         expected = ('F', 'G', 'A', 'B♭', 'C', 'D', 'E')
-        self.assertEqual(expected, Key('F').scale)
+        self.assertEqual(expected, Key('F').scale.notes)
 
         expected = ('G', 'A', 'B', 'C', 'D', 'E', 'F♯')
-        self.assertEqual(expected, Key('G').scale)
+        self.assertEqual(expected, Key('G').scale.notes)
 
     ####################################################################
     def test_notes__natural__minors(self):

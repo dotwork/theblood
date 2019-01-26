@@ -1,10 +1,6 @@
 import collections
 from decimal import Decimal
 
-HALF_STEP = .5
-H = HALF_STEP
-WHOLE_STEP = 1
-W = WHOLE_STEP
 
 IN_TUNE = "In Tune"
 

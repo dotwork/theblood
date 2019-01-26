@@ -1,13 +1,21 @@
 from unittest import TestCase
 
-from data import W, H
 from errors import InvalidScaleError
 from models import BaseScale, LOCRIAN_SCALE_NAME, MAJOR_SCALE_NAME, MINOR_SCALE_NAME, IONIAN_SCALE_NAME, \
-    DORIAL_SCALE_NAME, PHRYGIAN_SCALE_NAME, LYDIAN_SCALE_NAME, MIXOLYDIAN_SCALE_NAME, AEOLIAN_SCALE_NAME
+    DORIAL_SCALE_NAME, PHRYGIAN_SCALE_NAME, LYDIAN_SCALE_NAME, MIXOLYDIAN_SCALE_NAME, AEOLIAN_SCALE_NAME, W, H, Scale, \
+    C, D, E, F, G, A, B, MajorScale
 
 
 #######################################################################
-class TestScale(TestCase):
+class TestBaseScale(TestCase):
+
+    ####################################################################
+    def test_name(self):
+        self.assertEqual(MAJOR_SCALE_NAME, BaseScale('Major').name)
+        self.assertEqual(MAJOR_SCALE_NAME, BaseScale('major').name)
+        self.assertEqual(MAJOR_SCALE_NAME, BaseScale('MAJOR').name)
+
+        self.assertEqual(LOCRIAN_SCALE_NAME, BaseScale('locrian').name)
 
     ####################################################################
     def test_intervals__standard_scales__by_name(self):
@@ -53,3 +61,31 @@ class TestScale(TestCase):
             BaseScale(intervals=unrecognized_scale)
         self.assertEqual(f'({W}, {W}, {H}) is not a recognized scale.', str(err.exception))
 
+
+#######################################################################
+class TestScale(TestCase):
+
+    ####################################################################
+    def test_indexing(self):
+        c_major = Scale(C, MajorScale)
+        self.assertEqual(C, c_major[0])
+        self.assertEqual(D, c_major[1])
+        self.assertEqual(E, c_major[2])
+        self.assertEqual(F, c_major[3])
+        self.assertEqual(G, c_major[4])
+        self.assertEqual(A, c_major[5])
+        self.assertEqual(B, c_major[6])
+        self.assertEqual(B, c_major[-1])
+
+    ####################################################################
+    def test_slicing(self):
+        c_major = Scale(C, MajorScale)
+        c_slice = c_major[0:2]
+        self.assertEqual('C Major slice[0:2]', c_slice.name)
+        self.assertEqual((C, D), c_slice.notes)
+
+    ####################################################################
+    def test_slicing__copy(self):
+        c_major = Scale(C, MajorScale)
+        c_major_copy = c_major[:]
+        self.assertEqual('C Major', c_major_copy.name)

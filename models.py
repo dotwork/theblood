@@ -1,9 +1,9 @@
 import collections
 from decimal import Decimal
 
-from data import SHARP, FLAT, IN_TUNE, NATURAL_NOTES, SHARPS_AND_FLATS, PITCHES, MINOR, WHOLE_STEP, HALF_STEP, \
-    QUALITIES, W, H, MAJOR_SCALE_NAME, MINOR_SCALE_NAME, IONIAN_SCALE_NAME, DORIAL_SCALE_NAME, PHRYGIAN_SCALE_NAME, \
-    LYDIAN_SCALE_NAME, MIXOLYDIAN_SCALE_NAME, AEOLIAN_SCALE_NAME, LOCRIAN_SCALE_NAME
+from data import SHARP, FLAT, IN_TUNE, NATURAL_NOTES, SHARPS_AND_FLATS, PITCHES, MINOR, \
+    QUALITIES, MAJOR_SCALE_NAME, MINOR_SCALE_NAME, IONIAN_SCALE_NAME, DORIAL_SCALE_NAME, PHRYGIAN_SCALE_NAME, \
+    LYDIAN_SCALE_NAME, MIXOLYDIAN_SCALE_NAME, AEOLIAN_SCALE_NAME, LOCRIAN_SCALE_NAME, MAJOR
 from errors import InvalidNoteError, InvalidKeyError, InvalidQualityError, InvalidScaleError
 
 
@@ -283,6 +283,11 @@ class Note:
             raise InvalidKeyError(f'Did not find a {name} note in {notes}.')
 
 
+#######################################################################
+class Interval(int):
+    pass
+
+
 A_flat = Note('A♭')
 G_double_sharp = Note('G♯♯')
 A = Note('A')
@@ -308,6 +313,9 @@ G_flat = Note('G♭')
 G = Note('G')
 G_sharp = Note('G♯')
 
+
+W = WHOLE_STEP = Interval(2)
+H = HALF_STEP = Interval(1)
 
 MAJOR_INTERVALS = (W, W, H, W, W, W, H)
 MINOR_INTERVALS = (W, H, W, W, H, W, W)
@@ -364,8 +372,8 @@ class BaseScale:
 
         self.name = name
         self.intervals = tuple(intervals or [])
-        self.tonic = intervals[0]
 
+        self.first = intervals[0]
         self.second = intervals[1] if num_intervals > 1 else None
         self.third = intervals[2] if num_intervals > 2 else None
         self.fourth = intervals[3] if num_intervals > 3 else None
@@ -413,42 +421,93 @@ class BaseScale:
         return name, intervals
 
     ####################################################################
+    def __eq__(self, other):
+        return tuple(self) == tuple(other)
+
+    ####################################################################
     def __iter__(self):
         for interval in self.intervals:
             yield interval
+
+    ####################################################################
+    def __getslice__(self, slice_obj):
+        start = slice_obj.start
+        stop = slice_obj.stop
+        step = slice_obj.step
+        if step:
+            raise Exception('Cannot slice BaseScale objects with steps.')
+        if not any((start, stop)):
+            return self
+
+        intervals = self.intervals[start:stop:step]
+        name = f'{self.name} Slice[{start}:{stop}]'
+        return BaseScale(name, intervals=intervals)
+
+
+MajorScale = BaseScale(MAJOR_SCALE_NAME)
+MinorScale = BaseScale(MINOR_SCALE_NAME)
+
+IonianScale = BaseScale(IONIAN_SCALE_NAME)
+DorianScale = BaseScale(DORIAL_SCALE_NAME)
+PhrygianScale = BaseScale(PHRYGIAN_SCALE_NAME)
+LydianScale = BaseScale(LYDIAN_SCALE_NAME)
+MixolydianScale = BaseScale(MIXOLYDIAN_SCALE_NAME)
+AeolianScale = BaseScale(AEOLIAN_SCALE_NAME)
+LocrianScale = BaseScale(LOCRIAN_SCALE_NAME)
 
 
 #######################################################################
 class Scale(BaseScale):
 
     ####################################################################
-    def __init__(self, root_note, name='', intervals=None):
-        super().__init__(name, intervals)
-        self.root_note = Note(root_note)
+    def __init__(self, tonic, base_scale):
+        self.tonic = Note(tonic)
+        if base_scale.name in SCALE_TO_INTERVALS_MAP:
+            super().__init__(base_scale.name)
+        else:
+            super().__init__(base_scale.name, base_scale.intervals)
+
+        # super().__init__ will set self.name to the base scale.
+        # Update it with the tonic's name.
+        self.name = f'{self.tonic} {self.name}'
+
+        self.base_scale = base_scale
         self.notes = tuple(self._generate_notes())
 
     ####################################################################
     def __eq__(self, other):
-        return tuple(self) == tuple(other)
+        if not isinstance(other, Scale):
+            raise TypeError(f'Cannot compare type {type(other)} to type Scale.')
+
+        return self.notes == other.notes and self.intervals == other.intervals
+
+    ####################################################################
+    def __getslice__(self, slice_obj):
+        base_scale = self.base_scale.__getslice__(slice_obj)
+        if base_scale == self.base_scale:
+            return self
+
+        tonic = self.notes[slice_obj.start or 0]
+        scale = Scale(tonic, base_scale)
+        return scale
 
     ####################################################################
     def _generate_notes(self):
         # We already know the root note, so create a list starting with that
-        notes = [self.root_note]
+        notes = [self.tonic]
 
-        # Get the base pitch to start with from our root note
-        pitch = self.root_note.fundamental
+        # Get the base pitch to start with from our tonic note
+        pitch = self.tonic.fundamental
 
         # A key has a set of whole and half steps that determine what notes
         # fall into the key, starting from the root note. Iterate through
-        # each step to add each successive note to the key.
-        for step in self.intervals[:-1]:  # iterating up to the last one with [:-1] because since we're
-            # just generating notes, we don't need the last step because it will lead us to C,
-            # which we already have.
+        # each of these intervals to add each successive note to the key.
+        for interval in self.intervals[:-1]:  # iterating up to the last one with [:-1]
+            # because we're just generating notes. We don't need the last step because
+            # it will lead us back to the tonic, which we already have.
 
             # Increase it to the pitch we want for the next note.
-            semitones = step * 2
-            pitch = pitch.increase(semitones)
+            pitch = pitch.increase(interval)
 
             # Get the list of harmonically equivalent notes for the increased pitch
             equivalent_notes = pitch.notes
@@ -471,8 +530,10 @@ class Scale(BaseScale):
             return self.notes[i]
         except IndexError:
             raise Exception(f'This scale does not have {i + 1} notes: {self.notes}')
+        except TypeError:
+            return self.__getslice__(item)
         except ValueError:
-            return getattr(self, item)
+            return None
 
     ####################################################################
     def __iter__(self):
@@ -490,8 +551,8 @@ class Key:
         self.root_note = root
         self.quality = quality
         self.name = f'{self.root_note.name}{self.quality}'
-        self.intervals = MINOR_INTERVALS if quality == MINOR else MAJOR_INTERVALS
-        self.scale = Scale(self.root_note, intervals=self.intervals)
+        self.base_scale = MinorScale if quality == MINOR else MajorScale
+        self.scale = Scale(self.root_note, self.base_scale)
         self.note_names = tuple(n.name for n in self.scale.notes)
 
     ####################################################################
@@ -513,7 +574,7 @@ class Chord:
         self.root_note = root
         self.quality = quality
         self.name = f"{root}{quality}"
-        self.intervals = intervals
+        # self.intervals = intervals
         self.notes = self._generate_notes()
 
     def _generate_notes(self):
