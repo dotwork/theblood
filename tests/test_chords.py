@@ -1,9 +1,11 @@
+import unittest
 from unittest import TestCase
 
 from models import Chord
 
 
 ########################################################################
+@unittest.skip("Not implemented.")
 class TestChord(TestCase):
 
     ####################################################################

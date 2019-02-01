@@ -2,9 +2,9 @@ import collections
 from decimal import Decimal
 
 from data import SHARP, FLAT, IN_TUNE, NATURAL_NOTES, SHARPS_AND_FLATS, PITCHES, MINOR, \
-    QUALITIES, MAJOR_SCALE_NAME, MINOR_SCALE_NAME, IONIAN_SCALE_NAME, DORIAL_SCALE_NAME, PHRYGIAN_SCALE_NAME, \
-    LYDIAN_SCALE_NAME, MIXOLYDIAN_SCALE_NAME, AEOLIAN_SCALE_NAME, LOCRIAN_SCALE_NAME, MAJOR
-from errors import InvalidNoteError, InvalidKeyError, InvalidQualityError, InvalidScaleError
+    QUALITIES, MAJOR_SCALE_NAME, MINOR_SCALE_NAME, IONIAN_SCALE_NAME, DORIAN_SCALE_NAME, PHRYGIAN_SCALE_NAME, \
+    LYDIAN_SCALE_NAME, MIXOLYDIAN_SCALE_NAME, AEOLIAN_SCALE_NAME, LOCRIAN_SCALE_NAME, MAJOR, MODE_NAMES
+from errors import InvalidNoteError, InvalidKeyError, InvalidQualityError, InvalidScaleError, InvalidModeError
 
 
 #######################################################################
@@ -288,30 +288,46 @@ class Interval(int):
     pass
 
 
-A_flat = Note('A♭')
 G_double_sharp = Note('G♯♯')
 A = Note('A')
 B_double_flat = Note('B♭♭')
+
 A_sharp = Note('A♯')
 B_flat = Note('B♭')
+
 B = Note('B')
-B_sharp = Note('B♯')
 C_flat = Note('C♭')
+
+B_sharp = Note('B♯')
 C = Note('C')
-C_sharp = Note('C♯')
 D_double_flat = Note('D♭♭')
+
+C_sharp = Note('C♯')
 D_flat = Note('D♭')
+
+C_double_sharp = Note('C♯♯')
 D = Note('D')
+E_double_flat = Note('E♭♭')
+
 D_sharp = Note('D♯')
 E_flat = Note('E♭')
+
 E = Note('E')
-E_sharp = Note('E♯')
 F_flat = Note('F♭')
+
+E_sharp = Note('E♯')
 F = Note('F')
+G_double_flat = Note('G♭♭')
+
 F_sharp = Note('F♯')
 G_flat = Note('G♭')
+
+F_double_sharp = Note('F♯♯')
 G = Note('G')
+A_double_flat = Note('A♭♭')
+
 G_sharp = Note('G♯')
+A_flat = Note('A♭')
 
 
 W = WHOLE_STEP = Interval(2)
@@ -322,7 +338,7 @@ MINOR_INTERVALS = (W, H, W, W, H, W, W)
 
 # https://music.stackexchange.com/questions/73110/what-are-the-interval-patterns-for-the-modes
 IONIAN_INTERVALS = (W, W, H, W, W, W, H)
-DORIAL_INTERVALS = (W, H, W, W, W, H, W)
+DORIAN_INTERVALS = (W, H, W, W, W, H, W)
 PHRYGIAN_INTERVALS = (H, W, W, W, H, W, W)
 LYDIAN_INTERVALS = (W, W, W, H, W, W, H)
 MIXOLYDIAN_INTERVALS = (W, W, H, W, W, H, W)
@@ -333,7 +349,7 @@ SCALE_TO_INTERVALS_MAP = {
     MAJOR_SCALE_NAME: MAJOR_INTERVALS,
     MINOR_SCALE_NAME: MINOR_INTERVALS,
     IONIAN_SCALE_NAME: IONIAN_INTERVALS,
-    DORIAL_SCALE_NAME: DORIAL_INTERVALS,
+    DORIAN_SCALE_NAME: DORIAN_INTERVALS,
     PHRYGIAN_SCALE_NAME: PHRYGIAN_INTERVALS,
     LYDIAN_SCALE_NAME: LYDIAN_INTERVALS,
     MIXOLYDIAN_SCALE_NAME: MIXOLYDIAN_INTERVALS,
@@ -348,7 +364,7 @@ KEY_INTERVALS_TO_NAME_MAP = {
 
 MODAL_INTERVALS_TO_NAME_MAP = {
     IONIAN_INTERVALS: IONIAN_SCALE_NAME,
-    DORIAL_INTERVALS: DORIAL_SCALE_NAME,
+    DORIAN_INTERVALS: DORIAN_SCALE_NAME,
     PHRYGIAN_INTERVALS: PHRYGIAN_SCALE_NAME,
     LYDIAN_INTERVALS: LYDIAN_SCALE_NAME,
     MIXOLYDIAN_INTERVALS: MIXOLYDIAN_SCALE_NAME,
@@ -363,32 +379,17 @@ finger_positions = ('tonic', 'second', 'third', 'fourth', 'fifth', 'sixth', 'sev
 
 
 #######################################################################
-class BaseScale:
+class ScalePattern:
 
     ####################################################################
     def __init__(self, name='', intervals=None):
         name, intervals = self.clean_name_and_intervals(name, intervals)
-        num_intervals = len(intervals)
-
         self.name = name
         self.intervals = tuple(intervals or [])
 
-        self.first = intervals[0]
-        self.second = intervals[1] if num_intervals > 1 else None
-        self.third = intervals[2] if num_intervals > 2 else None
-        self.fourth = intervals[3] if num_intervals > 3 else None
-        self.fifth = intervals[4] if num_intervals > 4 else None
-        self.sixth = intervals[5] if num_intervals > 5 else None
-        self.seventh = intervals[6] if num_intervals > 6 else None
-        self.eighth = intervals[7] if num_intervals > 7 else None
-        self.ninth = intervals[8] if num_intervals > 8 else None
-        self.tenth = intervals[9] if num_intervals > 9 else None
-        self.eleventh = intervals[10] if num_intervals > 10 else None
-        self.twelfth = intervals[11] if num_intervals > 11 else None
-        self.thirteenth = intervals[12] if num_intervals > 12 else None
-        self.fourteenth = intervals[13] if num_intervals > 13 else None
-        self.fifteenth = intervals[14] if num_intervals > 14 else None
-        self.sixteenth = intervals[15] if num_intervals > 15 else None
+    ####################################################################
+    def __str__(self):
+        return self.name
 
     ####################################################################
     @classmethod
@@ -441,38 +442,66 @@ class BaseScale:
 
         intervals = self.intervals[start:stop:step]
         name = f'{self.name} Slice[{start}:{stop}]'
-        return BaseScale(name, intervals=intervals)
+        return ScalePattern(name, intervals=intervals)
 
 
-MajorScale = BaseScale(MAJOR_SCALE_NAME)
-MinorScale = BaseScale(MINOR_SCALE_NAME)
+MajorScale = ScalePattern(MAJOR_SCALE_NAME)
+MinorScale = ScalePattern(MINOR_SCALE_NAME)
 
-IonianScale = BaseScale(IONIAN_SCALE_NAME)
-DorianScale = BaseScale(DORIAL_SCALE_NAME)
-PhrygianScale = BaseScale(PHRYGIAN_SCALE_NAME)
-LydianScale = BaseScale(LYDIAN_SCALE_NAME)
-MixolydianScale = BaseScale(MIXOLYDIAN_SCALE_NAME)
-AeolianScale = BaseScale(AEOLIAN_SCALE_NAME)
-LocrianScale = BaseScale(LOCRIAN_SCALE_NAME)
+IonianScale = ScalePattern(IONIAN_SCALE_NAME)
+DorianScale = ScalePattern(DORIAN_SCALE_NAME)
+PhrygianScale = ScalePattern(PHRYGIAN_SCALE_NAME)
+LydianScale = ScalePattern(LYDIAN_SCALE_NAME)
+MixolydianScale = ScalePattern(MIXOLYDIAN_SCALE_NAME)
+AeolianScale = ScalePattern(AEOLIAN_SCALE_NAME)
+LocrianScale = ScalePattern(LOCRIAN_SCALE_NAME)
+
+MODAL_SCALES = (IonianScale, DorianScale, PhrygianScale,
+                LydianScale, MixolydianScale, AeolianScale, LocrianScale)
 
 
 #######################################################################
-class Scale(BaseScale):
+class Scale(ScalePattern):
 
     ####################################################################
     def __init__(self, tonic, base_scale):
-        self.tonic = Note(tonic)
         if base_scale.name in SCALE_TO_INTERVALS_MAP:
+            # This is a known scale. Build it from its name
+            # and we will fetch the correct intervals automatically.
             super().__init__(base_scale.name)
         else:
+            # For custom scales, provide both the name and intervals.
             super().__init__(base_scale.name, base_scale.intervals)
 
-        # super().__init__ will set self.name to the base scale.
+        # Save off what scale pattern we used to build this scale
+        self.base_scale = base_scale
+
+        # Scale objects require a tonic to build the set of notes from.
+        self.tonic = Note(tonic)
+
+        # super().__init__ set self.name to the base scale's name.
         # Update it with the tonic's name.
         self.name = f'{self.tonic} {self.name}'
 
-        self.base_scale = base_scale
         self.notes = tuple(self._generate_notes())
+
+        num_intervals = len(self.notes)
+        self.first = self.notes[0]
+        self.second = self.notes[1] if num_intervals > 1 else None
+        self.third = self.notes[2] if num_intervals > 2 else None
+        self.fourth = self.notes[3] if num_intervals > 3 else None
+        self.fifth = self.notes[4] if num_intervals > 4 else None
+        self.sixth = self.notes[5] if num_intervals > 5 else None
+        self.seventh = self.notes[6] if num_intervals > 6 else None
+        self.eighth = self.notes[7] if num_intervals > 7 else None
+        self.ninth = self.notes[8] if num_intervals > 8 else None
+        self.tenth = self.notes[9] if num_intervals > 9 else None
+        self.eleventh = self.notes[10] if num_intervals > 10 else None
+        self.twelfth = self.notes[11] if num_intervals > 11 else None
+        self.thirteenth = self.notes[12] if num_intervals > 12 else None
+        self.fourteenth = self.notes[13] if num_intervals > 13 else None
+        self.fifteenth = self.notes[14] if num_intervals > 14 else None
+        self.sixteenth = self.notes[15] if num_intervals > 15 else None
 
     ####################################################################
     def __eq__(self, other):
@@ -541,23 +570,64 @@ class Scale(BaseScale):
             yield note
 
 
+#######################################################################
+class Mode(Scale):
+
+    ####################################################################
+    def __init__(self, tonic, modal_scale):
+        """
+        Mode is a wrapper around Scale that validates the scale as
+        a mode (Ionian, Dorian, etc.), and provides a more specific
+        class type for mode-specific contexts.
+        """
+        if modal_scale.name not in MODE_NAMES:
+            err = f'{modal_scale} is not a valid mode.'
+            raise InvalidModeError(err)
+
+        super().__init__(tonic, modal_scale)
+
+    ####################################################################
+    def __str__(self):
+        return f'{self.name} Mode'
+
+    ####################################################################
+    def __repr__(self):
+        return f'Mode({self.name})'
+
+
 ########################################################################
 class Key:
 
     ####################################################################
     def __init__(self, name):
-        root, quality = get_note_and_quality_from_music_element(name.strip())
+        tonic, quality = get_note_and_quality_from_music_element(name.strip())
 
-        self.root_note = root
+        self.tonic = tonic
         self.quality = quality
-        self.name = f'{self.root_note.name}{self.quality}'
+        self.name = f'{self.tonic.name}{self.quality}'
         self.base_scale = MinorScale if quality == MINOR else MajorScale
-        self.scale = Scale(self.root_note, self.base_scale)
+        self.scale = Scale(self.tonic, self.base_scale)
         self.note_names = tuple(n.name for n in self.scale.notes)
+
+        if quality == MAJOR:
+            self.ionian_mode = Mode(tonic=self.scale.first, modal_scale=IonianScale)
+            self.dorian_mode = Mode(tonic=self.scale.second, modal_scale=DorianScale)
+            self.phrygian_mode = Mode(tonic=self.scale.third, modal_scale=PhrygianScale)
+            self.lydian_mode = Mode(tonic=self.scale.fourth, modal_scale=LydianScale)
+            self.mixolydian_mode = Mode(tonic=self.scale.fifth, modal_scale=MixolydianScale)
+            self.aeolian_mode = Mode(tonic=self.scale.sixth, modal_scale=AeolianScale)
+            self.locrian_mode = Mode(tonic=self.scale.seventh, modal_scale=LocrianScale)
+        else:
+            # todo: What happens to modes in a minor key?
+            pass
 
     ####################################################################
     def __str__(self):
-        return self.name
+        return f'Key of {self.name}'
+
+    ####################################################################
+    def __repr__(self):
+        return f'Key({self.name})'
 
     ####################################################################
     def __iter__(self):

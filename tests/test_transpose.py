@@ -1,3 +1,4 @@
+import unittest
 from unittest import TestCase
 
 from models import Transpose, WHOLE_STEP, A_flat, A, A_sharp, B_flat, B, C, C_sharp, D_flat, D, D_sharp, E_flat, E, F, \
@@ -5,6 +6,7 @@ from models import Transpose, WHOLE_STEP, A_flat, A, A_sharp, B_flat, B, C, C_sh
 
 
 ########################################################################
+@unittest.skip('Not implemented yet.')
 class TestTranspose(TestCase):
 
     ####################################################################
@@ -73,6 +75,7 @@ class TestTranspose(TestCase):
 
 
 ########################################################################
+@unittest.skip('Not implemented yet.')
 class TestTransposeMultiple(TestCase):
 
     ####################################################################

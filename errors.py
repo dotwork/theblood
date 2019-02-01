@@ -16,3 +16,8 @@ class InvalidKeyError(Exception):
 #######################################################################
 class InvalidScaleError(Exception):
     pass
+
+
+#######################################################################
+class InvalidModeError(Exception):
+    pass

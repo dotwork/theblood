@@ -1,8 +1,7 @@
 from unittest import TestCase
 
 from errors import InvalidQualityError
-from models import Key, A, A_sharp, B, B_sharp, C, C_sharp, D, D_sharp, E, E_sharp, F, F_sharp, G, G_sharp, E_flat, \
-    B_flat
+from models import Key, A, A_sharp, B, B_sharp, C, C_sharp, D, D_sharp, E, E_sharp, F, F_sharp, G, G_sharp
 
 
 ########################################################################
@@ -11,16 +10,16 @@ class TestMajorKey(TestCase):
     ####################################################################
     def test_init(self):
         a_major = Key('A')
-        self.assertEqual(A, a_major.root_note)
+        self.assertEqual(A, a_major.tonic)
 
         a_major = Key('A major')
-        self.assertEqual(A, a_major.root_note)
+        self.assertEqual(A, a_major.tonic)
 
         a_major = Key('A maj')
-        self.assertEqual(A, a_major.root_note)
+        self.assertEqual(A, a_major.tonic)
 
         a_major = Key('Amaj')
-        self.assertEqual(A, a_major.root_note)
+        self.assertEqual(A, a_major.tonic)
 
     ####################################################################
     def test_init__invalid(self):
@@ -146,16 +145,16 @@ class TestMinorKey(TestCase):
     ####################################################################
     def test_init(self):
         a_minor = Key('A minor')
-        self.assertEqual(A, a_minor.root_note)
+        self.assertEqual(A, a_minor.tonic)
 
         a_minor = Key('Am')
-        self.assertEqual(A, a_minor.root_note)
+        self.assertEqual(A, a_minor.tonic)
 
         a_minor = Key('A min')
-        self.assertEqual(A, a_minor.root_note)
+        self.assertEqual(A, a_minor.tonic)
 
         a_minor = Key('Amin')
-        self.assertEqual(A, a_minor.root_note)
+        self.assertEqual(A, a_minor.tonic)
 
     ####################################################################
     def test_generate_notes(self):
@@ -264,6 +263,7 @@ class TestMinorKey(TestCase):
 
         names = Key('D♭ minor').note_names
         expected = ('D♭', 'E♭', 'F♭', 'G♭', 'A♭', 'B♭♭', 'C♭')
+        #             D♭, E♭, F♭, G♭, A♭, B♭♭, and C♭.
         self.assertEqual(expected, names)
 
         names = Key('E♭ minor').note_names
@@ -283,26 +283,3 @@ class TestMinorKey(TestCase):
         names = Key('F♭ minor').note_names
         expected = ('F♭', 'G♭', 'A♭♭', 'B♭♭', 'C♭', 'D♭♭', 'E♭♭')
         self.assertEqual(expected, names)
-
-
-#######################################################################
-class TestModes(TestCase):
-
-    ####################################################################
-    def test_ionian(self):
-        c = Key('C')
-        expected = (C, D, E, F, G, A, B)
-        self.assertEqual(expected, c.ionian_in_key())
-        self.assertEqual(expected, c.ionian())
-
-    ####################################################################
-    def test_dorian(self):
-        c = Key('C')
-
-        # Starting on D, playing dorian scale to stay in key of C
-        expected = (D, E, F, G, A, B, C)
-        self.assertEqual(expected, c.dorian_in_key())
-
-        # The dorian scale starting on C, puts us in key of B flat
-        expected = (C, D, E_flat, F, G, A, B_flat)
-        self.assertEqual(expected, c.dorian)
