@@ -608,6 +608,16 @@ class Key:
         self.base_scale = MinorScale if quality == MINOR else MajorScale
         self.scale = Scale(self.tonic, self.base_scale)
         self.note_names = tuple(n.name for n in self.scale.notes)
+
+        self.aeolian_mode = None
+        self.locrian_mode = None
+        self.ionian_mode = None
+        self.dorian_mode = None
+        self.phrygian_mode = None
+        self.lydian_mode = None
+        self.mixolydian_mode = None
+        self.modes = None
+
         self.set_modes()
 
     ####################################################################
@@ -620,6 +630,16 @@ class Key:
             self.mixolydian_mode = Mode(tonic=self.scale.fifth, modal_scale=MixolydianScale)
             self.aeolian_mode = Mode(tonic=self.scale.sixth, modal_scale=AeolianScale)
             self.locrian_mode = Mode(tonic=self.scale.seventh, modal_scale=LocrianScale)
+
+            self.modes = (
+                self.ionian_mode,
+                self.dorian_mode,
+                self.phrygian_mode,
+                self.lydian_mode,
+                self.mixolydian_mode,
+                self.aeolian_mode,
+                self.locrian_mode,
+            )
         else:
             self.aeolian_mode = Mode(tonic=self.scale.first, modal_scale=AeolianScale)
             self.locrian_mode = Mode(tonic=self.scale.second, modal_scale=LocrianScale)
@@ -628,6 +648,16 @@ class Key:
             self.phrygian_mode = Mode(tonic=self.scale.fifth, modal_scale=PhrygianScale)
             self.lydian_mode = Mode(tonic=self.scale.sixth, modal_scale=LydianScale)
             self.mixolydian_mode = Mode(tonic=self.scale.seventh, modal_scale=MixolydianScale)
+
+            self.modes = (
+                self.aeolian_mode,
+                self.locrian_mode,
+                self.ionian_mode,
+                self.dorian_mode,
+                self.phrygian_mode,
+                self.lydian_mode,
+                self.mixolydian_mode,
+            )
 
     ####################################################################
     def __str__(self):
