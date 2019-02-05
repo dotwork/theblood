@@ -283,3 +283,155 @@ class TestMinorKey(TestCase):
         names = Key('F♭ minor').note_names
         expected = ('F♭', 'G♭', 'A♭♭', 'B♭♭', 'C♭', 'D♭♭', 'E♭♭')
         self.assertEqual(expected, names)
+
+
+#######################################################################
+class TestModesInMajorKeys(TestCase):
+
+    ####################################################################
+    def test_helper_assertion_function(self):
+        """
+        The helper function iterates through each mode, shifting the expected
+        set of notes over 1 degree. For example, from Ionian to Dorian, the
+        expected notes for C Major shift from:
+            ('C', 'D', 'E', 'F', 'G', 'A', 'B')
+        to:
+            ('D', 'E', 'F', 'G', 'A', 'B', 'C')
+
+        This test asserts that we are doing so correctly in the helper function.
+        """
+        modal_scales = self.assert_major_key_modes_are_correct(Key('C'))
+        expected = [
+            ('C', 'D', 'E', 'F', 'G', 'A', 'B'),
+            ('D', 'E', 'F', 'G', 'A', 'B', 'C'),
+            ('E', 'F', 'G', 'A', 'B', 'C', 'D'),
+            ('F', 'G', 'A', 'B', 'C', 'D', 'E'),
+            ('G', 'A', 'B', 'C', 'D', 'E', 'F'),
+            ('A', 'B', 'C', 'D', 'E', 'F', 'G'),
+            ('B', 'C', 'D', 'E', 'F', 'G', 'A'),
+        ]
+        self.assertEqual(expected, modal_scales)
+
+    ####################################################################
+    def assert_major_key_modes_are_correct(self, key):
+        expected = key.scale.notes
+        error_msg = '"{mode}" scale did not match. {expected} != {actual}'
+        scales = []
+        for mode in (key.ionian_mode,
+                     key.dorian_mode,
+                     key.phrygian_mode,
+                     key.lydian_mode,
+                     key.mixolydian_mode,
+                     key.aeolian_mode,
+                     key.locrian_mode):
+            scales.append(mode.notes)
+            msg = error_msg.format(mode=mode.name, expected=expected, actual=mode.notes)
+            self.assertEqual(expected, mode.notes, msg=msg)
+            expected = expected[1:] + (expected[0], )
+        return scales
+
+    ####################################################################
+    def test_keys_with_natural_tonic(self):
+        self.assert_major_key_modes_are_correct(Key('C'))
+        self.assert_major_key_modes_are_correct(Key('D'))
+        self.assert_major_key_modes_are_correct(Key('E'))
+        self.assert_major_key_modes_are_correct(Key('F'))
+        self.assert_major_key_modes_are_correct(Key('G'))
+        self.assert_major_key_modes_are_correct(Key('A'))
+        self.assert_major_key_modes_are_correct(Key('B'))
+
+    ####################################################################
+    def test_keys_with_sharp_tonic(self):
+        self.assert_major_key_modes_are_correct(Key('C#'))
+        self.assert_major_key_modes_are_correct(Key('D#'))
+        self.assert_major_key_modes_are_correct(Key('E#'))
+        self.assert_major_key_modes_are_correct(Key('F#'))
+        self.assert_major_key_modes_are_correct(Key('G#'))
+        self.assert_major_key_modes_are_correct(Key('A#'))
+        self.assert_major_key_modes_are_correct(Key('B#'))
+
+    ####################################################################
+    def test_keys_with_flat_tonic(self):
+        self.assert_major_key_modes_are_correct(Key('Cb'))
+        self.assert_major_key_modes_are_correct(Key('Db'))
+        self.assert_major_key_modes_are_correct(Key('Eb'))
+        self.assert_major_key_modes_are_correct(Key('Fb'))
+        self.assert_major_key_modes_are_correct(Key('Gb'))
+        self.assert_major_key_modes_are_correct(Key('Ab'))
+        self.assert_major_key_modes_are_correct(Key('Bb'))
+
+
+#######################################################################
+class TestModesInMinorKeys(TestCase):
+
+    ####################################################################
+    def test_helper_assertion_function(self):
+        """
+        The helper function iterates through each mode, shifting the expected
+        set of notes over 1 degree. For example, from Ionian to Dorian, the
+        expected notes for C Minor shift from:
+            ('C', 'D', 'E♭', 'F', 'G', 'A♭', 'B♭')
+        to:
+            ('D', 'E♭', 'F', 'G', 'A♭', 'B♭'. 'C')
+
+        This test asserts that we are doing so correctly in the helper function.
+        """
+        modal_scales = self.assert_minor_key_modes_are_correct(Key('Cm'))
+        expected = [
+            ('C', 'D', 'E♭', 'F', 'G', 'A♭', 'B♭'),
+            ('D', 'E♭', 'F', 'G', 'A♭', 'B♭', 'C'),
+            ('E♭', 'F', 'G', 'A♭', 'B♭', 'C', 'D'),
+            ('F', 'G', 'A♭', 'B♭', 'C', 'D', 'E♭'),
+            ('G', 'A♭', 'B♭', 'C', 'D', 'E♭', 'F'),
+            ('A♭', 'B♭', 'C', 'D', 'E♭', 'F', 'G'),
+            ('B♭', 'C', 'D', 'E♭', 'F', 'G', 'A♭'),
+        ]
+        self.assertEqual(expected, modal_scales)
+
+    ####################################################################
+    def assert_minor_key_modes_are_correct(self, key):
+        expected = key.scale.notes
+        error_msg = '"{mode}" scale did not match. {expected} != {actual}'
+        scales = []
+        for mode in (key.aeolian_mode,
+                     key.locrian_mode,
+                     key.ionian_mode,
+                     key.dorian_mode,
+                     key.phrygian_mode,
+                     key.lydian_mode,
+                     key.mixolydian_mode):
+            scales.append(mode.notes)
+            msg = error_msg.format(mode=mode.name, expected=expected, actual=mode.notes)
+            self.assertEqual(expected, mode.notes, msg=msg)
+            expected = expected[1:] + (expected[0], )
+        return scales
+
+    ####################################################################
+    def test_keys_with_natural_tonic(self):
+        self.assert_minor_key_modes_are_correct(Key('Cm'))
+        self.assert_minor_key_modes_are_correct(Key('Dm'))
+        self.assert_minor_key_modes_are_correct(Key('Em'))
+        self.assert_minor_key_modes_are_correct(Key('Fm'))
+        self.assert_minor_key_modes_are_correct(Key('Gm'))
+        self.assert_minor_key_modes_are_correct(Key('Am'))
+        self.assert_minor_key_modes_are_correct(Key('Bm'))
+
+    ####################################################################
+    def test_keys_with_sharp_tonic(self):
+        self.assert_minor_key_modes_are_correct(Key('C#m'))
+        self.assert_minor_key_modes_are_correct(Key('D#m'))
+        self.assert_minor_key_modes_are_correct(Key('E#m'))
+        self.assert_minor_key_modes_are_correct(Key('F#m'))
+        self.assert_minor_key_modes_are_correct(Key('G#m'))
+        self.assert_minor_key_modes_are_correct(Key('A#m'))
+        self.assert_minor_key_modes_are_correct(Key('B#m'))
+
+    ####################################################################
+    def test_keys_with_flat_tonic(self):
+        self.assert_minor_key_modes_are_correct(Key('Cbm'))
+        self.assert_minor_key_modes_are_correct(Key('Dbm'))
+        self.assert_minor_key_modes_are_correct(Key('Ebm'))
+        self.assert_minor_key_modes_are_correct(Key('Fbm'))
+        self.assert_minor_key_modes_are_correct(Key('Gbm'))
+        self.assert_minor_key_modes_are_correct(Key('Abm'))
+        self.assert_minor_key_modes_are_correct(Key('Bbm'))

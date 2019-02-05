@@ -275,12 +275,12 @@ class Note:
 
     ####################################################################
     @classmethod
-    def get_note_with_letter(cls, name, notes):
+    def get_note_with_letter(cls, letter, notes):
         for note in notes:
-            if name.startswith(note.natural_name):
+            if note.natural_name.startswith(letter):
                 return note
         else:
-            raise InvalidKeyError(f'Did not find a {name} note in {notes}.')
+            raise InvalidKeyError(f'Did not find a {letter} note in {notes}.')
 
 
 #######################################################################
@@ -608,8 +608,11 @@ class Key:
         self.base_scale = MinorScale if quality == MINOR else MajorScale
         self.scale = Scale(self.tonic, self.base_scale)
         self.note_names = tuple(n.name for n in self.scale.notes)
+        self.set_modes()
 
-        if quality == MAJOR:
+    ####################################################################
+    def set_modes(self):
+        if self.is_major():
             self.ionian_mode = Mode(tonic=self.scale.first, modal_scale=IonianScale)
             self.dorian_mode = Mode(tonic=self.scale.second, modal_scale=DorianScale)
             self.phrygian_mode = Mode(tonic=self.scale.third, modal_scale=PhrygianScale)
@@ -618,8 +621,13 @@ class Key:
             self.aeolian_mode = Mode(tonic=self.scale.sixth, modal_scale=AeolianScale)
             self.locrian_mode = Mode(tonic=self.scale.seventh, modal_scale=LocrianScale)
         else:
-            # todo: What happens to modes in a minor key?
-            pass
+            self.aeolian_mode = Mode(tonic=self.scale.first, modal_scale=AeolianScale)
+            self.locrian_mode = Mode(tonic=self.scale.second, modal_scale=LocrianScale)
+            self.ionian_mode = Mode(tonic=self.scale.third, modal_scale=IonianScale)
+            self.dorian_mode = Mode(tonic=self.scale.fourth, modal_scale=DorianScale)
+            self.phrygian_mode = Mode(tonic=self.scale.fifth, modal_scale=PhrygianScale)
+            self.lydian_mode = Mode(tonic=self.scale.sixth, modal_scale=LydianScale)
+            self.mixolydian_mode = Mode(tonic=self.scale.seventh, modal_scale=MixolydianScale)
 
     ####################################################################
     def __str__(self):
@@ -633,6 +641,10 @@ class Key:
     def __iter__(self):
         for note in self.scale:
             yield note
+
+    ####################################################################
+    def is_major(self):
+        return self.quality == MAJOR
 
 
 ########################################################################

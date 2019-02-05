@@ -27,10 +27,7 @@ class TestModes(TestCase):
     ####################################################################
     def test_ionian(self):
         c_ionian_mode = Mode(C, IonianScale)
-        key_c = Key('C')
         self.assertEqual((C, D, E, F, G, A, B), c_ionian_mode.notes)
-        self.assertEqual(c_ionian_mode, key_c.ionian_mode)
-        self.assertEqual(c_ionian_mode, key_c.scale)
 
     ####################################################################
     def test_ionian__c_sharp(self):
