@@ -3,7 +3,7 @@ from unittest import TestCase
 from errors import InvalidModeError
 from models import Key, MajorScale, C, Mode, D, E, F, G, A, B, IonianScale, E_flat, B_flat, DorianScale, C_sharp, \
     F_sharp, D_sharp, E_sharp, G_sharp, A_sharp, B_sharp, C_flat, D_flat, F_flat, G_flat, A_flat, C_double_sharp, \
-    F_double_sharp
+    F_double_sharp, PhrygianScale
 
 
 #######################################################################
@@ -66,7 +66,6 @@ class TestModes(TestCase):
 
     ####################################################################
     def test_dorian__sharp_tonics(self):
-        # DORIAN_INTERVALS = (W, H, W, W, W, H, W)
         self.assertEqual(('C#', 'D#', 'E', 'F#', 'G#', 'A#', 'B'), Mode(C_sharp, DorianScale).notes)
         self.assertEqual(('D#', 'E#', 'F#', 'G#', 'A#', 'B#', 'C#'), Mode(D_sharp, DorianScale).notes)
         self.assertEqual(('E#', 'F##', 'G#', 'A#', 'B#', 'C##', 'D#'), Mode(E_sharp, DorianScale).notes)
@@ -84,3 +83,33 @@ class TestModes(TestCase):
         self.assertEqual(('Gb', 'Ab', 'Bbb', 'Cb', 'Db', 'Eb', 'Fb'), Mode(G_flat, DorianScale).notes)
         self.assertEqual(('Ab', 'Bb', 'Cb', 'Db', 'Eb', 'F', 'Gb'), Mode(A_flat, DorianScale).notes)
         self.assertEqual(('Bb', 'C', 'Db', 'Eb', 'F', 'G', 'Ab'), Mode(B_flat, DorianScale).notes)
+
+    ####################################################################
+    def test_phrygian__natural_tonics(self):
+        self.assertEqual(('C', 'Db', 'Eb', 'F', 'G', 'Ab', 'Bb'), Mode(C, PhrygianScale).notes)
+        self.assertEqual(('D', 'Eb', 'F', 'G', 'A', 'Bb', 'C'), Mode(D, PhrygianScale).notes)
+        self.assertEqual(('E', 'F', 'G', 'A', 'B', 'C', 'D'), Mode(E, PhrygianScale).notes)
+        self.assertEqual(('F', 'Gb', 'Ab', 'Bb', 'C', 'Db', 'Eb'), Mode(F, PhrygianScale).notes)
+        self.assertEqual(('G', 'Ab', 'Bb', 'C', 'D', 'Eb', 'F'), Mode(G, PhrygianScale).notes)
+        self.assertEqual(('A', 'Bb', 'C', 'D', 'E', 'F', 'G'), Mode(A, PhrygianScale).notes)
+        self.assertEqual(('B', 'C', 'D', 'E', 'F#', 'G', 'A'), Mode(B, PhrygianScale).notes)
+
+    ####################################################################
+    def test_phrygian__sharp_tonics(self):
+        self.assertEqual(('C#', 'D', 'E', 'F#', 'G#', 'A', 'B'), Mode(C_sharp, PhrygianScale).notes)
+        self.assertEqual(('D#', 'E', 'F#', 'G#', 'A#', 'B', 'C#'), Mode(D_sharp, PhrygianScale).notes)
+        self.assertEqual(('E#', 'F#', 'G#', 'A#', 'B#', 'C#', 'D#'), Mode(E_sharp, PhrygianScale).notes)
+        self.assertEqual(('F#', 'G', 'A', 'B', 'C#', 'D', 'E'), Mode(F_sharp, PhrygianScale).notes)
+        self.assertEqual(('G#', 'A', 'B', 'C#', 'D#', 'E', 'F#'), Mode(G_sharp, PhrygianScale).notes)
+        self.assertEqual(('A#', 'B', 'C#', 'D#', 'E#', 'F#', 'G#'), Mode(A_sharp, PhrygianScale).notes)
+        self.assertEqual(('B#', 'C#', 'D#', 'E#', 'F##', 'G#', 'A#'), Mode(B_sharp, PhrygianScale).notes)
+
+    ####################################################################
+    def test_phrygian__flat_tonics(self):
+        self.assertEqual(('Cb', 'Dbb', 'Ebb', 'Fb', 'Gb', 'Abb', 'Bbb'), Mode(C_flat, PhrygianScale).notes)
+        self.assertEqual(('Db', 'Ebb', 'Fb', 'Gb', 'Ab', 'Bbb', 'Cb'), Mode(D_flat, PhrygianScale).notes)
+        self.assertEqual(('Eb', 'Fb', 'Gb', 'Ab', 'Bb', 'Cb', 'Db'), Mode(E_flat, PhrygianScale).notes)
+        self.assertEqual(('Fb', 'Gbb', 'Abb', 'Bbb', 'Cb', 'Dbb', 'Ebb'), Mode(F_flat, PhrygianScale).notes)
+        self.assertEqual(('Gb', 'Abb', 'Bbb', 'Cb', 'Db', 'Ebb', 'Fb'), Mode(G_flat, PhrygianScale).notes)
+        self.assertEqual(('Ab', 'Bbb', 'Cb', 'Db', 'Eb', 'Fb', 'Gb'), Mode(A_flat, PhrygianScale).notes)
+        self.assertEqual(('Bb', 'Cb', 'Db', 'Eb', 'F', 'Gb', 'Ab'), Mode(B_flat, PhrygianScale).notes)
