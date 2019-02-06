@@ -3,7 +3,7 @@ from unittest import TestCase
 from errors import InvalidModeError
 from models import Key, MajorScale, C, Mode, D, E, F, G, A, B, IonianScale, E_flat, B_flat, DorianScale, C_sharp, \
     F_sharp, D_sharp, E_sharp, G_sharp, A_sharp, B_sharp, C_flat, D_flat, F_flat, G_flat, A_flat, PhrygianScale, \
-    LydianScale, MixolydianScale, AeolianScale
+    LydianScale, MixolydianScale, AeolianScale, LocrianScale
 
 
 #######################################################################
@@ -176,7 +176,6 @@ class TestModes(TestCase):
 
     ####################################################################
     def test_aeolian__natural_tonics(self):
-        # W H W W H W W
         self.assertEqual(('C', 'D', 'Eb', 'F', 'G', 'Ab', 'Bb'), Mode(C, AeolianScale).notes)
         self.assertEqual(('D', 'E', 'F', 'G', 'A', 'Bb', 'C'), Mode(D, AeolianScale).notes)
         self.assertEqual(('E', 'F#', 'G', 'A', 'B', 'C', 'D'), Mode(E, AeolianScale).notes)
@@ -204,3 +203,33 @@ class TestModes(TestCase):
         self.assertEqual(('Gb', 'Ab', 'Bbb', 'Cb', 'Db', 'Ebb', 'Fb'), Mode(G_flat, AeolianScale).notes)
         self.assertEqual(('Ab', 'Bb', 'Cb', 'Db', 'Eb', 'Fb', 'Gb'), Mode(A_flat, AeolianScale).notes)
         self.assertEqual(('Bb', 'C', 'Db', 'Eb', 'F', 'Gb', 'Ab'), Mode(B_flat, AeolianScale).notes)
+
+    ####################################################################
+    def test_locrian__natural_tonics(self):
+        self.assertEqual(('C', 'Db', 'Eb', 'F', 'Gb', 'Ab', 'Bb'), Mode(C, LocrianScale).notes)
+        self.assertEqual(('D', 'Eb', 'F', 'G', 'Ab', 'Bb', 'C'), Mode(D, LocrianScale).notes)
+        self.assertEqual(('E', 'F', 'G', 'A', 'Bb', 'C', 'D'), Mode(E, LocrianScale).notes)
+        self.assertEqual(('F', 'Gb', 'Ab', 'Bb', 'Cb', 'Db', 'Eb'), Mode(F, LocrianScale).notes)
+        self.assertEqual(('G', 'Ab', 'Bb', 'C', 'Db', 'Eb', 'F'), Mode(G, LocrianScale).notes)
+        self.assertEqual(('A', 'Bb', 'C', 'D', 'Eb', 'F', 'G'), Mode(A, LocrianScale).notes)
+        self.assertEqual(('B', 'C', 'D', 'E', 'F', 'G', 'A'), Mode(B, LocrianScale).notes)
+
+    ####################################################################
+    def test_locrian__sharp_tonics(self):
+        self.assertEqual(('C#', 'D', 'E', 'F#', 'G', 'A', 'B'), Mode(C_sharp, LocrianScale).notes)
+        self.assertEqual(('D#', 'E', 'F#', 'G#', 'A', 'B', 'C#'), Mode(D_sharp, LocrianScale).notes)
+        self.assertEqual(('E#', 'F#', 'G#', 'A#', 'B', 'C#', 'D#'), Mode(E_sharp, LocrianScale).notes)
+        self.assertEqual(('F#', 'G', 'A', 'B', 'C', 'D', 'E'), Mode(F_sharp, LocrianScale).notes)
+        self.assertEqual(('G#', 'A', 'B', 'C#', 'D', 'E', 'F#'), Mode(G_sharp, LocrianScale).notes)
+        self.assertEqual(('A#', 'B', 'C#', 'D#', 'E', 'F#', 'G#'), Mode(A_sharp, LocrianScale).notes)
+        self.assertEqual(('B#', 'C#', 'D#', 'E#', 'F#', 'G#', 'A#'), Mode(B_sharp, LocrianScale).notes)
+
+    ####################################################################
+    def test_locrian__flat_tonics(self):
+        self.assertEqual(('Cb', 'Dbb', 'Ebb', 'Fb', 'Gbb', 'Abb', 'Bbb'), Mode(C_flat, LocrianScale).notes)
+        self.assertEqual(('Db', 'Ebb', 'Fb', 'Gb', 'Abb', 'Bbb', 'Cb'), Mode(D_flat, LocrianScale).notes)
+        self.assertEqual(('Eb', 'Fb', 'Gb', 'Ab', 'Bbb', 'Cb', 'Db'), Mode(E_flat, LocrianScale).notes)
+        self.assertEqual(('Fb', 'Gbb', 'Abb', 'Bbb', 'Cbb', 'Dbb', 'Ebb'), Mode(F_flat, LocrianScale).notes)
+        self.assertEqual(('Gb', 'Abb', 'Bbb', 'Cb', 'Dbb', 'Ebb', 'Fb'), Mode(G_flat, LocrianScale).notes)
+        self.assertEqual(('Ab', 'Bbb', 'Cb', 'Db', 'Ebb', 'Fb', 'Gb'), Mode(A_flat, LocrianScale).notes)
+        self.assertEqual(('Bb', 'Cb', 'Db', 'Eb', 'Fb', 'Gb', 'Ab'), Mode(B_flat, LocrianScale).notes)
