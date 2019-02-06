@@ -2,8 +2,8 @@ from unittest import TestCase
 
 from errors import InvalidModeError
 from models import Key, MajorScale, C, Mode, D, E, F, G, A, B, IonianScale, E_flat, B_flat, DorianScale, C_sharp, \
-    F_sharp, D_sharp, E_sharp, G_sharp, A_sharp, B_sharp, C_flat, D_flat, F_flat, G_flat, A_flat, C_double_sharp, \
-    F_double_sharp, PhrygianScale, LydianScale
+    F_sharp, D_sharp, E_sharp, G_sharp, A_sharp, B_sharp, C_flat, D_flat, F_flat, G_flat, A_flat, PhrygianScale, \
+    LydianScale, MixolydianScale
 
 
 #######################################################################
@@ -143,3 +143,33 @@ class TestModes(TestCase):
         self.assertEqual(('Gb', 'Ab', 'Bb', 'C', 'Db', 'Eb', 'F'), Mode(G_flat, LydianScale).notes)
         self.assertEqual(('Ab', 'Bb', 'C', 'D', 'Eb', 'F', 'G'), Mode(A_flat, LydianScale).notes)
         self.assertEqual(('Bb', 'C', 'D', 'E', 'F', 'G', 'A'), Mode(B_flat, LydianScale).notes)
+
+    ####################################################################
+    def test_mixolydian__natural_tonics(self):
+        self.assertEqual(('C', 'D', 'E', 'F', 'G', 'A', 'Bb'), Mode(C, MixolydianScale).notes)
+        self.assertEqual(('D', 'E', 'F#', 'G', 'A', 'B', 'C'), Mode(D, MixolydianScale).notes)
+        self.assertEqual(('E', 'F#', 'G#', 'A', 'B', 'C#', 'D'), Mode(E, MixolydianScale).notes)
+        self.assertEqual(('F', 'G', 'A', 'Bb', 'C', 'D', 'Eb'), Mode(F, MixolydianScale).notes)
+        self.assertEqual(('G', 'A', 'B', 'C', 'D', 'E', 'F'), Mode(G, MixolydianScale).notes)
+        self.assertEqual(('A', 'B', 'C#', 'D', 'E', 'F#', 'G'), Mode(A, MixolydianScale).notes)
+        self.assertEqual(('B', 'C#', 'D#', 'E', 'F#', 'G#', 'A'), Mode(B, MixolydianScale).notes)
+
+    ####################################################################
+    def test_mixolydian__sharp_tonics(self):
+        self.assertEqual(('C#', 'D#', 'E#', 'F#', 'G#', 'A#', 'B'), Mode(C_sharp, MixolydianScale).notes)
+        self.assertEqual(('D#', 'E#', 'F##', 'G#', 'A#', 'B#', 'C#'), Mode(D_sharp, MixolydianScale).notes)
+        self.assertEqual(('E#', 'F##', 'G##', 'A#', 'B#', 'C##', 'D#'), Mode(E_sharp, MixolydianScale).notes)
+        self.assertEqual(('F#', 'G#', 'A#', 'B', 'C#', 'D#', 'E'), Mode(F_sharp, MixolydianScale).notes)
+        self.assertEqual(('G#', 'A#', 'B#', 'C#', 'D#', 'E#', 'F#'), Mode(G_sharp, MixolydianScale).notes)
+        self.assertEqual(('A#', 'B#', 'C##', 'D#', 'E#', 'F##', 'G#'), Mode(A_sharp, MixolydianScale).notes)
+        self.assertEqual(('B#', 'C##', 'D##', 'E#', 'F##', 'G##', 'A#'), Mode(B_sharp, MixolydianScale).notes)
+
+    ####################################################################
+    def test_mixolydian__flat_tonics(self):
+        self.assertEqual(('Cb', 'Db', 'Eb', 'Fb', 'Gb', 'Ab', 'Bbb'), Mode(C_flat, MixolydianScale).notes)
+        self.assertEqual(('Db', 'Eb', 'F', 'Gb', 'Ab', 'Bb', 'Cb'), Mode(D_flat, MixolydianScale).notes)
+        self.assertEqual(('Eb', 'F', 'G', 'Ab', 'Bb', 'C', 'Db'), Mode(E_flat, MixolydianScale).notes)
+        self.assertEqual(('Fb', 'Gb', 'Ab', 'Bbb', 'Cb', 'Db', 'Ebb'), Mode(F_flat, MixolydianScale).notes)
+        self.assertEqual(('Gb', 'Ab', 'Bb', 'Cb', 'Db', 'Eb', 'Fb'), Mode(G_flat, MixolydianScale).notes)
+        self.assertEqual(('Ab', 'Bb', 'C', 'Db', 'Eb', 'F', 'Gb'), Mode(A_flat, MixolydianScale).notes)
+        self.assertEqual(('Bb', 'C', 'D', 'Eb', 'F', 'G', 'Ab'), Mode(B_flat, MixolydianScale).notes)
