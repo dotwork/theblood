@@ -3,7 +3,7 @@ from unittest import TestCase
 from errors import InvalidModeError
 from models import Key, MajorScale, C, Mode, D, E, F, G, A, B, IonianScale, E_flat, B_flat, DorianScale, C_sharp, \
     F_sharp, D_sharp, E_sharp, G_sharp, A_sharp, B_sharp, C_flat, D_flat, F_flat, G_flat, A_flat, C_double_sharp, \
-    F_double_sharp, PhrygianScale
+    F_double_sharp, PhrygianScale, LydianScale
 
 
 #######################################################################
@@ -113,3 +113,33 @@ class TestModes(TestCase):
         self.assertEqual(('Gb', 'Abb', 'Bbb', 'Cb', 'Db', 'Ebb', 'Fb'), Mode(G_flat, PhrygianScale).notes)
         self.assertEqual(('Ab', 'Bbb', 'Cb', 'Db', 'Eb', 'Fb', 'Gb'), Mode(A_flat, PhrygianScale).notes)
         self.assertEqual(('Bb', 'Cb', 'Db', 'Eb', 'F', 'Gb', 'Ab'), Mode(B_flat, PhrygianScale).notes)
+
+    ####################################################################
+    def test_lydian__natural_tonics(self):
+        self.assertEqual(('C', 'D', 'E', 'F#', 'G', 'A', 'B'), Mode(C, LydianScale).notes)
+        self.assertEqual(('D', 'E', 'F#', 'G#', 'A', 'B', 'C#'), Mode(D, LydianScale).notes)
+        self.assertEqual(('E', 'F#', 'G#', 'A#', 'B', 'C#', 'D#'), Mode(E, LydianScale).notes)
+        self.assertEqual(('F', 'G', 'A', 'B', 'C', 'D', 'E'), Mode(F, LydianScale).notes)
+        self.assertEqual(('G', 'A', 'B', 'C#', 'D', 'E', 'F#'), Mode(G, LydianScale).notes)
+        self.assertEqual(('A', 'B', 'C#', 'D#', 'E', 'F#', 'G#'), Mode(A, LydianScale).notes)
+        self.assertEqual(('B', 'C#', 'D#', 'E#', 'F#', 'G#', 'A#'), Mode(B, LydianScale).notes)
+
+    ####################################################################
+    def test_lydian__sharp_tonics(self):
+        self.assertEqual(('C#', 'D#', 'E#', 'F##', 'G#', 'A#', 'B#'), Mode(C_sharp, LydianScale).notes)
+        self.assertEqual(('D#', 'E#', 'F##', 'G##', 'A#', 'B#', 'C##'), Mode(D_sharp, LydianScale).notes)
+        self.assertEqual(('E#', 'F##', 'G##', 'A##', 'B#', 'C##', 'D##'), Mode(E_sharp, LydianScale).notes)
+        self.assertEqual(('F#', 'G#', 'A#', 'B#', 'C#', 'D#', 'E#'), Mode(F_sharp, LydianScale).notes)
+        self.assertEqual(('G#', 'A#', 'B#', 'C##', 'D#', 'E#', 'F##'), Mode(G_sharp, LydianScale).notes)
+        self.assertEqual(('A#', 'B#', 'C##', 'D##', 'E#', 'F##', 'G##'), Mode(A_sharp, LydianScale).notes)
+        self.assertEqual(('B#', 'C##', 'D##', 'E##', 'F##', 'G##', 'A##'), Mode(B_sharp, LydianScale).notes)
+
+    ####################################################################
+    def test_lydian__flat_tonics(self):
+        self.assertEqual(('Cb', 'Db', 'Eb', 'F', 'Gb', 'Ab', 'Bb'), Mode(C_flat, LydianScale).notes)
+        self.assertEqual(('Db', 'Eb', 'F', 'G', 'Ab', 'Bb', 'C'), Mode(D_flat, LydianScale).notes)
+        self.assertEqual(('Eb', 'F', 'G', 'A', 'Bb', 'C', 'D'), Mode(E_flat, LydianScale).notes)
+        self.assertEqual(('Fb', 'Gb', 'Ab', 'Bb', 'Cb', 'Db', 'Eb'), Mode(F_flat, LydianScale).notes)
+        self.assertEqual(('Gb', 'Ab', 'Bb', 'C', 'Db', 'Eb', 'F'), Mode(G_flat, LydianScale).notes)
+        self.assertEqual(('Ab', 'Bb', 'C', 'D', 'Eb', 'F', 'G'), Mode(A_flat, LydianScale).notes)
+        self.assertEqual(('Bb', 'C', 'D', 'E', 'F', 'G', 'A'), Mode(B_flat, LydianScale).notes)
