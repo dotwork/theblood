@@ -15,6 +15,12 @@ class TestBaseScale(TestCase):
         self.assertEqual(MAJOR_SCALE_NAME, ScalePattern('major').name)
         self.assertEqual(MAJOR_SCALE_NAME, ScalePattern('MAJOR').name)
 
+        self.assertEqual(IONIAN_SCALE_NAME, ScalePattern('Ionian').name)
+        self.assertEqual(DORIAN_SCALE_NAME, ScalePattern('DORIAN').name)
+        self.assertEqual(PHRYGIAN_SCALE_NAME, ScalePattern('Phrygian').name)
+        self.assertEqual(LYDIAN_SCALE_NAME, ScalePattern('LYDIAN').name)
+        self.assertEqual(MIXOLYDIAN_SCALE_NAME, ScalePattern('MixoLydian').name)
+        self.assertEqual(AEOLIAN_SCALE_NAME, ScalePattern('Aeolian').name)
         self.assertEqual(LOCRIAN_SCALE_NAME, ScalePattern('locrian').name)
 
     ####################################################################
@@ -32,15 +38,12 @@ class TestBaseScale(TestCase):
 
     ####################################################################
     def test_intervals__standard_scales__by_intervals(self):
-        self.assertEqual(MAJOR_SCALE_NAME, ScalePattern(intervals=(W, W, H, W, W, W, H)).name)
-        self.assertEqual(MINOR_SCALE_NAME, ScalePattern(intervals=(W, H, W, W, H, W, W)).name)
-
-        # self.assertEqual(IONIAN_SCALE_NAME, BaseScale(intervals=(W, W, H, W, W, W, H)).name)
+        self.assertEqual(IONIAN_SCALE_NAME, ScalePattern(intervals=(W, W, H, W, W, W, H)).name)
         self.assertEqual(DORIAN_SCALE_NAME, ScalePattern(intervals=(W, H, W, W, W, H, W)).name)
         self.assertEqual(PHRYGIAN_SCALE_NAME, ScalePattern(intervals=(H, W, W, W, H, W, W)).name)
         self.assertEqual(LYDIAN_SCALE_NAME, ScalePattern(intervals=(W, W, W, H, W, W, H)).name)
         self.assertEqual(MIXOLYDIAN_SCALE_NAME, ScalePattern(intervals=(W, W, H, W, W, H, W)).name)
-        # self.assertEqual(AEOLIAN_SCALE_NAME, BaseScale(intervals=(W, H, W, W, H, W, W)).name)
+        self.assertEqual(AEOLIAN_SCALE_NAME, ScalePattern(intervals=(W, H, W, W, H, W, W)).name)
         self.assertEqual(LOCRIAN_SCALE_NAME, ScalePattern(intervals=(H, W, W, H, W, W, W)).name)
 
     ####################################################################
@@ -53,12 +56,12 @@ class TestBaseScale(TestCase):
     ####################################################################
     def test_intervals__custom_scale__invalid(self):
         with self.assertRaises(InvalidScaleError) as err:
-            ScalePattern('foo', tuple())
-        self.assertEqual('Foo is not a recognized scale.', str(err.exception))
+            ScalePattern('Custom Scale With No Intervals', tuple())
+        self.assertEqual('Custom Scale With No Intervals is not a recognized scale.', str(err.exception))
 
         with self.assertRaises(InvalidScaleError) as err:
-            unrecognized_scale = (W, W, H)
-            ScalePattern(intervals=unrecognized_scale)
+            scale_with_no_name = (W, W, H)
+            ScalePattern(intervals=scale_with_no_name)
         self.assertEqual(f'({W}, {W}, {H}) is not a recognized scale.', str(err.exception))
 
 
@@ -81,7 +84,7 @@ class TestScale(TestCase):
     def test_slicing(self):
         c_major = Scale(C, MajorScale)
         c_slice = c_major[0:2]
-        self.assertEqual('C Major slice[0:2]', c_slice.name)
+        self.assertEqual('C Major Slice[0:2]', c_slice.name)
         self.assertEqual((C, D), c_slice.notes)
 
     ####################################################################

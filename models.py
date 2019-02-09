@@ -396,7 +396,7 @@ class ScalePattern:
     def clean_name_and_intervals(cls, name, intervals):
         assert name or intervals, 'A name or iterable of intervals must be provided.'
 
-        name = name.strip().capitalize() if name else ''
+        name = name.strip().title() if name else ''
         if intervals:
             intervals = tuple(intervals)
 
@@ -411,13 +411,10 @@ class ScalePattern:
                 intervals = SCALE_TO_INTERVALS_MAP[name]
             except KeyError:
                 try:
-                    name = KEY_INTERVALS_TO_NAME_MAP[intervals]
+                    name = MODAL_INTERVALS_TO_NAME_MAP[intervals]
                 except KeyError:
-                    try:
-                        name = MODAL_INTERVALS_TO_NAME_MAP[intervals]
-                    except KeyError:
-                        argument = name or intervals
-                        raise InvalidScaleError(f'{argument} is not a recognized scale.')
+                    argument = name or intervals
+                    raise InvalidScaleError(f'{argument} is not a recognized scale.')
 
         return name, intervals
 
@@ -504,23 +501,6 @@ class Scale(ScalePattern):
         self.sixteenth = self.notes[15] if num_intervals > 15 else None
 
     ####################################################################
-    def __eq__(self, other):
-        if not isinstance(other, Scale):
-            raise TypeError(f'Cannot compare type {type(other)} to type Scale.')
-
-        return self.notes == other.notes and self.intervals == other.intervals
-
-    ####################################################################
-    def __getslice__(self, slice_obj):
-        base_scale = self.base_scale.__getslice__(slice_obj)
-        if base_scale == self.base_scale:
-            return self
-
-        tonic = self.notes[slice_obj.start or 0]
-        scale = Scale(tonic, base_scale)
-        return scale
-
-    ####################################################################
     def _generate_notes(self):
         # We already know the root note, so create a list starting with that
         notes = [self.tonic]
@@ -553,6 +533,13 @@ class Scale(ScalePattern):
         return notes
 
     ####################################################################
+    def __eq__(self, other):
+        if not isinstance(other, Scale):
+            raise TypeError(f'Cannot compare type {type(other)} to type Scale.')
+
+        return self.notes == other.notes and self.intervals == other.intervals
+
+    ####################################################################
     def __getitem__(self, item):
         try:
             i = int(item)
@@ -563,6 +550,16 @@ class Scale(ScalePattern):
             return self.__getslice__(item)
         except ValueError:
             return None
+
+    ####################################################################
+    def __getslice__(self, slice_obj):
+        base_scale = self.base_scale.__getslice__(slice_obj)
+        if base_scale == self.base_scale:
+            return self
+
+        tonic = self.notes[slice_obj.start or 0]
+        scale = Scale(tonic, base_scale)
+        return scale
 
     ####################################################################
     def __iter__(self):
