@@ -558,7 +558,7 @@ class Scale(ScalePattern):
             return self
 
         tonic = self.notes[slice_obj.start or 0]
-        scale = Scale(tonic, base_scale)
+        scale = self.__class__(tonic, base_scale)
         return scale
 
     ####################################################################
