@@ -333,6 +333,10 @@ A_flat = Note('A♭')
 W = WHOLE_STEP = Interval(2)
 H = HALF_STEP = Interval(1)
 
+MinorThird = Interval(3)
+MajorThird = Interval(4)
+PerfectFifth = Interval(7)
+
 MAJOR_INTERVALS = (W, W, H, W, W, W, H)
 MINOR_INTERVALS = (W, H, W, W, H, W, W)
 
@@ -675,49 +679,45 @@ class Key:
 
 
 ########################################################################
+class ChordPattern(list):
+
+    ####################################################################
+    def __init__(self, *args):
+        args = (Interval(i) for i in args)
+        super(ChordPattern, self).__init__(args)
+
+
+MajorTriad = ChordPattern(MajorThird, MinorThird)
+MinorTriad = ChordPattern(MinorThird, MajorThird)
+
+
+########################################################################
 class Chord:
 
     ####################################################################
-    def __init__(self, name):
+    def __init__(self, name, key=None):
         root, quality = get_note_and_quality_from_music_element(name.strip())
         self.root_note = root
         self.quality = quality
+        self.is_minor = quality == MINOR
+        self.is_major = quality == MAJOR
         self.name = f"{root}{quality}"
-        # self.intervals = intervals
+        self.key_specified = key is not None
+        self.key = Key(key) if key else self.default_key
         self.notes = self._generate_notes()
 
+    ####################################################################
+    @property
+    def default_key(self):
+        name = f'{self.root_note.name}{self.quality}'
+        key = Key(name)
+        return key
+
+    ####################################################################
     def _generate_notes(self):
-        # We already know the root note, so create a list starting with that
-        notes = [self.root_note]
-
-        # Get the base pitch to start with from our root note
-        pitch = self.root_note.fundamental
-
-        # A key has a set of whole and half steps that determine what notes
-        # fall into the key, starting from the root note. Iterate through
-        # each step to add each successive note to the key.
-        for intervals in self.intervals:
-            # All 12 notes are 1 semitone, or half-step, apart from the note below and above.
-            # Since there are 2 semitones in a step, multiply the current step in this loop by 2
-            # to get the total amount of semitones we need to increase for out next note.
-            semitones = step * 2
-
-            # Increase it to the pitch we want for the next note.
-            pitch = pitch.increase(semitones)
-
-            # Get the list of harmonically equivalent notes for the increased pitch
-            equivalent_notes = pitch.notes
-
-            # Find which of the equivalent notes is named with the next letter for our key
-            # For example, if the last note was some kind of A (A, A#, or Ab)
-            # the next note must be a B (B, B#, or Bb)
-            next_note_natural_name = notes[-1].next_natural_note.name
-            note = Note.get_note_with_letter(next_note_natural_name, equivalent_notes)
-
-            # And add that note to the list
-            notes.append(note)
-
-        return notes
+        return tuple((self.key.scale.tonic,
+                      self.key.scale.third,
+                      self.key.scale.fifth))
 
 
 ########################################################################
