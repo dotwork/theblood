@@ -703,6 +703,8 @@ class Chord:
         self.name = f"{root}{quality}"
         self.key_specified = key is not None
         self.key = Key(key) if key else self.default_key
+        self.as_basic_triad = tuple((self.key.scale.first, self.key.scale.third, self.key.scale.fifth))
+        self._seventh = None
         self.notes = self._generate_notes()
 
     ####################################################################
@@ -715,16 +717,30 @@ class Chord:
 
     ####################################################################
     def _generate_notes(self):
+        notes = list(self.as_basic_triad)
+        if self.seventh:
+            notes.append(self.seventh)
+        return tuple(notes)
+
+    ####################################################################
+    @property
+    def seventh(self):
+        if self._seventh:
+            return self._seventh
+
         scale = self.key.scale
-        notes = [scale.first, scale.third, scale.fifth]
         if self.quality == SEVENTH:
             major_seventh_pitch = scale.seventh.fundamental
             dominant_seventh_pitch = major_seventh_pitch.decrease(1)
             harmonically_eq_notes = dominant_seventh_pitch.notes
             for note in harmonically_eq_notes:
                 if note.natural_name == scale.seventh.natural_name:
-                    notes.append(note)
-        return tuple(notes)
+                    self._seventh = note
+                    return note
+        elif self.quality == MINOR + SEVENTH:
+            return scale.seventh
+
+        return None
 
 
 ########################################################################
