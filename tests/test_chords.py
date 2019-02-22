@@ -79,7 +79,7 @@ class TestChord(TestCase):
         self.assertEqual(('G♭', 'B♭♭', 'D♭'), Chord('G♭m').notes)
 
     ####################################################################
-    def test_notes__major_7th(self):
+    def test_notes__dominant_7th(self):
         self.assertEqual(('A', 'C♯', 'E', 'G'), Chord('A7').notes)
         self.assertEqual(('B', 'D#', 'F#', 'A'), Chord('B7').notes)
         self.assertEqual(('C', 'E', 'G', 'B♭'), Chord('C7').notes)

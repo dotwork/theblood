@@ -3,7 +3,7 @@ from decimal import Decimal
 
 from data import SHARP, FLAT, IN_TUNE, NATURAL_NOTES, SHARPS_AND_FLATS, PITCHES, MINOR, \
     QUALITIES, MAJOR_SCALE_NAME, MINOR_SCALE_NAME, IONIAN_SCALE_NAME, DORIAN_SCALE_NAME, PHRYGIAN_SCALE_NAME, \
-    LYDIAN_SCALE_NAME, MIXOLYDIAN_SCALE_NAME, AEOLIAN_SCALE_NAME, LOCRIAN_SCALE_NAME, MAJOR, MODE_NAMES
+    LYDIAN_SCALE_NAME, MIXOLYDIAN_SCALE_NAME, AEOLIAN_SCALE_NAME, LOCRIAN_SCALE_NAME, MAJOR, MODE_NAMES, SEVENTH
 from errors import InvalidNoteError, InvalidKeyError, InvalidQualityError, InvalidScaleError, InvalidModeError
 
 
@@ -118,6 +118,18 @@ class Pitch(Decimal):
             if hz > self:
                 increased += 1
             if increased == semitones:
+                break
+
+        return Pitch(hz)
+
+    ####################################################################
+    def decrease(self, semitones):
+        decreased = 0
+
+        for hz in reversed(PitchMap):
+            if hz < self:
+                decreased += 1
+            if decreased == semitones:
                 break
 
         return Pitch(hz)
@@ -679,19 +691,6 @@ class Key:
 
 
 ########################################################################
-class ChordPattern(list):
-
-    ####################################################################
-    def __init__(self, *args):
-        args = (Interval(i) for i in args)
-        super(ChordPattern, self).__init__(args)
-
-
-MajorTriad = ChordPattern(MajorThird, MinorThird)
-MinorTriad = ChordPattern(MinorThird, MajorThird)
-
-
-########################################################################
 class Chord:
 
     ####################################################################
@@ -699,8 +698,8 @@ class Chord:
         root, quality = get_note_and_quality_from_music_element(name.strip())
         self.root_note = root
         self.quality = quality
-        self.is_minor = quality == MINOR
-        self.is_major = quality == MAJOR
+        self.is_minor = MINOR in quality
+        self.is_major = not self.is_minor
         self.name = f"{root}{quality}"
         self.key_specified = key is not None
         self.key = Key(key) if key else self.default_key
@@ -709,15 +708,23 @@ class Chord:
     ####################################################################
     @property
     def default_key(self):
-        name = f'{self.root_note.name}{self.quality}'
+        quality = MINOR if self.is_minor else MAJOR
+        name = f'{self.root_note.name}{quality}'
         key = Key(name)
         return key
 
     ####################################################################
     def _generate_notes(self):
-        return tuple((self.key.scale.tonic,
-                      self.key.scale.third,
-                      self.key.scale.fifth))
+        scale = self.key.scale
+        notes = [scale.first, scale.third, scale.fifth]
+        if self.quality == SEVENTH:
+            major_seventh_pitch = scale.seventh.fundamental
+            dominant_seventh_pitch = major_seventh_pitch.decrease(1)
+            harmonically_eq_notes = dominant_seventh_pitch.notes
+            for note in harmonically_eq_notes:
+                if note.natural_name == scale.seventh.natural_name:
+                    notes.append(note)
+        return tuple(notes)
 
 
 ########################################################################
