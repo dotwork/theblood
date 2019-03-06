@@ -3,7 +3,8 @@ from decimal import Decimal
 
 from data import SHARP, FLAT, IN_TUNE, NATURAL_NOTES, SHARPS_AND_FLATS, PITCHES, MINOR, \
     QUALITIES, MAJOR_SCALE_NAME, MINOR_SCALE_NAME, IONIAN_SCALE_NAME, DORIAN_SCALE_NAME, PHRYGIAN_SCALE_NAME, \
-    LYDIAN_SCALE_NAME, MIXOLYDIAN_SCALE_NAME, AEOLIAN_SCALE_NAME, LOCRIAN_SCALE_NAME, MAJOR, MODE_NAMES, SEVENTH
+    LYDIAN_SCALE_NAME, MIXOLYDIAN_SCALE_NAME, AEOLIAN_SCALE_NAME, LOCRIAN_SCALE_NAME, MAJOR, MODE_NAMES, SEVENTH, \
+    MAJOR_ABBREVIATION
 from errors import InvalidNoteError, InvalidKeyError, InvalidQualityError, InvalidScaleError, InvalidModeError
 
 
@@ -582,6 +583,32 @@ class Scale(ScalePattern):
         for note in self.notes:
             yield note
 
+    ####################################################################
+    @property
+    def minor_seventh(self):
+        """
+        The minor seventh for a scale is a minor third above the
+        the fifth. Using that as a starting point:
+            - Find the number of semitones minor seventh is above
+              the tonic's pitch
+            - Get the pitch for the tonic
+            - Increase the pitch by the number of semitones
+              for the minor seventh
+            - Get the harmonically equivalent notes at that raised pitch
+            - Select the one that has the same natural name as the
+              scale's seventh
+        """
+        min_7_semitones = sum((PerfectFifth, MinorThird))
+        pitch = self.tonic.fundamental.increase(min_7_semitones)
+        equivalent_notes = pitch.notes
+        note = Note.get_note_with_letter(self.seventh.natural_name, equivalent_notes)
+        return note
+
+    ####################################################################
+    @property
+    def major_seventh(self):
+        return None
+
 
 #######################################################################
 class Mode(Scale):
@@ -703,8 +730,6 @@ class Chord:
         self.name = f"{root}{quality}"
         self.key_specified = key is not None
         self.key = Key(key) if key else self.default_key
-        self.as_basic_triad = tuple((self.key.scale.first, self.key.scale.third, self.key.scale.fifth))
-        self._seventh = None
         self.notes = self._generate_notes()
 
     ####################################################################
@@ -716,8 +741,15 @@ class Chord:
         return key
 
     ####################################################################
+    @property
+    def triad(self):
+        return (self.key.scale.first,
+                self.key.scale.third,
+                self.key.scale.fifth)
+
+    ####################################################################
     def _generate_notes(self):
-        notes = list(self.as_basic_triad)
+        notes = list(self.triad)
         if self.seventh:
             notes.append(self.seventh)
         return tuple(notes)
@@ -725,21 +757,11 @@ class Chord:
     ####################################################################
     @property
     def seventh(self):
-        if self._seventh:
-            return self._seventh
-
         scale = self.key.scale
-        if self.quality == SEVENTH:
-            major_seventh_pitch = scale.seventh.fundamental
-            dominant_seventh_pitch = major_seventh_pitch.decrease(1)
-            harmonically_eq_notes = dominant_seventh_pitch.notes
-            for note in harmonically_eq_notes:
-                if note.natural_name == scale.seventh.natural_name:
-                    self._seventh = note
-                    return note
-        elif self.quality == MINOR + SEVENTH:
-            return scale.seventh
-
+        if self.quality == SEVENTH or self.quality == MINOR + SEVENTH:
+            return scale.minor_seventh
+        elif self.quality == MAJOR_ABBREVIATION + SEVENTH:
+            return scale.major_seventh
         return None
 
 

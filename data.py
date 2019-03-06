@@ -12,6 +12,7 @@ SHARP = '♯'
 DOUBLE_FLAT = '♭♭'
 DOUBLE_SHARP = '♯♯'
 MAJOR = ''
+MAJOR_ABBREVIATION = 'maj'
 MINOR = 'm'
 SEVENTH = '7'
 NINTH = '9'
@@ -43,13 +44,13 @@ QUALITIES.update({
     '': MAJOR,
     'major': MAJOR,
     'maj': MAJOR,
-    'perfect': MAJOR,
 
     'minor': MINOR,
     'min': MINOR,
     'm': MINOR,
 
     '7': SEVENTH,
+    'maj7': MAJOR_ABBREVIATION + SEVENTH,
     'minor7': MINOR + SEVENTH,
     'min7': MINOR + SEVENTH,
     'm7': MINOR + SEVENTH,
