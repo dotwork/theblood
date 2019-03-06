@@ -4,7 +4,7 @@ from models import Chord
 
 
 ########################################################################
-class TestChord(TestCase):
+class TestChordName(TestCase):
 
     ####################################################################
     def test_name__major(self):
@@ -18,8 +18,12 @@ class TestChord(TestCase):
         self.assertEqual('Am', Chord('A min').name)
         self.assertEqual('Am', Chord('A minor').name)
 
+
+########################################################################
+class TestMajorChords(TestCase):
+
     ####################################################################
-    def test_notes__major(self):
+    def test_notes__natural(self):
         self.assertEqual(('A', 'C♯', 'E'), Chord('A').notes)
         self.assertEqual(('B', 'D♯', 'F♯'), Chord('B').notes)
         self.assertEqual(('C', 'E', 'G'), Chord('C').notes)
@@ -29,17 +33,7 @@ class TestChord(TestCase):
         self.assertEqual(('G', 'B', 'D'), Chord('G').notes)
 
     ####################################################################
-    def test_notes__minor(self):
-        self.assertEqual(('A', 'C', 'E'), Chord('Am').notes)
-        self.assertEqual(('B', 'D', 'F♯'), Chord('Bm').notes)
-        self.assertEqual(('C', 'E♭', 'G'), Chord('Cm').notes)
-        self.assertEqual(('D', 'F', 'A'), Chord('Dm').notes)
-        self.assertEqual(('E', 'G', 'B'), Chord('Em').notes)
-        self.assertEqual(('F', 'A♭', 'C'), Chord('Fm').notes)
-        self.assertEqual(('G', 'B♭', 'D'), Chord('Gm').notes)
-
-    ####################################################################
-    def test_notes__major_sharps(self):
+    def test_notes__sharp(self):
         self.assertEqual(('A♯', 'C♯♯', 'E♯'), Chord('A♯').notes)
         self.assertEqual(('B♯', 'D♯♯', 'F♯♯'), Chord('B♯').notes)
         self.assertEqual(('C♯', 'E♯', 'G♯'), Chord('C♯').notes)
@@ -49,17 +43,7 @@ class TestChord(TestCase):
         self.assertEqual(('G♯', 'B♯', 'D♯'), Chord('G♯').notes)
 
     ####################################################################
-    def test_notes__minor_sharps(self):
-        self.assertEqual(('A♯', 'C♯', 'E♯'), Chord('A♯m').notes)
-        self.assertEqual(('B♯', 'D♯', 'F♯♯'), Chord('B♯m').notes)
-        self.assertEqual(('C♯', 'E', 'G♯'), Chord('C♯m').notes)
-        self.assertEqual(('D♯', 'F♯', 'A♯'), Chord('D♯m').notes)
-        self.assertEqual(('E♯', 'G♯', 'B♯'), Chord('E♯m').notes)
-        self.assertEqual(('F♯', 'A', 'C♯'), Chord('F♯m').notes)
-        self.assertEqual(('G♯', 'B', 'D♯'), Chord('G♯m').notes)
-
-    ####################################################################
-    def test_notes__major_flats(self):
+    def test_notes__flat(self):
         self.assertEqual(('A♭', 'C', 'E♭'), Chord('A♭').notes)
         self.assertEqual(('B♭', 'D', 'F'), Chord('B♭').notes)
         self.assertEqual(('C♭', 'E♭', 'G♭'), Chord('C♭').notes)
@@ -67,16 +51,6 @@ class TestChord(TestCase):
         self.assertEqual(('E♭', 'G', 'B♭'), Chord('E♭').notes)
         self.assertEqual(('F♭', 'A♭', 'C♭'), Chord('F♭').notes)
         self.assertEqual(('G♭', 'B♭', 'D♭'), Chord('G♭').notes)
-
-    ####################################################################
-    def test_notes__minor_flats(self):
-        self.assertEqual(('A♭', 'C♭', 'E♭'), Chord('A♭m').notes)
-        self.assertEqual(('B♭', 'D♭', 'F'), Chord('B♭m').notes)
-        self.assertEqual(('C♭', 'E♭♭', 'G♭'), Chord('C♭m').notes)
-        self.assertEqual(('D♭', 'F♭', 'A♭'), Chord('D♭m').notes)
-        self.assertEqual(('E♭', 'G♭', 'B♭'), Chord('E♭m').notes)
-        self.assertEqual(('F♭', 'A♭♭', 'C♭'), Chord('F♭m').notes)
-        self.assertEqual(('G♭', 'B♭♭', 'D♭'), Chord('G♭m').notes)
 
     ####################################################################
     def test_notes__dominant_7th(self):
@@ -87,6 +61,50 @@ class TestChord(TestCase):
         self.assertEqual(('E', 'G#', 'B', 'D'), Chord('E7').notes)
         self.assertEqual(('F', 'A', 'C', 'E♭'), Chord('F7').notes)
         self.assertEqual(('G', 'B', 'D', 'F'), Chord('G7').notes)
+
+    ####################################################################
+    def test_notes__major_7th(self):
+        self.assertEqual(('A', 'C♯', 'E', 'G♯'), Chord('Amaj7').notes)
+        self.assertEqual(('B', 'D#', 'F#', 'A♯'), Chord('Bmaj7').notes)
+        self.assertEqual(('C', 'E', 'G', 'B'), Chord('Cmaj7').notes)
+        self.assertEqual(('D', 'F#', 'A', 'C♯'), Chord('Dmaj7').notes)
+        self.assertEqual(('E', 'G#', 'B', 'D♯'), Chord('Emaj7').notes)
+        self.assertEqual(('F', 'A', 'C', 'E'), Chord('Fmaj7').notes)
+        self.assertEqual(('G', 'B', 'D', 'F♯'), Chord('Gmaj7').notes)
+
+
+########################################################################
+class TestMinorChords(TestCase):
+
+    ####################################################################
+    def test_notes__natural(self):
+        self.assertEqual(('A', 'C', 'E'), Chord('Am').notes)
+        self.assertEqual(('B', 'D', 'F♯'), Chord('Bm').notes)
+        self.assertEqual(('C', 'E♭', 'G'), Chord('Cm').notes)
+        self.assertEqual(('D', 'F', 'A'), Chord('Dm').notes)
+        self.assertEqual(('E', 'G', 'B'), Chord('Em').notes)
+        self.assertEqual(('F', 'A♭', 'C'), Chord('Fm').notes)
+        self.assertEqual(('G', 'B♭', 'D'), Chord('Gm').notes)
+
+    ####################################################################
+    def test_notes__sharp(self):
+        self.assertEqual(('A♯', 'C♯', 'E♯'), Chord('A♯m').notes)
+        self.assertEqual(('B♯', 'D♯', 'F♯♯'), Chord('B♯m').notes)
+        self.assertEqual(('C♯', 'E', 'G♯'), Chord('C♯m').notes)
+        self.assertEqual(('D♯', 'F♯', 'A♯'), Chord('D♯m').notes)
+        self.assertEqual(('E♯', 'G♯', 'B♯'), Chord('E♯m').notes)
+        self.assertEqual(('F♯', 'A', 'C♯'), Chord('F♯m').notes)
+        self.assertEqual(('G♯', 'B', 'D♯'), Chord('G♯m').notes)
+
+    ####################################################################
+    def test_notes__flat(self):
+        self.assertEqual(('A♭', 'C♭', 'E♭'), Chord('A♭m').notes)
+        self.assertEqual(('B♭', 'D♭', 'F'), Chord('B♭m').notes)
+        self.assertEqual(('C♭', 'E♭♭', 'G♭'), Chord('C♭m').notes)
+        self.assertEqual(('D♭', 'F♭', 'A♭'), Chord('D♭m').notes)
+        self.assertEqual(('E♭', 'G♭', 'B♭'), Chord('E♭m').notes)
+        self.assertEqual(('F♭', 'A♭♭', 'C♭'), Chord('F♭m').notes)
+        self.assertEqual(('G♭', 'B♭♭', 'D♭'), Chord('G♭m').notes)
 
     ####################################################################
     def test_notes__minor_7th(self):

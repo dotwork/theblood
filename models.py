@@ -607,7 +607,11 @@ class Scale(ScalePattern):
     ####################################################################
     @property
     def major_seventh(self):
-        return None
+        min_7_semitones = sum((PerfectFifth, MajorThird))
+        pitch = self.tonic.fundamental.increase(min_7_semitones)
+        equivalent_notes = pitch.notes
+        note = Note.get_note_with_letter(self.seventh.natural_name, equivalent_notes)
+        return note
 
 
 #######################################################################
@@ -725,7 +729,7 @@ class Chord:
         root, quality = get_note_and_quality_from_music_element(name.strip())
         self.root_note = root
         self.quality = quality
-        self.is_minor = MINOR in quality
+        self.is_minor = MAJOR_ABBREVIATION not in quality and MINOR in quality
         self.is_major = not self.is_minor
         self.name = f"{root}{quality}"
         self.key_specified = key is not None
