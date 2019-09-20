@@ -1,4 +1,5 @@
 import collections
+import string
 from decimal import Decimal
 
 from data import SHARP, FLAT, IN_TUNE, NATURAL_NOTES, SHARPS_AND_FLATS, PITCHES, MINOR, \
@@ -6,6 +7,11 @@ from data import SHARP, FLAT, IN_TUNE, NATURAL_NOTES, SHARPS_AND_FLATS, PITCHES,
     LYDIAN_SCALE_NAME, MIXOLYDIAN_SCALE_NAME, AEOLIAN_SCALE_NAME, LOCRIAN_SCALE_NAME, MAJOR, MODE_NAMES, SEVENTH, \
     MAJOR_ABBREVIATION
 from errors import InvalidNoteError, InvalidKeyError, InvalidQualityError, InvalidScaleError, InvalidModeError
+
+
+#######################################################################
+def divisible_by(word, i):
+    return (len(word) % i) == 0
 
 
 #######################################################################
@@ -717,6 +723,10 @@ class Key:
             yield note
 
     ####################################################################
+    def __eq__(self, other):
+        return self.name == other.name
+
+    ####################################################################
     def is_major(self):
         return self.quality == MAJOR
 
@@ -836,3 +846,53 @@ class Transpose:
     ####################################################################
     def _transpose(self):
         raise NotImplementedError()
+
+
+#######################################################################
+class Game:
+
+    ####################################################################
+    def __init__(self, text):
+        self.text = text
+        self.words = self.text.split(' ')
+        self.key = self._calculate_key()
+        self.chords = self._calculate_chords()
+        self.time_signature = self._calculate_time_signature()
+
+    ####################################################################
+    def _calculate_key(self):
+        first_word = self.words[0]
+        if divisible_by(first_word, 4):
+            return Key('C')
+        elif divisible_by(first_word, 2):
+            return Key('Am')
+        elif divisible_by(first_word, 3):
+            # Update this with logic for number of sharps/flats
+            return Key('A')
+        else:
+            raise NotImplementedError()
+
+    ####################################################################
+    def _calculate_time_signature(self):
+        first_word = self.words[0]
+        if divisible_by(first_word, 2):
+            return '4/4'
+        elif divisible_by(first_word, 3):
+            return '3/4'
+        else:
+            raise NotImplementedError()
+
+    ####################################################################
+    def _calculate_chords(self):
+        chords = [Chord(self.key.name).triad]
+        for word in self.words[1:]:
+            chord = []
+            for char in word:
+                if char.lower() in string.ascii_lowercase:
+                    i = string.ascii_lowercase.index(char)
+                    while i > 6:
+                        i -= 7
+                    note = self.key.scale[i]
+                    chord.append(note)
+            chords.append(tuple(chord))
+        return chords
