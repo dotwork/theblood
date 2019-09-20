@@ -857,6 +857,7 @@ class Game:
         self.words = self.text.split(' ')
         self.key = self._calculate_key()
         self.chords = self._calculate_chords()
+        self.melody = self._calculate_melody()
         self.time_signature = self._calculate_time_signature()
 
     ####################################################################
@@ -888,11 +889,31 @@ class Game:
         for word in self.words[1:]:
             chord = []
             for char in word:
-                if char.lower() in string.ascii_lowercase:
-                    i = string.ascii_lowercase.index(char)
-                    while i > 6:
-                        i -= 7
-                    note = self.key.scale[i]
+                note = self._get_note_from_char(char)
+                if note:
                     chord.append(note)
             chords.append(tuple(chord))
         return chords
+
+    ####################################################################
+    def _calculate_melody(self):
+        melody = []
+        for word in self.words:
+            phrase = []
+            for char in word:
+                note = self._get_note_from_char(char)
+                if note:
+                    phrase.append(note)
+            melody.append(tuple(phrase))
+        return melody
+
+    ####################################################################
+    def _get_note_from_char(self, char):
+        char = char.lower()
+        if char in string.ascii_lowercase:
+            i = string.ascii_lowercase.index(char)
+            while i > 6:
+                i -= 7
+            note = self.key.scale[i]
+            return note
+        raise NotImplementedError()

@@ -8,7 +8,7 @@ class TestGame(unittest.TestCase):
     ####################################################################
     def test_key(self):
         # Divisible by 4 > C major
-        text = 'This is a sentence.'
+        text = 'This is a sentence'
         key = Game(text).key
         self.assertEqual(Key('C'), key)
 
@@ -20,7 +20,7 @@ class TestGame(unittest.TestCase):
     ####################################################################
     def test_time_signature(self):
         # If even number > 4/4
-        text = 'This is a sentence.'
+        text = 'This is a sentence'
         time_signature = Game(text).time_signature
         self.assertEqual('4/4', time_signature)
 
@@ -31,7 +31,7 @@ class TestGame(unittest.TestCase):
 
     ####################################################################
     def test_chords(self):
-        text = 'This is a sentence.'
+        text = 'This is a sentence'
         game = Game(text)
         chord_this, chord_is, chord_a, chord_sentence = game.chords
 
@@ -47,4 +47,8 @@ class TestGame(unittest.TestCase):
 
     ####################################################################
     def test_melody(self):
-        self.fail()
+        text = 'This is a sentence'
+        game = Game(text)
+        # todo: flatten the melody? or leave it in bars? ordered dict?
+        bar_1 = game.melody[0]
+        self.assertEqual((A, C, D, G), bar_1)
