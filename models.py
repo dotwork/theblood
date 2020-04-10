@@ -916,4 +916,4 @@ class Game:
                 i -= 7
             note = self.key.scale[i]
             return note
-        raise NotImplementedError()
+        raise NotImplementedError(f"Don't know how to convert {char} yet.")

@@ -13,7 +13,7 @@ class TestGame(unittest.TestCase):
         self.assertEqual(Key('C'), key)
 
         # Divisible by 2 > A minor
-        text = 'It was a good sentence.'
+        text = 'It was a good sentence'
         key = Game(text).key
         self.assertEqual(Key('Am'), key)
 
@@ -25,7 +25,7 @@ class TestGame(unittest.TestCase):
         self.assertEqual('4/4', time_signature)
 
         # If divisible by 3 > 3/4
-        text = 'The sentence was dope.'
+        text = 'The sentence was dope'
         time_signature = Game(text).time_signature
         self.assertEqual('3/4', time_signature)
 
