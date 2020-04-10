@@ -890,7 +890,7 @@ class Game:
             chord = []
             for char in word:
                 note = self._get_note_from_char(char)
-                if note:
+                if note and note not in chord:
                     chord.append(note)
             chords.append(tuple(chord))
         return chords

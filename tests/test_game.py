@@ -42,13 +42,16 @@ class TestGame(unittest.TestCase):
         # Remaining chords should be calculated from letters
         self.assertEqual((D, G), chord_is)
         self.assertEqual((C, ), chord_a)
-        # Todo: this is too many notes. Need to limit.
-        self.assertEqual((G, G, B, A, G, B, E, G), chord_sentence)
+        self.assertEqual((G, B, A, E), chord_sentence)
 
     ####################################################################
     def test_melody(self):
         text = 'This is a sentence'
         game = Game(text)
-        # todo: flatten the melody? or leave it in bars? ordered dict?
-        bar_1 = game.melody[0]
-        self.assertEqual((A, C, D, G), bar_1)
+        expected = [
+            (A, C, D, G),
+            (D, G),
+            (C, ),
+            (G, G, B, A, G, B, E, G)
+        ]
+        self.assertEqual(expected, game.melody)
