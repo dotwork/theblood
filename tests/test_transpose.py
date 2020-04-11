@@ -1,12 +1,12 @@
 import unittest
 from unittest import TestCase
 
+from data import FLAT, SHARP
 from models import Transpose, WHOLE_STEP, A_flat, A, A_sharp, B_flat, B, C, C_sharp, D_flat, D, D_sharp, E_flat, E, F, \
-    F_sharp, G, G_sharp
+    F_sharp, G, G_sharp, G_flat
 
 
 ########################################################################
-@unittest.skip('Not implemented yet.')
 class TestTranspose(TestCase):
 
     ####################################################################
@@ -30,18 +30,18 @@ class TestTranspose(TestCase):
 
     ####################################################################
     def test_transpose_down_a_third(self):
-        self.assertEqual([D_flat], Transpose(F).down.third)
-        self.assertEqual([D], Transpose(F_sharp).down.third)
-        self.assertEqual([E_flat], Transpose(G).down.third)
-        self.assertEqual([E], Transpose(G_sharp).down.third)
-        self.assertEqual([F], Transpose(A).down.third)
-        self.assertEqual([F_sharp], Transpose(A_sharp).down.third)
-        self.assertEqual([G], Transpose(B).down.third)
-        self.assertEqual([A_flat], Transpose(C).down.third)
-        self.assertEqual([A], Transpose(C_sharp).down.third)
-        self.assertEqual([B_flat], Transpose(D).down.third)
-        self.assertEqual([B], Transpose(D_sharp).down.third)
-        self.assertEqual([C], Transpose(E).down.third)
+        self.assertEqual([D_flat], Transpose(F, quality_to_use=FLAT).down.third)
+        self.assertEqual([D], Transpose(G_flat).down.third)
+        self.assertEqual([E_flat], Transpose(G, quality_to_use=FLAT).down.third)
+        self.assertEqual([E], Transpose(A_flat).down.third)
+        self.assertEqual([F], Transpose(A, quality_to_use=FLAT).down.third)
+        self.assertEqual([G_flat], Transpose(B_flat).down.third)
+        self.assertEqual([G], Transpose(B, quality_to_use=FLAT).down.third)
+        self.assertEqual([A_flat], Transpose(C, quality_to_use=FLAT).down.third)
+        self.assertEqual([A], Transpose(D_flat).down.third)
+        self.assertEqual([B_flat], Transpose(D, quality_to_use=FLAT).down.third)
+        self.assertEqual([B], Transpose(E_flat).down.third)
+        self.assertEqual([C], Transpose(E, quality_to_use=FLAT).down.third)
 
     ####################################################################
     def test_transpose_up_a_fifth(self):
@@ -60,18 +60,18 @@ class TestTranspose(TestCase):
 
     ####################################################################
     def test_transpose_down_a_fifth(self):
-        self.assertEqual([B_flat], Transpose(F).down.fifth)
+        self.assertEqual([A_sharp], Transpose(F, quality_to_use=SHARP).down.fifth)
         self.assertEqual([B], Transpose(F_sharp).down.fifth)
-        self.assertEqual([C], Transpose(G).down.fifth)
-        self.assertEqual([C_sharp], Transpose(G_sharp).down.fifth)
-        self.assertEqual([D], Transpose(A).down.fifth)
+        self.assertEqual([C], Transpose(G, quality_to_use=SHARP).down.fifth)
+        self.assertEqual([C_sharp], Transpose(G_sharp, quality_to_use=SHARP).down.fifth)
+        self.assertEqual([D], Transpose(A, quality_to_use=SHARP).down.fifth)
         self.assertEqual([D_sharp], Transpose(A_sharp).down.fifth)
-        self.assertEqual([E], Transpose(B).down.fifth)
-        self.assertEqual([F], Transpose(C).down.fifth)
+        self.assertEqual([E], Transpose(B, quality_to_use=SHARP).down.fifth)
+        self.assertEqual([F], Transpose(C, quality_to_use=SHARP).down.fifth)
         self.assertEqual([F_sharp], Transpose(C_sharp).down.fifth)
-        self.assertEqual([G], Transpose(D).down.fifth)
+        self.assertEqual([G], Transpose(D, quality_to_use=SHARP).down.fifth)
         self.assertEqual([G_sharp], Transpose(D_sharp).down.fifth)
-        self.assertEqual([A], Transpose(E).down.fifth)
+        self.assertEqual([A], Transpose(E, quality_to_use=SHARP).down.fifth)
 
 
 ########################################################################

@@ -783,20 +783,27 @@ class Chord:
 class Transpose:
 
     ####################################################################
-    def __init__(self, *notes):
-        self.notes = tuple(Note(n) for n in notes)
+    def __init__(self, *notes, quality_to_use=None):
+        self._raw_notes = tuple(Note(n) for n in notes)
+        self.quality_to_use = quality_to_use
+        for note in self._raw_notes:
+            if note.quality and note.quality in QUALITIES:
+                self.quality_to_use = note.quality
+                break
+
+        self._transposed_notes = []
         self.transpose_up = False
         self.transpose_down = False
-        self._steps = 0
+        self._steps = ()
 
     ####################################################################
     def _semitones(self):
-        semitones = self._steps * 2
+        semitones = sum(self._steps)
         return int(semitones)
 
     ####################################################################
     def steps(self, *steps):
-        self._steps = sum(steps)
+        self._steps = tuple(steps)
         return self._transpose()
 
     ####################################################################
@@ -816,36 +823,66 @@ class Transpose:
     ####################################################################
     @property
     def half_step(self):
-        self._steps = HALF_STEP
+        self._steps = (H, )
         return self._transpose()
 
     ####################################################################
     @property
     def whole_step(self):
-        self._steps = WHOLE_STEP
+        self._steps = (W, )
         return self._transpose()
 
     ####################################################################
     @property
     def third(self):
-        self._steps = WHOLE_STEP + WHOLE_STEP
+        self._steps = (W, W)
         return self._transpose()
 
     ####################################################################
     @property
     def minor_third(self):
-        self._steps = WHOLE_STEP + HALF_STEP
+        self._steps = (W, H)
         return self._transpose()
 
     ####################################################################
     @property
     def fifth(self):
-        self._steps = sum((WHOLE_STEP, WHOLE_STEP, WHOLE_STEP, HALF_STEP))
+        self._steps = (W, W, W, H)
+        return self._transpose()
+
+    ####################################################################
+    def octave(self):
+        self._steps = (W, W, W, W, W, W)
         return self._transpose()
 
     ####################################################################
     def _transpose(self):
-        raise NotImplementedError()
+        transposed = []
+        for note in self._raw_notes:
+            if self.transpose_up:
+                transposed_pitch = note.fundamental.increase(self._semitones())
+            else:
+                transposed_pitch = note.fundamental.decrease(self._semitones())
+            matches = PitchMap[transposed_pitch]
+            best_match = None
+            for match in matches:
+                octave = int(match[-1])
+                matching_note = Note(match[:-1], octave=octave)
+                if matching_note.is_natural:
+                    best_match = matching_note
+                    break
+
+                if self.quality_to_use and matching_note.quality == self.quality_to_use:
+                    best_match = matching_note
+                elif best_match:
+                    if not (best_match.is_standard_flat or best_match.is_standard_sharp):
+                        best_match = matching_note
+                elif not best_match:
+                    best_match = matching_note
+            assert best_match is not None, f'Failed to find note with pitch {transposed_pitch}. Tried {matches}'
+            transposed.append(best_match)
+        self._transposed_notes = transposed
+        return self._transposed_notes
 
 
 #######################################################################
