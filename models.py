@@ -2,10 +2,12 @@ import collections
 import string
 from decimal import Decimal
 
+import music21
+
 from data import SHARP, FLAT, IN_TUNE, NATURAL_NOTES, SHARPS_AND_FLATS, PITCHES, MINOR, \
     QUALITIES, MAJOR_SCALE_NAME, MINOR_SCALE_NAME, IONIAN_SCALE_NAME, DORIAN_SCALE_NAME, PHRYGIAN_SCALE_NAME, \
     LYDIAN_SCALE_NAME, MIXOLYDIAN_SCALE_NAME, AEOLIAN_SCALE_NAME, LOCRIAN_SCALE_NAME, MAJOR, MODE_NAMES, SEVENTH, \
-    MAJOR_ABBREVIATION
+    MAJOR_ABBREVIATION, MIDDLE_OCTAVE
 from errors import InvalidNoteError, InvalidKeyError, InvalidQualityError, InvalidScaleError, InvalidModeError
 
 
@@ -167,11 +169,11 @@ def get_note_and_quality_from_music_element(element_name):
 class Note:
 
     ####################################################################
-    def __init__(self, note, octave=4):
+    def __init__(self, note, octave=None):
         if isinstance(note, Note):
             self.name = note.name
             self.quality = note.quality
-            self.octave = octave or note.octave
+            self.octave = int(octave or note.octave)
         else:
             name = note[:1].upper().strip()
             assert name in NATURAL_NOTES, f'"{name}" is not a valid note.'
@@ -184,9 +186,8 @@ class Note:
 
             self.name = f'{name}{quality}'
             self.quality = quality
-            self.octave = octave
+            self.octave = int(octave or MIDDLE_OCTAVE)
 
-        self.octave = int(octave)
         pitch_name = f'{self.name}{self.octave}'
         self.fundamental = Pitch(PitchMap[pitch_name])
 

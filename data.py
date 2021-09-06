@@ -3,6 +3,7 @@ from decimal import Decimal
 
 
 IN_TUNE = "In Tune"
+MIDDLE_OCTAVE = 4
 
 NATURAL_NOTES = ('A', 'B', 'C', 'D', 'E', 'F', 'G')
 
