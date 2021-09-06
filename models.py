@@ -190,6 +190,16 @@ class Note:
 
         pitch_name = f'{self.name}{self.octave}'
         self.fundamental = Pitch(PitchMap[pitch_name])
+        music21_accidental = {
+            '♯': '#',
+            '♯♯': 'double-sharp',
+            '♭': 'b',
+            '♭♭': 'double-flat',
+            '': '',
+            '♮': 'natural',
+        }
+        music21_name = f'{self.name.replace(self.quality, music21_accidental[self.quality])}'
+        self._music21_note = music21.note.Note(f'{music21_name}{self.octave}')
 
     ####################################################################
     def __str__(self):

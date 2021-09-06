@@ -1,4 +1,7 @@
 import unittest
+
+from music21 import stream
+
 from models import Key, Game, C, E, G, D, B, A
 
 
@@ -55,3 +58,29 @@ class TestGame(unittest.TestCase):
             (G, G, B, A, G, B, E, G)
         ]
         self.assertEqual(expected, game.melody)
+
+        arpeggio = stream.Stream()
+        for phrase in game.melody:
+            for note in phrase:
+                note._music21_note.duration.quarterLength = 1
+                try:
+                    arpeggio.append(note._music21_note)
+                except:
+                    print(phrase, note)
+                    arpeggio.show()
+        arpeggio.show()
+
+    def test_scurvy_rickets(self):
+        text = 'Scurvy Rickets'
+        game = Game(text)
+        print(game.melody)
+        arpeggio = stream.Stream()
+        for phrase in game.melody:
+            for note in phrase:
+                note._music21_note.duration.quarterLength = 1
+                # try:
+                arpeggio.append(note._music21_note)
+                # except:
+                print(phrase, note)
+                    # arpeggio.show()
+        arpeggio.show()
