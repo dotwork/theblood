@@ -7,24 +7,24 @@ class TestGame(unittest.TestCase):
 
     ####################################################################
     def test_key(self):
-        # Divisible by 4 > C major
+        # Divisible by 4: C major
         text = 'This is a sentence'
         key = Game(text).key
         self.assertEqual(Key('C'), key)
 
-        # Divisible by 2 > A minor
+        # Divisible by 2: A minor
         text = 'It was a good sentence'
         key = Game(text).key
         self.assertEqual(Key('Am'), key)
 
     ####################################################################
     def test_time_signature(self):
-        # If even number > 4/4
+        # If even number: 4/4
         text = 'This is a sentence'
         time_signature = Game(text).time_signature
         self.assertEqual('4/4', time_signature)
 
-        # If divisible by 3 > 3/4
+        # If divisible by 3: 3/4
         text = 'The sentence was dope'
         time_signature = Game(text).time_signature
         self.assertEqual('3/4', time_signature)

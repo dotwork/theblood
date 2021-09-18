@@ -43,7 +43,7 @@ class _PitchMap(collections.OrderedDict):
     Here are a couple entries each way:
         {
             Decimal('16.35'): ['B#0', 'C0'],
-            Decimal('17.32'): ['C#0/Db0'],
+            Decimal('17.32'): ['C#0', 'Db0'],
             ...
             'B#0': Decimal('16.35'),
             'C0': Decimal('16.35'),
