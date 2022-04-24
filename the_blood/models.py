@@ -1,17 +1,8 @@
 import collections
-import string
 from decimal import Decimal
 
-from data import SHARP, FLAT, IN_TUNE, NATURAL_NOTES, SHARPS_AND_FLATS, PITCHES, MINOR, \
-    QUALITIES, MAJOR_SCALE_NAME, MINOR_SCALE_NAME, IONIAN_SCALE_NAME, DORIAN_SCALE_NAME, PHRYGIAN_SCALE_NAME, \
-    LYDIAN_SCALE_NAME, MIXOLYDIAN_SCALE_NAME, AEOLIAN_SCALE_NAME, LOCRIAN_SCALE_NAME, MAJOR, MODE_NAMES, SEVENTH, \
-    MAJOR_ABBREVIATION, MIDDLE_OCTAVE
-from errors import InvalidNoteError, InvalidKeyError, InvalidQualityError, InvalidScaleError, InvalidModeError
-
-
-#######################################################################
-def divisible_by(word, i):
-    return (len(word) % i) == 0
+from .data import *
+from .errors import *
 
 
 #######################################################################
@@ -142,36 +133,18 @@ class Pitch(Decimal):
         return Pitch(hz)
 
 
-########################################################################
-def get_note_and_quality_from_music_element(element_name):
-    try:
-        note = Note(element_name[0])
-    except IndexError:
-        raise InvalidNoteError(f'"{element_name}" does not contain a valid root note.')
-    remainder = element_name[1:]
-
-    if remainder:
-        for char in remainder:
-            try:
-                note = Note(note.name + char)
-            except InvalidNoteError:
-                break
-
-    quality = element_name[len(note.name):] or ''
-    quality = Quality(quality)
-
-    return note, quality
+MIDDLE_C_PITCH = Pitch(Decimal('261.63'))
 
 
 ########################################################################
 class Note:
 
     ####################################################################
-    def __init__(self, note, octave=None):
+    def __init__(self, note, octave=MIDDLE_OCTAVE):
         if isinstance(note, Note):
             self.name = note.name
             self.quality = note.quality
-            self.octave = int(octave or note.octave)
+            self.octave = int(getattr(note, 'octave') or octave)
         else:
             name = note[:1].upper().strip()
             assert name in NATURAL_NOTES, f'"{name}" is not a valid note.'
@@ -184,10 +157,12 @@ class Note:
 
             self.name = f'{name}{quality}'
             self.quality = quality
-            self.octave = int(octave or MIDDLE_OCTAVE)
+
+            self.octave = int(octave)
 
         pitch_name = f'{self.name}{self.octave}'
-        self.fundamental = Pitch(PitchMap[pitch_name])
+
+        self.fundamental = self.pitch = Pitch(PitchMap[pitch_name])
 
     ####################################################################
     def __str__(self):
@@ -347,6 +322,7 @@ A_double_flat = Note('A♭♭')
 G_sharp = Note('G♯')
 A_flat = Note('A♭')
 
+MiddleC = Note('C', octave=4)
 
 W = WHOLE_STEP = Interval(2)
 H = HALF_STEP = Interval(1)
@@ -398,6 +374,31 @@ MODAL_INTERVALS_TO_NAME_MAP = {
 finger_positions = ('tonic', 'second', 'third', 'fourth', 'fifth', 'sixth', 'seventh',
                     'eighth', 'ninth', 'tenth', 'eleventh', 'twelfth', 'thirteenth',
                     'fourteenth', 'fifteenth', 'sixteenth')
+
+
+#######################################################################
+class Range:
+    def __init__(self, lowest_pitch, highest_pitch):
+        self.lowest_pitch = Pitch(lowest_pitch)
+        self.highest_pitch = Pitch(highest_pitch)
+
+        _pitches = []
+        for names, hz in PITCHES.items():
+            if lowest_pitch <= hz <= highest_pitch:
+                _pitches.append(Pitch(hz))
+
+        self.pitches = tuple(_pitches)
+
+    def __len__(self):
+        return len(self.pitches)
+
+    def __iter__(self):
+        for pitch in self.pitches:
+            yield pitch
+
+
+PianoRange = Range(Pitch('27.50'), Pitch('4186.01'))
+assert len(PianoRange) == 88, f'Piano Range: {len(PianoRange)}'
 
 
 #######################################################################
@@ -645,11 +646,32 @@ class Mode(Scale):
 
 
 ########################################################################
+def _get_note_and_quality_from_music_element(element_name):
+    try:
+        note = Note(element_name[0])
+    except IndexError:
+        raise InvalidNoteError(f'"{element_name}" does not contain a valid root note.')
+    remainder = element_name[1:]
+
+    if remainder:
+        for char in remainder:
+            try:
+                note = Note(note.name + char)
+            except InvalidNoteError:
+                break
+
+    quality = element_name[len(note.name):] or ''
+    quality = Quality(quality)
+
+    return note, quality
+
+
+########################################################################
 class Key:
 
     ####################################################################
     def __init__(self, name):
-        tonic, quality = get_note_and_quality_from_music_element(name.strip())
+        tonic, quality = _get_note_and_quality_from_music_element(name.strip())
 
         self.tonic = tonic
         self.quality = quality
@@ -735,7 +757,7 @@ class Chord:
 
     ####################################################################
     def __init__(self, name, key=None):
-        root, quality = get_note_and_quality_from_music_element(name.strip())
+        root, quality = _get_note_and_quality_from_music_element(name.strip())
         self.root_note = root
         self.quality = quality
         self.is_minor = MAJOR_ABBREVIATION not in quality and MINOR in quality
@@ -882,74 +904,3 @@ class Transpose:
             transposed.append(best_match)
         self._transposed_notes = transposed
         return self._transposed_notes
-
-
-#######################################################################
-class Game:
-
-    ####################################################################
-    def __init__(self, text):
-        self.text = text
-        self.words = self.text.split(' ')
-        self.key = self._calculate_key()
-        self.chords = self._calculate_chords()
-        self.melody = self._calculate_melody()
-        self.time_signature = self._calculate_time_signature()
-
-    ####################################################################
-    def _calculate_key(self):
-        first_word = self.words[0]
-        if divisible_by(first_word, 4):
-            return Key('C')
-        elif divisible_by(first_word, 2):
-            return Key('Am')
-        elif divisible_by(first_word, 3):
-            # Update this with logic for number of sharps/flats
-            return Key('A')
-        else:
-            raise NotImplementedError()
-
-    ####################################################################
-    def _calculate_time_signature(self):
-        first_word = self.words[0]
-        if divisible_by(first_word, 2):
-            return '4/4'
-        elif divisible_by(first_word, 3):
-            return '3/4'
-        else:
-            raise NotImplementedError()
-
-    ####################################################################
-    def _calculate_chords(self):
-        chords = [Chord(self.key.name).triad]
-        for word in self.words[1:]:
-            chord = []
-            for char in word:
-                note = self._get_note_from_char(char)
-                if note and note not in chord:
-                    chord.append(note)
-            chords.append(tuple(chord))
-        return chords
-
-    ####################################################################
-    def _calculate_melody(self):
-        melody = []
-        for word in self.words:
-            phrase = []
-            for char in word:
-                note = self._get_note_from_char(char)
-                if note:
-                    phrase.append(note)
-            melody.append(tuple(phrase))
-        return melody
-
-    ####################################################################
-    def _get_note_from_char(self, char):
-        char = char.lower()
-        if char in string.ascii_lowercase:
-            i = string.ascii_lowercase.index(char)
-            while i > 6:
-                i -= 7
-            note = self.key.scale[i]
-            return note
-        raise NotImplementedError(f"Don't know how to convert {char} yet.")
