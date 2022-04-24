@@ -1,8 +1,6 @@
-from decimal import Decimal
 from unittest import TestCase
 
-from data import PITCHES
-from models import Pitch, IN_TUNE, FLAT, SHARP, PitchMap, G_double_sharp, A, B_double_flat, B_sharp, C, D_double_flat
+from the_blood.models import *
 
 
 #######################################################################
@@ -10,7 +8,7 @@ class TestPitchMap(TestCase):
 
     ###################################################################
     def test_pitch_map__pitch_to_notes(self):
-        self.assertEqual(['B#0', 'C0', 'Dbb0'], PitchMap[Decimal('16.35')])
+        self.assertEqual(['B♯0', 'C0', 'D♭♭0'], PitchMap[Decimal('16.35')])
 
     ###################################################################
     def test_pitch_map__note_to_pitch(self):

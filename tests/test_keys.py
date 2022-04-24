@@ -1,7 +1,6 @@
 from unittest import TestCase
 
-from errors import InvalidQualityError
-from models import Key, A, A_sharp, B, B_sharp, C, C_sharp, D, D_sharp, E, E_sharp, F, F_sharp, G, G_sharp
+from the_blood.models import *
 
 
 ########################################################################

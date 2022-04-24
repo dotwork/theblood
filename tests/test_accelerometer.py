@@ -31,12 +31,14 @@ class TestAccelerometer(TestCase):
             pitch = self.acc.get_pitch(x * -1)
             self.assertEqual(e4, pitch, msg=f'x: {x}')
 
+        # Highest Pitch
         c_8_pitch = Pitch('4186.01')
         self.assertEqual(44, len(self.acc.middle_f_and_higher))
         for x in range(accelerometer.PITCH_UNIT * 43, accelerometer.PITCH_UNIT * 44):
             pitch = self.acc.get_pitch(x)
             self.assertEqual(c_8_pitch, pitch, msg=f'x: {x}')
 
+        # Lowest Pitch
         a0_pitch = Pitch('27.50')
         self.assertEqual(44, len(self.acc.pitches_lower_than_middle_f))
         for x in range(accelerometer.PITCH_UNIT * 43, accelerometer.PITCH_UNIT * 44):

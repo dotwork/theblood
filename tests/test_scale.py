@@ -1,9 +1,6 @@
 from unittest import TestCase
 
-from errors import InvalidScaleError
-from models import ScalePattern, LOCRIAN_SCALE_NAME, MAJOR_SCALE_NAME, MINOR_SCALE_NAME, IONIAN_SCALE_NAME, \
-    DORIAN_SCALE_NAME, PHRYGIAN_SCALE_NAME, LYDIAN_SCALE_NAME, MIXOLYDIAN_SCALE_NAME, AEOLIAN_SCALE_NAME, W, H, Scale, \
-    C, D, E, F, G, A, B, MajorScale
+from the_blood.models import *
 
 
 #######################################################################

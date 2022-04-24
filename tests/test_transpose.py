@@ -1,9 +1,6 @@
 import unittest
 from unittest import TestCase
-
-from data import FLAT, SHARP
-from models import Transpose, WHOLE_STEP, A_flat, A, A_sharp, B_flat, B, C, C_sharp, D_flat, D, D_sharp, E_flat, E, F, \
-    F_sharp, G, G_sharp, G_flat
+from the_blood.models import *
 
 
 ########################################################################

@@ -1,9 +1,6 @@
 from unittest import TestCase
 
-from errors import InvalidModeError
-from models import Key, MajorScale, C, Mode, D, E, F, G, A, B, IonianScale, E_flat, B_flat, DorianScale, C_sharp, \
-    F_sharp, D_sharp, E_sharp, G_sharp, A_sharp, B_sharp, C_flat, D_flat, F_flat, G_flat, A_flat, PhrygianScale, \
-    LydianScale, MixolydianScale, AeolianScale, LocrianScale
+from the_blood.models import *
 
 
 #######################################################################

@@ -1,7 +1,6 @@
 from unittest import TestCase
 
-from models import Note, InvalidNoteError, A_flat, A, A_sharp, B_flat, B, B_sharp, C_flat, C, C_sharp, D_flat, D, \
-    D_sharp, E_flat, E, E_sharp, F_flat, F, F_sharp, G_flat, G, G_sharp
+from the_blood.models import *
 
 
 ########################################################################

@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from models import Chord
+from the_blood.models import Chord
 
 
 ########################################################################
