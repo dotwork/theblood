@@ -39,7 +39,7 @@ class TestPitch(TestCase):
     ###################################################################
     def test_divide(self):
         self.assertEqual(Pitch('440'), Pitch('880') / 2)
-        self.assertEqual(Pitch('2'), Decimal('880') / Pitch('440'))
+        self.assertEqual(2, Decimal('880') / Pitch('440'))
 
     ###################################################################
     def test_add(self):
@@ -60,8 +60,8 @@ class TestPitch(TestCase):
 
     ###################################################################
     def test_notes(self):
-        self.assertEqual([B_sharp, C, D_double_flat], Pitch('16.35').notes)
-        self.assertEqual([G_double_sharp, A, B_double_flat], Pitch('440').notes)
+        self.assertEqual(tuple((('B', '♯', '0'), ('C', '', '0'), ('D', '♭♭', '0'))), Pitch('16.35').note_info)
+        self.assertEqual((('G', '♯♯', '4'), ('A', '', '4'), ('B', '♭♭', '4')), Pitch('440').note_info)
 
     ####################################################################
     def test_in_tune(self):

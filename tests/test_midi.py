@@ -1,26 +1,28 @@
-from unittest import TestCase
-from composer.midi import NOTE_CHANNEL_1_ON, MidiNote, get_duration_seconds
-from the_blood.models import Note
+import datetime
+from unittest import TestCase, mock
+
+from composer import midi, compose
+from composer.midi import NOTE_CHANNEL_1_ON, MidiNote, get_duration_seconds, MAX_VELOCITY, NOTE_CHANNEL_1_OFF
+from composer.translators.accelerometer import MockAccelerometer
+from the_blood.models import Note, Key
 
 
 class TestMidi(TestCase):
 
     def test_send_notes_on_or_off(self):
-        expected_midi_number = 40
+        expected_midi_number = 52
         velocity = 100
 
-        e3 = Note('E', octave=3)
-        midi_note = MidiNote(e3)
+        e3 = compose.note('E', octave=3)
+        midi_note = MidiNote(e3, velocity, duration=1)
         self.assertEqual(e3, midi_note.note)
         self.assertEqual(expected_midi_number, midi_note.number)
 
-        note_40_on_velocity_100 = [NOTE_CHANNEL_1_ON, midi_note.number, velocity]
-        result = bytes(note_40_on_velocity_100)
-        self.assertEqual(bytes([0x90, expected_midi_number, 100]), result)
+        send_note_on = bytes([NOTE_CHANNEL_1_ON, midi_note.number, velocity])
+        self.assertEqual(bytes([0x90, expected_midi_number, 100]), send_note_on)
 
-        note_40_on_velocity_0 = [NOTE_CHANNEL_1_ON, midi_note.number, 0]
-        result = bytes(note_40_on_velocity_0)
-        self.assertEqual(bytes([0x90, expected_midi_number, 0]), result)
+        send_note_off = bytes([NOTE_CHANNEL_1_ON, midi_note.number, 0])
+        self.assertEqual(bytes([0x90, expected_midi_number, 0]), send_note_off)
 
     def test_get_duration_seconds(self):
         bpm = 120

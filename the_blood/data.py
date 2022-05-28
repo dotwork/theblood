@@ -69,7 +69,6 @@ QUALITIES.update({
 def __get_pitches():
     import collections
     from decimal import Decimal
-
     return collections.OrderedDict((
         ('B♯0/C0/D♭♭0', Decimal('16.35')),
         ('C♯0/D♭0', Decimal('17.32')),

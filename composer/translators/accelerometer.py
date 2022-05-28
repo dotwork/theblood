@@ -1,17 +1,17 @@
 import math
-from decimal import Decimal
 
 from composer import midi
 from composer.midi import MAX_VELOCITY
 from composer.translators._translator import Translator
-from the_blood.data import PITCHES
-from the_blood.models import Note, PianoRange
+from the_blood.models import *
 
 ACC_MIN = -32768
 ACC_MAX = 32767
 
 VELOCITY_UNIT = int(ACC_MAX / MAX_VELOCITY)  # 258. The Velocity value increments 1 with every change of 258.
-PITCH_UNIT = int(ACC_MAX / (len(PianoRange)/2))  #
+PITCH_UNIT = int(ACC_MAX / (len(PianoRange) / 2))
+NOTE_VALUE_UNIT = int(ACC_MAX / len(NOTE_VALUES))
+NOTE_VALUE_REMAINDER = int(ACC_MAX % len(NOTE_VALUES))
 
 
 class AccelerometerTranslator(Translator):
@@ -27,19 +27,13 @@ class AccelerometerTranslator(Translator):
     def receive(self):
         raise NotImplemented()
 
-    def get_note(self, x):
-        assert ACC_MIN <= x <= ACC_MAX
-        index = x % len(PianoRange)
-        note = PianoRange.notes[index]
-        return note
-
     def get_pitch(self, x):
         if x > PITCH_UNIT * 43:
             return self.middle_f_and_higher[-1]
         elif x <= PITCH_UNIT * 43 * -1:
             return self.pitches_lower_than_middle_f[0]
 
-        index = int(x/PITCH_UNIT)
+        index = int(x / PITCH_UNIT)
         if index < 0:
             return self.pitches_lower_than_middle_f[index]
         else:
@@ -61,7 +55,7 @@ class AccelerometerTranslator(Translator):
 
         # range unit = max acceleration number / max velocity
         # 258 = 32768/127
-        raw = y/VELOCITY_UNIT
+        raw = y / VELOCITY_UNIT
         int_y = int(raw)
         abs_y = abs(int_y)
         reverse_y = abs_y - 127
@@ -70,7 +64,15 @@ class AccelerometerTranslator(Translator):
 
     def get_note_value(self, z):
         assert ACC_MIN <= z <= ACC_MAX
-        return 4
+        if z >= ACC_MAX - NOTE_VALUE_REMAINDER:
+            return WholeNote
+
+        # NOTE_VALUE_UNIT = 5461
+        index = math.floor(abs(z/NOTE_VALUE_UNIT))
+        sorted_by_factor = sorted(NOTE_VALUES.values(), key=lambda nv: nv.factor, reverse=True)
+
+        note_value = sorted_by_factor[index]
+        return note_value
 
 
 class MockAccelerometer(AccelerometerTranslator):
@@ -87,4 +89,5 @@ class MockAccelerometer(AccelerometerTranslator):
         if len(self._z) == 0:
             self._z = list(self._range)
 
-        return self._x.pop(), self._y.pop(), self._z.pop()
+        self.x, self.y, self.z = self._x.pop(), self._y.pop(), self._z.pop()
+        return self.x, self.y, self.z

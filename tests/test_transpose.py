@@ -4,6 +4,7 @@ from the_blood.models import *
 
 
 ########################################################################
+@unittest.skip('NEED TO RE-IMPLEMENT TRANSPOSITION')
 class TestTranspose(TestCase):
 
     ####################################################################

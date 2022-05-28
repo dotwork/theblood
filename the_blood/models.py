@@ -1,8 +1,12 @@
-import collections
 from decimal import Decimal
 
 from .data import *
 from .errors import *
+
+
+#######################################################################
+class Octave(int):
+    pass
 
 
 #######################################################################
@@ -12,6 +16,18 @@ class Quality(str):
     def __new__(cls, quality):
         cleaned_q = cls.clean(quality)
         return super().__new__(Quality, cleaned_q)
+
+    ###################################################################
+    def __init__(self, quality_name):
+        self.name = quality_name
+
+    ###################################################################
+    def __eq__(self, other):
+        return hash(self) == hash(Quality(other))
+
+    ###################################################################
+    def __hash__(self):
+        return hash(self.name)
 
     ###################################################################
     @classmethod
@@ -52,26 +68,19 @@ class _PitchMap(collections.OrderedDict):
             _notes = _notes.split('/')
             data[_pitch] = _notes
 
-            for note in _notes:
-                note_to_hz_map[self._make_key(note)] = _pitch
+            for note_with_octave in _notes:
+                note_to_hz_map[note_with_octave] = _pitch
 
         super(_PitchMap, self).__init__(data)
         self.note_to_hz_map = note_to_hz_map
-
-    ####################################################################
-    @staticmethod
-    def _make_key(note_with_octave):
-        name = note_with_octave[0]  # first character
-        octave = note_with_octave[-1]  # last character
-        quality = Quality(note_with_octave[1:-1])  # any/every thing in the middle
-        return f'{name}{quality}{octave}'
 
     ####################################################################
     def __getitem__(self, item):
         try:
             return super(_PitchMap, self).__getitem__(item)
         except KeyError:
-            return self.note_to_hz_map[self._make_key(item)]
+            item = item.replace('#', '♯').replace('b', '♭')
+            return self.note_to_hz_map[item]
 
 
 PitchMap = _PitchMap()
@@ -83,21 +92,50 @@ class Pitch(Decimal):
     __interval_increase = Decimal('1.0595')
 
     ####################################################################
-    @property
-    def notes(self):
-        note_names = PitchMap[Decimal(self)]
-        notes_list = []
-        for name in note_names:
-            note = name[:-1]
-            octave = name[-1]
-            notes_list.append(Note(note, octave=octave))
-        return notes_list
+    def __new__(cls, i, *args, **kwargs):
+        TWO_PLACES = Decimal(10) ** -2
+        i = Decimal(i).quantize(TWO_PLACES)
+        val = super().__new__(Pitch, i, *args, **kwargs)
+        return val
+
+    ####################################################################
+    def __init__(self, i):
+        TWO_PLACES = Decimal(10) ** -2
+        i = Decimal(i).quantize(TWO_PLACES)
+        super().__init__()
+        note_names = []
+        try:
+            note_name_options = PitchMap[i]
+        except KeyError:
+            raise Exception(f'{i} is not a valid standard pitch hz value.')
+        for note_info in note_name_options:
+            name = note_info[0]  # first character
+            quality = note_info[1:-1]  # any/every thing in the middle
+            octave = note_info[-1]
+            note_names.append(tuple((name, quality, octave)))
+        self.note_info = tuple(note_names)
+
+    ####################################################################
+    def __gt__(self, other):
+        return float(self) > float(other)
 
     ####################################################################
     @property
     def next_pitch(self):
         next_hz = self * self.__interval_increase
         return Pitch(next_hz)
+
+    ####################################################################
+    def get_note(self, key):
+        if not isinstance(key, Key):
+            key = Key(key)
+        for note in key.notes:
+            name, quality = note.natural_name, note.quality
+            for matching_name, matching_quality, _ in self.note_info:
+                if matching_name == name and matching_quality == quality:
+                    return note
+        raise Exception(f'Could not find note for pitch {self} in {key}. '
+                        f'Note options for pitch are {", ".join(key.note_names)}')
 
     ####################################################################
     def in_tune(self, pitch_2):
@@ -133,18 +171,68 @@ class Pitch(Decimal):
         return Pitch(hz)
 
 
-MIDDLE_C_PITCH = Pitch(Decimal('261.63'))
+# MIDDLE_C_PITCH = Pitch(Decimal('261.63'))
+
+
+########################################################################
+class NoteValue:
+
+    ####################################################################
+    def __init__(self, name, fraction, value):
+        self.__name = str(name)
+        self.fraction = str(fraction)
+        self.factor = int(value)  # quarter notes = 4, eighth notes = 8, whole notes = 1
+
+    ####################################################################
+    @property
+    def name(self):
+        return self.__name
+
+    ####################################################################
+    def __rtruediv__(self, other):
+        if not isinstance(other, int):
+            raise TypeError(f'Cannot compare type {type(other)} to NoteValue')
+        return other/self.factor
+
+    ####################################################################
+    def __str__(self):
+        return self.name
+
+    ####################################################################
+    def __repr__(self):
+        return f'NoteValue({self.name}, {self.fraction}, {self.factor})'
+
+    ####################################################################
+    def __eq__(self, other):
+        if not isinstance(other, NoteValue):
+            raise TypeError(f'Cannot compare type NoteValue to type "{type(other)}"')
+        return hash(self) == hash(other)
+
+    ####################################################################
+    def __hash__(self):
+        return hash(self.__name)
+
+
+WholeNote = NoteValue('Whole Note', '1/1', 1)
+HalfNote = NoteValue('Half Note', '1/2', 2)
+QuarterNote = NoteValue('Quarter Note', '1/4', 4)
+EighthNote = NoteValue('Eighth Note', '1/8', 8)
+SixteenthNote = NoteValue('Sixteenth Note', '1/6', 16)
+ThirtySecondNote = NoteValue('Thirty-Second Note', '1/32', 32)
+NOTE_VALUES = {
+    __note_value.factor: __note_value for __note_value in
+    [WholeNote, HalfNote, QuarterNote, EighthNote, SixteenthNote, ThirtySecondNote]
+}
 
 
 ########################################################################
 class Note:
 
     ####################################################################
-    def __init__(self, note, octave=MIDDLE_OCTAVE):
+    def __init__(self, note):
         if isinstance(note, Note):
-            self.name = note.name
-            self.quality = note.quality
-            self.octave = int(getattr(note, 'octave') or octave)
+            name = note.natural_name
+            quality = note.quality
         else:
             name = note[:1].upper().strip()
             assert name in NATURAL_NOTES, f'"{name}" is not a valid note.'
@@ -155,14 +243,18 @@ class Note:
                 except KeyError:
                     raise InvalidNoteError(f'"{note}" is not a valid note.')
 
-            self.name = f'{name}{quality}'
-            self.quality = quality
+        self.__name = f'{name}{quality}'
+        self.__quality = Quality(quality)
 
-            self.octave = int(octave)
+    ####################################################################
+    @property
+    def name(self):
+        return self.__name
 
-        pitch_name = f'{self.name}{self.octave}'
-
-        self.fundamental = self.pitch = Pitch(PitchMap[pitch_name])
+    ####################################################################
+    @property
+    def quality(self):
+        return self.__quality
 
     ####################################################################
     def __str__(self):
@@ -197,7 +289,26 @@ class Note:
             >>> Note('A') == Note('B')
             False
         """
-        return self.name == Note(other).name
+        if not isinstance(other, Note):
+            raise TypeError(f'Cannot compare type Note to type "{type(other)}"')
+        return hash(self) == hash(other)
+
+    ####################################################################
+    def __hash__(self):
+        return hash(tuple((self.name, self.quality)))
+
+    ####################################################################
+    @classmethod
+    def from_pitch(cls, pitch, key):
+        pitch = Pitch(pitch)
+        if not isinstance(key, Key):
+            key = Key(key)
+        for base_name, quality, octave in PitchMap[pitch]:
+            name = f'{base_name}{quality}'
+            if name in key.note_names:
+                note = Note(f'{base_name}{quality}')
+                return note
+        raise Exception(f'Failed to find note for pitch {pitch} in key {key}. Actual notes are: {key.note_names}')
 
     ####################################################################
     @property
@@ -263,17 +374,13 @@ class Note:
         return Note(previous_note_name)
 
     ####################################################################
-    def harmonically_equivalent_to(self, other):
-        return self.fundamental == other.fundamental
-
-    ####################################################################
     @classmethod
-    def get_note_with_letter(cls, letter, notes):
-        for note in notes:
-            if note.natural_name.startswith(letter):
-                return note
+    def get_note_with_letter(cls, letter, notes_info):
+        for name, quality, octave in notes_info:
+            if name == letter:
+                return Note(f'{name}{quality}')
         else:
-            raise InvalidKeyError(f'Did not find a {letter} note in {notes}.')
+            raise InvalidKeyError(f'Did not find a {letter} note in {notes_info}.')
 
 
 #######################################################################
@@ -284,45 +391,56 @@ class Interval(int):
 G_double_sharp = Note('G♯♯')
 A = Note('A')
 B_double_flat = Note('B♭♭')
+Bbb = B_double_flat
 
 A_sharp = Note('A♯')
 B_flat = Note('B♭')
+Bb = B_flat
 
 B = Note('B')
 C_flat = Note('C♭')
+Cb = C_flat
 
 B_sharp = Note('B♯')
 C = Note('C')
 D_double_flat = Note('D♭♭')
+Dbb = D_double_flat
 
 C_sharp = Note('C♯')
 D_flat = Note('D♭')
+Db = D_flat
 
 C_double_sharp = Note('C♯♯')
 D = Note('D')
 E_double_flat = Note('E♭♭')
+Ebb = E_double_flat
 
 D_sharp = Note('D♯')
 E_flat = Note('E♭')
+Eb = E_flat
 
+D_double_sharp = Note('D♯♯')
 E = Note('E')
 F_flat = Note('F♭')
+Fb = F_flat
 
 E_sharp = Note('E♯')
 F = Note('F')
 G_double_flat = Note('G♭♭')
+Gbb = G_double_flat
 
 F_sharp = Note('F♯')
 G_flat = Note('G♭')
+Gb = G_flat
 
 F_double_sharp = Note('F♯♯')
 G = Note('G')
 A_double_flat = Note('A♭♭')
+Abb = A_double_flat
 
 G_sharp = Note('G♯')
 A_flat = Note('A♭')
-
-MiddleC = Note('C', octave=4)
+Ab = A_flat
 
 W = WHOLE_STEP = Interval(2)
 H = HALF_STEP = Interval(1)
@@ -504,6 +622,7 @@ class Scale(ScalePattern):
         self.name = f'{self.tonic} {self.name}'
 
         self.notes = tuple(self._generate_notes())
+        self.note_names = tuple(note.name for note in self.notes)
 
         num_intervals = len(self.notes)
         self.first = self.notes[0]
@@ -529,7 +648,8 @@ class Scale(ScalePattern):
         notes = [self.tonic]
 
         # Get the base pitch to start with from our tonic note
-        pitch = self.tonic.fundamental
+        pitch_value = PitchMap[f'{self.tonic.name}4']
+        pitch = Pitch(pitch_value)
 
         # A key has a set of whole and half steps that determine what notes
         # fall into the key, starting from the root note. Iterate through
@@ -542,13 +662,13 @@ class Scale(ScalePattern):
             pitch = pitch.increase(interval)
 
             # Get the list of harmonically equivalent notes for the increased pitch
-            equivalent_notes = pitch.notes
+            equivalent_notes_info = pitch.note_info
 
             # Find which of the equivalent notes is named with the next letter for our key
             # For example, if the last note was some kind of A (A, A#, or Ab)
             # the next note must be a B (B, B#, or Bb)
             next_note_natural_name = notes[-1].next_natural_note.name
-            note = Note.get_note_with_letter(next_note_natural_name, equivalent_notes)
+            note = Note.get_note_with_letter(next_note_natural_name, equivalent_notes_info)
 
             # And add that note to the list
             notes.append(note)
@@ -661,7 +781,8 @@ def _get_note_and_quality_from_music_element(element_name):
                 break
 
     quality = element_name[len(note.name):] or ''
-    quality = Quality(quality)
+    if quality:
+        quality = Quality(quality)
 
     return note, quality
 
@@ -672,63 +793,63 @@ class Key:
     ####################################################################
     def __init__(self, name):
         tonic, quality = _get_note_and_quality_from_music_element(name.strip())
-
         self.tonic = tonic
         self.quality = quality
         self.name = f'{self.tonic.name}{self.quality}'
         self.base_scale = MinorScale if quality == MINOR else MajorScale
         self.scale = Scale(self.tonic, self.base_scale)
-        self.note_names = tuple(n.name for n in self.scale.notes)
+        self.notes = self.scale.notes
+        self.note_names = tuple(n.name for n in self.notes)
 
-        self.aeolian_mode = None
-        self.locrian_mode = None
-        self.ionian_mode = None
-        self.dorian_mode = None
-        self.phrygian_mode = None
-        self.lydian_mode = None
-        self.mixolydian_mode = None
-        self.modes = None
-
-        self.set_modes()
-
-    ####################################################################
-    def set_modes(self):
-        if self.is_major():
-            self.ionian_mode = Mode(tonic=self.scale.first, modal_scale=IonianScale)
-            self.dorian_mode = Mode(tonic=self.scale.second, modal_scale=DorianScale)
-            self.phrygian_mode = Mode(tonic=self.scale.third, modal_scale=PhrygianScale)
-            self.lydian_mode = Mode(tonic=self.scale.fourth, modal_scale=LydianScale)
-            self.mixolydian_mode = Mode(tonic=self.scale.fifth, modal_scale=MixolydianScale)
-            self.aeolian_mode = Mode(tonic=self.scale.sixth, modal_scale=AeolianScale)
-            self.locrian_mode = Mode(tonic=self.scale.seventh, modal_scale=LocrianScale)
-
-            self.modes = (
-                self.ionian_mode,
-                self.dorian_mode,
-                self.phrygian_mode,
-                self.lydian_mode,
-                self.mixolydian_mode,
-                self.aeolian_mode,
-                self.locrian_mode,
-            )
-        else:
-            self.aeolian_mode = Mode(tonic=self.scale.first, modal_scale=AeolianScale)
-            self.locrian_mode = Mode(tonic=self.scale.second, modal_scale=LocrianScale)
-            self.ionian_mode = Mode(tonic=self.scale.third, modal_scale=IonianScale)
-            self.dorian_mode = Mode(tonic=self.scale.fourth, modal_scale=DorianScale)
-            self.phrygian_mode = Mode(tonic=self.scale.fifth, modal_scale=PhrygianScale)
-            self.lydian_mode = Mode(tonic=self.scale.sixth, modal_scale=LydianScale)
-            self.mixolydian_mode = Mode(tonic=self.scale.seventh, modal_scale=MixolydianScale)
-
-            self.modes = (
-                self.aeolian_mode,
-                self.locrian_mode,
-                self.ionian_mode,
-                self.dorian_mode,
-                self.phrygian_mode,
-                self.lydian_mode,
-                self.mixolydian_mode,
-            )
+    #     self.aeolian_mode = None
+    #     self.locrian_mode = None
+    #     self.ionian_mode = None
+    #     self.dorian_mode = None
+    #     self.phrygian_mode = None
+    #     self.lydian_mode = None
+    #     self.mixolydian_mode = None
+    #     self.modes = None
+    #
+    #     self.set_modes()
+    #
+    # ####################################################################
+    # def set_modes(self):
+    #     if self.is_major():
+    #         self.ionian_mode = Mode(tonic=self.scale.first, modal_scale=IonianScale)
+    #         self.dorian_mode = Mode(tonic=self.scale.second, modal_scale=DorianScale)
+    #         self.phrygian_mode = Mode(tonic=self.scale.third, modal_scale=PhrygianScale)
+    #         self.lydian_mode = Mode(tonic=self.scale.fourth, modal_scale=LydianScale)
+    #         self.mixolydian_mode = Mode(tonic=self.scale.fifth, modal_scale=MixolydianScale)
+    #         self.aeolian_mode = Mode(tonic=self.scale.sixth, modal_scale=AeolianScale)
+    #         self.locrian_mode = Mode(tonic=self.scale.seventh, modal_scale=LocrianScale)
+    #
+    #         self.modes = (
+    #             self.ionian_mode,
+    #             self.dorian_mode,
+    #             self.phrygian_mode,
+    #             self.lydian_mode,
+    #             self.mixolydian_mode,
+    #             self.aeolian_mode,
+    #             self.locrian_mode,
+    #         )
+    #     else:
+    #         self.aeolian_mode = Mode(tonic=self.scale.first, modal_scale=AeolianScale)
+    #         self.locrian_mode = Mode(tonic=self.scale.second, modal_scale=LocrianScale)
+    #         self.ionian_mode = Mode(tonic=self.scale.third, modal_scale=IonianScale)
+    #         self.dorian_mode = Mode(tonic=self.scale.fourth, modal_scale=DorianScale)
+    #         self.phrygian_mode = Mode(tonic=self.scale.fifth, modal_scale=PhrygianScale)
+    #         self.lydian_mode = Mode(tonic=self.scale.sixth, modal_scale=LydianScale)
+    #         self.mixolydian_mode = Mode(tonic=self.scale.seventh, modal_scale=MixolydianScale)
+    #
+    #         self.modes = (
+    #             self.aeolian_mode,
+    #             self.locrian_mode,
+    #             self.ionian_mode,
+    #             self.dorian_mode,
+    #             self.phrygian_mode,
+    #             self.lydian_mode,
+    #             self.mixolydian_mode,
+    #         )
 
     ####################################################################
     def __str__(self):

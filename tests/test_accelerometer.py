@@ -1,8 +1,8 @@
-from decimal import Decimal
 from unittest import TestCase
 
 from composer.translators import accelerometer
-from the_blood.models import Pitch
+from composer.translators.accelerometer import NOTE_VALUE_UNIT, NOTE_VALUE_REMAINDER
+from the_blood.models import *
 
 
 class TestAccelerometer(TestCase):
@@ -95,4 +95,20 @@ class TestAccelerometer(TestCase):
             self.acc.get_velocity(one_less_than_max)
 
     def test_get_note_value(self):
-        self.fail()
+        for z in range(NOTE_VALUE_UNIT):
+            self.assertEqual(ThirtySecondNote, self.acc.get_note_value(z))
+
+        for z in range(NOTE_VALUE_UNIT, NOTE_VALUE_UNIT*2):
+            self.assertEqual(SixteenthNote, self.acc.get_note_value(z))
+
+        for z in range(NOTE_VALUE_UNIT*2, NOTE_VALUE_UNIT*3):
+            self.assertEqual(EighthNote, self.acc.get_note_value(z))
+
+        for z in range(NOTE_VALUE_UNIT*3, NOTE_VALUE_UNIT*4):
+            self.assertEqual(QuarterNote, self.acc.get_note_value(z))
+
+        for z in range(NOTE_VALUE_UNIT*4, NOTE_VALUE_UNIT*5):
+            self.assertEqual(HalfNote, self.acc.get_note_value(z))
+
+        for z in range(NOTE_VALUE_UNIT*5, NOTE_VALUE_UNIT*6 + NOTE_VALUE_REMAINDER):
+            self.assertEqual(WholeNote, self.acc.get_note_value(z))

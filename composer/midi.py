@@ -1,6 +1,7 @@
-import collections
+import datetime
 
-from the_blood.data import PITCHES
+from composer import compose
+from the_blood.models import *
 
 NOTE_CHANNEL_1_OFF = 0x80  # 128 in hex
 NOTE_CHANNEL_1_ON = 0x90  # 144 in hex
@@ -9,18 +10,39 @@ controls = None  # midi channels 176-191
 
 MAX_VELOCITY = 127
 STANDARD_BEAT_VALUE = 4  # quarter note
+A0_MIDI_NUMBER = 21  # LOWEST KEY ON A PIANO
 
 
-########################################################################
-__MidiNote = collections.namedtuple('MidiNote', ['number', 'note'])
+def get_midi_number_from_note(composed_note):
+    assert isinstance(composed_note, compose.ComposedNote), f'Expected a ComposedNote. Got {type(composed_note)}.'
+    for midi_number, pitch in enumerate(PianoRange, start=A0_MIDI_NUMBER):
+        for name, quality, octave in pitch.note_info:
+            if bool(composed_note.natural_name == name
+                    and composed_note.quality == Quality(quality)
+                    and composed_note.octave == Octave(octave)):
+                return midi_number
+    raise Exception(f'Could not find pitch for ComposedNote {composed_note}.')
 
 
-def MidiNote(note):
-    name_with_octave = f'{note.name}{note.octave}'
-    for midi_number, note_names in enumerate(PITCHES):
-        if name_with_octave in note_names.split('/'):
-            return __MidiNote(number=midi_number, note=note)
-    raise Exception(f'Unrecognized note: {note}')
+class MidiNote:
+    def __init__(self, composed_note, velocity, *, duration, start=None):
+        self.note = composed_note
+        self.velocity = int(velocity)
+        self.duration = float(duration)
+        self.start = start or datetime.datetime.now()
+        self.end = self.start + datetime.timedelta(milliseconds=self.duration * 1000)
+        self.number = get_midi_number_from_note(self.note)
+
+    def get_start_command(self):
+        return [NOTE_CHANNEL_1_ON, self.number, self.velocity]
+
+    @staticmethod
+    def now():
+        return datetime.datetime.now()
+
+    def get_end_command(self):
+        if self.now() >= self.end:
+            return [NOTE_CHANNEL_1_OFF, self.number]
 
 
 def get_duration_seconds(note_value, bpm):

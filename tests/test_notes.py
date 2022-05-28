@@ -7,8 +7,10 @@ from the_blood.models import *
 class TestNote(TestCase):
 
     ####################################################################
-    def test_equal_to_string(self):
-        self.assertEqual('A', A)
+    def test_equals_note(self):
+        self.assertEqual(A, Note('A'))
+        self.assertEqual(Note('A'), Note('A'))
+        self.assertNotEqual(Note('A#'), Note('Bb'))
 
     ####################################################################
     def test_invalid_name(self):
@@ -31,38 +33,6 @@ class TestNote(TestCase):
         self.assertEqual(E, E)
         self.assertEqual(F, F)
         self.assertEqual(G, G)
-
-    ####################################################################
-    def test_is_equal_pitch_to__standard_flats(self):
-        self.assertTrue(B_flat.harmonically_equivalent_to(A_sharp))
-        self.assertTrue(D_flat.harmonically_equivalent_to(C_sharp))
-        self.assertTrue(E_flat.harmonically_equivalent_to(D_sharp))
-        self.assertTrue(G_flat.harmonically_equivalent_to(F_sharp))
-        self.assertTrue(A_flat.harmonically_equivalent_to(G_sharp))
-
-    ####################################################################
-    def test_is_equal_pitch_to__standard_sharps(self):
-        self.assertTrue(A_sharp.harmonically_equivalent_to(B_flat))
-        self.assertTrue(C_sharp.harmonically_equivalent_to(D_flat))
-        self.assertTrue(D_sharp.harmonically_equivalent_to(E_flat))
-        self.assertTrue(F_sharp.harmonically_equivalent_to(G_flat))
-        self.assertTrue(G_sharp.harmonically_equivalent_to(A_flat))
-
-    ####################################################################
-    def test_is_equal_pitch_to__non_standard_flats(self):
-        self.assertTrue(C_flat.harmonically_equivalent_to(B))
-        self.assertTrue(F_flat.harmonically_equivalent_to(E))
-
-        self.assertTrue(B.harmonically_equivalent_to(C_flat))
-        self.assertTrue(E.harmonically_equivalent_to(F_flat))
-
-    ####################################################################
-    def test_is_equal_pitch_to__non_standard_sharps(self):
-        self.assertTrue(C.harmonically_equivalent_to(B_sharp))
-        self.assertTrue(B_sharp.harmonically_equivalent_to(C))
-
-        self.assertTrue(F.harmonically_equivalent_to(E_sharp))
-        self.assertTrue(E_sharp.harmonically_equivalent_to(F))
 
     ####################################################################
     def test_next_natural_note__from_natural_note(self):
