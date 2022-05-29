@@ -113,6 +113,7 @@ class Pitch(Decimal):
             quality = note_info[1:-1]  # any/every thing in the middle
             octave = note_info[-1]
             note_names.append(tuple((name, quality, octave)))
+            self.octave = Octave(octave)
         self.note_info = tuple(note_names)
 
     ####################################################################
@@ -157,9 +158,6 @@ class Pitch(Decimal):
                 break
 
         return Pitch(hz)
-
-
-# MIDDLE_C_PITCH = Pitch(Decimal('261.63'))
 
 
 ########################################################################
@@ -246,37 +244,14 @@ class Note:
 
     ####################################################################
     def __str__(self):
-        """
-        How the note object is formatted into a string. For example:
-            a_sharp = Note('A#')
-            print(f"This note object is printed as {a_sharp}."
-        will print:
-            This note object is printed as A#.
-        """
         return self.name
 
     ####################################################################
     def __repr__(self):
-        """
-        How a note object is represented in Python, which should
-        match how you create an instance of it. For example,
-        in the python terminal, creating an instance will print
-        the repr for it to the terminal screen:
-            >>> Note('A')
-            Note('A')
-        """
         return f'Note("{self.name}")'
 
     ####################################################################
     def __eq__(self, other):
-        """
-        This is the function that gets called when one
-        Note is compared to another, for example:
-            >>> Note('A') == Note('A')
-            True
-            >>> Note('A') == Note('B')
-            False
-        """
         if not isinstance(other, Note):
             raise TypeError(f'Cannot compare type Note to type "{type(other)}"')
         return hash(self) == hash(other)
@@ -287,16 +262,13 @@ class Note:
 
     ####################################################################
     @classmethod
-    def from_pitch(cls, pitch, key):
-        pitch = Pitch(pitch)
-        if not isinstance(key, Key):
-            key = Key(key)
+    def from_pitch(cls, pitch, available_note_names):
         for base_name, quality, octave in PitchMap[pitch]:
             name = f'{base_name}{quality}'
-            if name in key.note_names:
-                note = Note(f'{base_name}{quality}')
-                return note
-        raise Exception(f'Failed to find note for pitch {pitch} in key {key}. Actual notes are: {key.note_names}')
+            if name in available_note_names:
+                return Note(name)
+        raise Exception(f'Failed to find note for pitch {pitch} with available notes {available_note_names}.'
+                        f' Actual notes are: {note_names}')
 
     ####################################################################
     @property
@@ -713,19 +685,17 @@ class Scale(ScalePattern):
               scale's seventh
         """
         min_7_semitones = sum((PerfectFifth, MinorThird))
-        pitch = self.tonic.fundamental.increase(min_7_semitones)
-        equivalent_notes = pitch.notes
-        note = Note.get_note_with_letter(self.seventh.natural_name, equivalent_notes)
-        return note
+        tonic_with_octave = f'{self.tonic.name}4'
+        pitch = Pitch(PitchMap[tonic_with_octave]).increase(min_7_semitones)
+        return Note.from_pitch(pitch, self.note_names)
 
     ####################################################################
     @property
     def major_seventh(self):
-        min_7_semitones = sum((PerfectFifth, MajorThird))
-        pitch = self.tonic.fundamental.increase(min_7_semitones)
-        equivalent_notes = pitch.notes
-        note = Note.get_note_with_letter(self.seventh.natural_name, equivalent_notes)
-        return note
+        maj_7_semitones = sum((PerfectFifth, MajorThird))
+        tonic_with_octave = f'{self.tonic.name}4'
+        pitch = Pitch(PitchMap[tonic_with_octave]).increase(maj_7_semitones)
+        return Note.from_pitch(pitch, self.note_names)
 
 
 #######################################################################
