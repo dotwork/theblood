@@ -12,4 +12,5 @@ class Strategy:
 
 
 class Translator:
-    pass
+    def translate(self):
+        raise NotImplementedError()

@@ -1,9 +1,8 @@
 import datetime
 from unittest import TestCase, mock
 
-from composer import midi
 from composer.compose import ComposedNote
-from composer.midi import MAX_VELOCITY, MidiNote, NOTE_CHANNEL_1_ON, NOTE_CHANNEL_1_OFF
+from composer.midi import MAX_VELOCITY, NOTE_CHANNEL_1_ON, NOTE_CHANNEL_1_OFF
 from composer.translators import accelerometer
 from composer.translators.accelerometer import NOTE_VALUE_UNIT, NOTE_VALUE_REMAINDER, MockAccelerometer, \
     AccelerometerStrategy
@@ -13,7 +12,9 @@ from the_blood.models import *
 class TestAccelerometer(TestCase):
 
     def setUp(self):
-        self.acc = accelerometer.MockAccelerometer(AccelerometerStrategy)
+        bpm = 120
+        key = Key('C')
+        self.acc = accelerometer.MockAccelerometer(AccelerometerStrategy, key, bpm)
 
     def test_get_pitch(self):
         # Middle F Pitch
@@ -119,37 +120,18 @@ class TestAccelerometer(TestCase):
             self.assertEqual(WholeNote, self.acc.strategy.get_note_value(z))
 
     def test_accelerometer_translation(self):
-        acc = MockAccelerometer(AccelerometerStrategy)
         bpm = 120
         key = Key('C')
+        acc = MockAccelerometer(AccelerometerStrategy, key, bpm)
+
         expected_midi_number = 65  # F4
         expected_velocity = MAX_VELOCITY
+        F4 = ComposedNote('F', octave=4)
 
         x, y, z = acc.receive()
         self.assertEqual(True, x == y == z == 0)
 
-        # X: Note/Pitch
-        pitch = acc.strategy.get_pitch(x)
-        composed_note = ComposedNote.from_pitch(pitch, key)
-        F4 = ComposedNote('F', octave=4)
-        self.assertEqual(F4, composed_note)
-
-        # Y: Velocity
-        velocity = acc.strategy.get_velocity(y)
-        self.assertEqual(expected_velocity, velocity)
-
-        # Z: Note Value
-        note_value = acc.strategy.get_note_value(z)
-        self.assertEqual('Thirty-Second Note', note_value.name)
-        self.assertEqual('1/32', note_value.fraction)
-        self.assertEqual(32, note_value.factor)
-
-        # Duration in seconds
-        duration = midi.get_duration_seconds(note_value, bpm)
-        self.assertEqual(0.0625, duration)
-
-        # MidiNote
-        midi_note = MidiNote(composed_note, velocity, duration=duration)
+        midi_note = acc.translate()
         self.assertEqual(F4, midi_note.note)
         self.assertEqual(expected_midi_number, midi_note.number)
         self.assertEqual(0.0625, midi_note.duration)

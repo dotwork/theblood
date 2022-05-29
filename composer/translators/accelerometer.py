@@ -1,6 +1,7 @@
 import math
 
 from composer import midi
+from composer.compose import ComposedNote
 from composer.midi import MAX_VELOCITY
 from composer.translators._translator import Translator, Strategy
 from the_blood.models import *
@@ -73,14 +74,25 @@ AccelerometerStrategy = _AccelerometerStrategy()
 
 class AccelerometerTranslator(Translator):
 
-    def __init__(self, strategy):
+    def __init__(self, strategy, key, bpm):
         self.strategy = strategy
+        self.key = key
+        self.bpm = bpm
         self.x = None
         self.y = None
         self.z = None
 
     def receive(self):
         raise NotImplemented()
+
+    def translate(self):
+        pitch = self.strategy.get_pitch(self.x)
+        composed_note = ComposedNote.from_pitch(pitch, self.key)
+        velocity = self.strategy.get_velocity(self.y)
+        note_value = self.strategy.get_note_value(self.z)
+        duration = midi.get_duration_seconds(note_value, self.bpm)
+        midi_note = midi.MidiNote(composed_note, velocity, duration=duration)
+        return midi_note
 
 
 class MockAccelerometer(AccelerometerTranslator):
