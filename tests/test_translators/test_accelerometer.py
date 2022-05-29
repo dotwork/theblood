@@ -120,18 +120,14 @@ class TestAccelerometer(TestCase):
             self.assertEqual(WholeNote, self.acc.strategy.get_note_value(z))
 
     def test_accelerometer_translation(self):
-        bpm = 120
-        key = Key('C')
-        acc = MockAccelerometer(AccelerometerStrategy, key, bpm)
-
         expected_midi_number = 65  # F4
         expected_velocity = MAX_VELOCITY
         F4 = ComposedNote('F', octave=4)
 
-        x, y, z = acc.receive()
+        x, y, z = self.acc.receive()
         self.assertEqual(True, x == y == z == 0)
 
-        midi_note = acc.translate()
+        midi_note = self.acc.translate()
         self.assertEqual(F4, midi_note.note)
         self.assertEqual(expected_midi_number, midi_note.number)
         self.assertEqual(0.0625, midi_note.duration)
