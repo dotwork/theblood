@@ -19,11 +19,11 @@ class Quality(str):
 
     ###################################################################
     def __init__(self, quality_name):
-        self.name = quality_name
+        self.name = self.clean(quality_name)
 
     ###################################################################
     def __eq__(self, other):
-        return hash(self) == hash(Quality(other))
+        return self.name == Quality(other).name
 
     ###################################################################
     def __hash__(self):
@@ -124,18 +124,6 @@ class Pitch(Decimal):
     def next_pitch(self):
         next_hz = self * self.__interval_increase
         return Pitch(next_hz)
-
-    ####################################################################
-    def get_note(self, key):
-        if not isinstance(key, Key):
-            key = Key(key)
-        for note in key.notes:
-            name, quality = note.natural_name, note.quality
-            for matching_name, matching_quality, _ in self.note_info:
-                if matching_name == name and matching_quality == quality:
-                    return note
-        raise Exception(f'Could not find note for pitch {self} in {key}. '
-                        f'Note options for pitch are {", ".join(key.note_names)}')
 
     ####################################################################
     def in_tune(self, pitch_2):

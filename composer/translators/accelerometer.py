@@ -2,7 +2,7 @@ import math
 
 from composer import midi
 from composer.midi import MAX_VELOCITY
-from composer.translators._translator import Translator
+from composer.translators._translator import Translator, Strategy
 from the_blood.models import *
 
 ACC_MIN = -32768
@@ -14,18 +14,11 @@ NOTE_VALUE_UNIT = int(ACC_MAX / len(NOTE_VALUES))
 NOTE_VALUE_REMAINDER = int(ACC_MAX % len(NOTE_VALUES))
 
 
-class AccelerometerTranslator(Translator):
-
+class _AccelerometerStrategy(Strategy):
     def __init__(self):
-        self.x = None
-        self.y = None
-        self.z = None
         middle_e = Decimal('329.63')
         self.pitches_lower_than_middle_f = [p for p in PianoRange if p <= middle_e]
         self.middle_f_and_higher = [p for p in PianoRange if p > middle_e]
-
-    def receive(self):
-        raise NotImplemented()
 
     def get_pitch(self, x):
         if x > PITCH_UNIT * 43:
@@ -73,6 +66,21 @@ class AccelerometerTranslator(Translator):
 
         note_value = sorted_by_factor[index]
         return note_value
+
+
+AccelerometerStrategy = _AccelerometerStrategy()
+
+
+class AccelerometerTranslator(Translator):
+
+    def __init__(self, strategy):
+        self.strategy = strategy
+        self.x = None
+        self.y = None
+        self.z = None
+
+    def receive(self):
+        raise NotImplemented()
 
 
 class MockAccelerometer(AccelerometerTranslator):

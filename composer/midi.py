@@ -61,6 +61,12 @@ def get_duration_seconds(note_value, bpm):
     # so an eighth note is
     # 60 seconds / 240 eighth notes = 0.25 seconds per eighth note
 
+    # for a thirty-second note, with a standard "beat" still being a quarter note
+    # 120 (bpm) / (4 (quarter note as standard "beat" in bpm) / 32 (thirty-second note))
+    # = 960 thirty-second notes per minute
+    # so a thirty-second note is
+    # 60 seconds / 960 eighth notes = 0.0625 seconds per eighth note
+
     rhythm_factor = STANDARD_BEAT_VALUE/note_value
     note_values_per_minute = bpm / rhythm_factor
     duration = 60 / note_values_per_minute

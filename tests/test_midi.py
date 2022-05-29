@@ -1,10 +1,7 @@
-import datetime
-from unittest import TestCase, mock
+from unittest import TestCase
 
-from composer import midi, compose
-from composer.midi import NOTE_CHANNEL_1_ON, MidiNote, get_duration_seconds, MAX_VELOCITY, NOTE_CHANNEL_1_OFF
-from composer.translators.accelerometer import MockAccelerometer
-from the_blood.models import Note, Key
+from composer.compose import ComposedNote
+from composer.midi import NOTE_CHANNEL_1_ON, MidiNote, get_duration_seconds
 
 
 class TestMidi(TestCase):
@@ -13,7 +10,7 @@ class TestMidi(TestCase):
         expected_midi_number = 52
         velocity = 100
 
-        e3 = compose.note('E', octave=3)
+        e3 = ComposedNote('E', octave=3)
         midi_note = MidiNote(e3, velocity, duration=1)
         self.assertEqual(e3, midi_note.note)
         self.assertEqual(expected_midi_number, midi_note.number)
