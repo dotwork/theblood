@@ -7,8 +7,7 @@ class ComposedNote(Note):
         self.__note = Note(note)
         self.octave = Octave(octave)
         super().__init__(note=self.__note)
-        pitch_name = f'{self.name}{self.octave}'
-        self.pitch = Pitch(PitchMap[pitch_name])
+        self.pitch = Pitch(PitchMap[self.__note, self.octave])
 
     def __str__(self):
         return f'{self.name}{self.octave}'

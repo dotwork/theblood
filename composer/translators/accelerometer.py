@@ -87,7 +87,7 @@ class AccelerometerTranslator(Translator):
 
     def translate(self):
         pitch = self.strategy.get_pitch(self.x)
-        composed_note = ComposedNote.from_pitch(pitch, self.key)
+        composed_note = ComposedNote.from_pitch(pitch, self.key.note_names)
         velocity = self.strategy.get_velocity(self.y)
         note_value = self.strategy.get_note_value(self.z)
         duration = midi.get_duration_seconds(note_value, self.bpm)

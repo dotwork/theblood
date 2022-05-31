@@ -39,53 +39,6 @@ class Quality(str):
             raise InvalidQualityError(f'"{quality}" is not a valid quality.')
 
 
-#######################################################################
-class _PitchMap(collections.OrderedDict):
-    """
-    This dictionary maps hz frequency values (pitches)
-    as Decimals to their corresponding notes and octaves.
-    It also maps the other way as well. Each note/octave
-    will correspond to the same Decimal hz value.
-
-    Here are a couple entries each way:
-        {
-            Decimal('16.35'): ['B#0', 'C0'],
-            Decimal('17.32'): ['C#0', 'Db0'],
-            ...
-            'B#0': Decimal('16.35'),
-            'C0': Decimal('16.35'),
-            'C#0': Decimal('17.32'),
-            ...
-        }
-    """
-
-    ####################################################################
-    def __init__(self):
-        data = collections.OrderedDict()
-        note_to_hz_map = collections.OrderedDict()
-
-        for _notes, _pitch in PITCHES.items():
-            _notes = _notes.split('/')
-            data[_pitch] = _notes
-
-            for note_with_octave in _notes:
-                note_to_hz_map[note_with_octave] = _pitch
-
-        super(_PitchMap, self).__init__(data)
-        self.note_to_hz_map = note_to_hz_map
-
-    ####################################################################
-    def __getitem__(self, item):
-        try:
-            return super(_PitchMap, self).__getitem__(item)
-        except KeyError:
-            item = item.replace('#', '♯').replace('b', '♭')
-            return self.note_to_hz_map[item]
-
-
-PitchMap = _PitchMap()
-
-
 ########################################################################
 class Pitch(Decimal):
 
@@ -97,24 +50,6 @@ class Pitch(Decimal):
         i = Decimal(i).quantize(TWO_PLACES)
         val = super().__new__(Pitch, i, *args, **kwargs)
         return val
-
-    ####################################################################
-    def __init__(self, i):
-        TWO_PLACES = Decimal(10) ** -2
-        i = Decimal(i).quantize(TWO_PLACES)
-        super().__init__()
-        note_names = []
-        try:
-            note_name_options = PitchMap[i]
-        except KeyError:
-            raise Exception(f'{i} is not a valid standard pitch hz value.')
-        for note_info in note_name_options:
-            name = note_info[0]  # first character
-            quality = note_info[1:-1]  # any/every thing in the middle
-            octave = note_info[-1]
-            note_names.append(tuple((name, quality, octave)))
-            self.octave = Octave(octave)
-        self.note_info = tuple(note_names)
 
     ####################################################################
     def __gt__(self, other):
@@ -333,14 +268,58 @@ class Note:
         previous_note_name = NATURAL_NOTES[previous_note_index]
         return Note(previous_note_name)
 
+
+#######################################################################
+class _PitchMap(collections.OrderedDict):
+    """
+    This dictionary maps pitches to their corresponding notes and octaves.
+    The value is a tuple of tuples. Each inner tuple containing a (Note, Octave).
+    It also maps the other way as well.
+    Each tuple of (Note, Octave) will correspond to the same Pitch.
+
+    Here are a couple entries each way:
+        {
+            Pitch('16.35'): ((Note('B♯') Octave(0)), (Note('C'), Octave(0))),
+            Pitch('17.32'): ((Note('C♯') Octave(0)), (Note('D♭'), Octave(0))),
+            ...
+            (Note('B♯') Octave(0)): Pitch('16.35'),
+            (Note('C'), Octave(0)): Pitch('16.35'),
+            (Note('C♯') Octave(0)): Pitch('17.32'),
+            ...
+        }
+    """
+
     ####################################################################
-    @classmethod
-    def get_note_with_letter(cls, letter, notes_info):
-        for name, quality, octave in notes_info:
-            if name == letter:
-                return Note(f'{name}{quality}')
-        else:
-            raise InvalidKeyError(f'Did not find a {letter} note in {notes_info}.')
+    def __init__(self):
+        data = collections.OrderedDict()
+        note_to_hz_map = collections.OrderedDict()
+
+        for notes_with_octaves, _pitch in PITCHES.items():
+            pitch = Pitch(_pitch)
+            notes_with_octaves = notes_with_octaves.split('/')
+            notes = []
+            for note_with_octave in notes_with_octaves:
+                name = note_with_octave[0]  # first character
+                quality = note_with_octave[1:-1]  # any/every thing in the middle
+                octave = Octave(note_with_octave[-1])  # last character, integer for octave
+                note = Note(f'{name}{quality}')
+                note_to_hz_map[(note, octave)] = pitch
+                notes.append((note, octave))
+
+            data[pitch] = tuple(notes)
+
+        super(_PitchMap, self).__init__(data)
+        self.note_to_hz_map = note_to_hz_map
+
+    ####################################################################
+    def __getitem__(self, item):
+        try:
+            return super(_PitchMap, self).__getitem__(item)
+        except KeyError:
+            return self.note_to_hz_map[item]
+
+
+PitchMap = _PitchMap()
 
 
 #######################################################################
@@ -608,7 +587,7 @@ class Scale(ScalePattern):
         notes = [self.tonic]
 
         # Get the base pitch to start with from our tonic note
-        pitch_value = PitchMap[f'{self.tonic.name}4']
+        pitch_value = PitchMap[(self.tonic, Octave(4))]
         pitch = Pitch(pitch_value)
 
         # A key has a set of whole and half steps that determine what notes
@@ -622,16 +601,19 @@ class Scale(ScalePattern):
             pitch = pitch.increase(interval)
 
             # Get the list of harmonically equivalent notes for the increased pitch
-            equivalent_notes_info = pitch.note_info
+            equivalent_notes = PitchMap[pitch]
 
             # Find which of the equivalent notes is named with the next letter for our key
             # For example, if the last note was some kind of A (A, A#, or Ab)
             # the next note must be a B (B, B#, or Bb)
             next_note_natural_name = notes[-1].next_natural_note.name
-            note = Note.get_note_with_letter(next_note_natural_name, equivalent_notes_info)
-
-            # And add that note to the list
-            notes.append(note)
+            for note, _ in equivalent_notes:
+                if note.natural_name == next_note_natural_name:
+                    # And add that note to the list
+                    notes.append(note)
+                    break
+            else:
+                raise InvalidKeyError(f'Did not find a {next_note_natural_name} note in {equivalent_notes}.')
 
         return notes
 

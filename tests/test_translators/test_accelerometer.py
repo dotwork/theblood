@@ -147,3 +147,20 @@ class TestAccelerometer(TestCase):
             now.return_value = midi_note.start + datetime.timedelta(seconds=midi_note.duration)
             end_command = midi_note.get_end_command()
             self.assertEqual(expected_end_command, end_command)
+
+    def test_run(self):
+        start = datetime.datetime.now()
+        ten_seconds = start + datetime.timedelta(seconds=10)
+
+        midi_note = None
+        while datetime.datetime.now() < ten_seconds:
+            self.acc.receive()
+            if not midi_note:
+                midi_note = self.acc.translate()
+                start_command = midi_note.get_start_command()
+                print(start_command)
+            else:
+                end_command = midi_note.get_end_command()
+                if end_command:
+                    print(end_command)
+                    midi_note = None

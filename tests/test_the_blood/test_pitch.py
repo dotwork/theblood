@@ -8,12 +8,13 @@ class TestPitchMap(TestCase):
 
     ###################################################################
     def test_pitch_map__pitch_to_notes(self):
-        self.assertEqual(['B♯0', 'C0', 'D♭♭0'], PitchMap[Decimal('16.35')])
+        expected = ((B_sharp, Octave(0)), (C, Octave(0)), (D_double_flat, Octave(0)))
+        self.assertEqual(expected, PitchMap[Pitch('16.35')])
 
     ###################################################################
     def test_pitch_map__note_to_pitch(self):
-        self.assertEqual(Decimal('16.35'), PitchMap['C0'])
-        self.assertEqual(Decimal('16.35'), PitchMap['B#0'])
+        self.assertEqual(Pitch('16.35'), PitchMap[(C, Octave(0))])
+        self.assertEqual(Pitch('16.35'), PitchMap[(B_sharp, Octave(0))])
 
     ###################################################################
     def test_pitch_map__length(self):
@@ -57,11 +58,6 @@ class TestPitch(TestCase):
     ###################################################################
     def test_less_than(self):
         self.assertTrue(Pitch('220') < Pitch('440'))
-
-    ###################################################################
-    def test_notes(self):
-        self.assertEqual(tuple((('B', '♯', '0'), ('C', '', '0'), ('D', '♭♭', '0'))), Pitch('16.35').note_info)
-        self.assertEqual((('G', '♯♯', '4'), ('A', '', '4'), ('B', '♭♭', '4')), Pitch('440').note_info)
 
     ####################################################################
     def test_in_tune(self):

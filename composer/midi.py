@@ -16,11 +16,8 @@ A0_MIDI_NUMBER = 21  # LOWEST KEY ON A PIANO
 def get_midi_number_from_note(composed_note):
     assert isinstance(composed_note, compose.ComposedNote), f'Expected a ComposedNote. Got {type(composed_note)}.'
     for midi_number, pitch in enumerate(PianoRange, start=A0_MIDI_NUMBER):
-        for name, quality, octave in pitch.note_info:
-            if bool(composed_note.natural_name == name
-                    and composed_note.quality == Quality(quality)
-                    and composed_note.octave == Octave(octave)):
-                return midi_number
+        if pitch == composed_note.pitch:
+            return midi_number
     raise Exception(f'Could not find pitch for ComposedNote {composed_note}.')
 
 
