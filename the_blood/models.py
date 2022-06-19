@@ -52,6 +52,14 @@ class Pitch(Decimal):
         return val
 
     ####################################################################
+    def __str__(self):
+        return f'Pitch({self.real})'
+
+    ####################################################################
+    def __repr__(self):
+        return f'Pitch({self.real})'
+
+    ####################################################################
     def __gt__(self, other):
         return float(self) > float(other)
 
@@ -146,6 +154,9 @@ NOTE_VALUES = {
 }
 
 
+class UnavailableNoteError(Exception): pass
+
+
 ########################################################################
 class Note:
 
@@ -197,13 +208,12 @@ class Note:
 
     ####################################################################
     @classmethod
-    def from_pitch(cls, pitch, available_note_names):
-        for base_name, quality, octave in PitchMap[pitch]:
-            name = f'{base_name}{quality}'
-            if name in available_note_names:
-                return Note(name)
-        raise Exception(f'Failed to find note for pitch {pitch} with available notes {available_note_names}.'
-                        f' Actual notes are: {note_names}')
+    def from_pitch(cls, pitch, available_notes):
+        for note, octave in PitchMap[pitch]:
+            if note in available_notes:
+                return note
+        raise UnavailableNoteError(f'Failed to find note for pitch {pitch} with available notes {available_notes}.'
+                                   f' Actual notes are: {available_notes}')
 
     ####################################################################
     @property
@@ -669,7 +679,7 @@ class Scale(ScalePattern):
         min_7_semitones = sum((PerfectFifth, MinorThird))
         tonic_with_octave = f'{self.tonic.name}4'
         pitch = Pitch(PitchMap[tonic_with_octave]).increase(min_7_semitones)
-        return Note.from_pitch(pitch, self.note_names)
+        return Note.from_pitch(pitch, self.notes)
 
     ####################################################################
     @property
@@ -677,7 +687,7 @@ class Scale(ScalePattern):
         maj_7_semitones = sum((PerfectFifth, MajorThird))
         tonic_with_octave = f'{self.tonic.name}4'
         pitch = Pitch(PitchMap[tonic_with_octave]).increase(maj_7_semitones)
-        return Note.from_pitch(pitch, self.note_names)
+        return Note.from_pitch(pitch, self.notes)
 
 
 #######################################################################

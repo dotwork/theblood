@@ -2,7 +2,7 @@ import datetime
 from unittest import TestCase, mock
 
 from composer.compose import ComposedNote
-from composer.midi import MAX_VELOCITY, NOTE_CHANNEL_1_ON, NOTE_CHANNEL_1_OFF
+from composer import midi
 from composer.translators import accelerometer
 from composer.translators.accelerometer import NOTE_VALUE_UNIT, NOTE_VALUE_REMAINDER, MockAccelerometer, \
     AccelerometerStrategy
@@ -119,9 +119,9 @@ class TestAccelerometer(TestCase):
         for z in range(NOTE_VALUE_UNIT*5, NOTE_VALUE_UNIT*6 + NOTE_VALUE_REMAINDER):
             self.assertEqual(WholeNote, self.acc.strategy.get_note_value(z))
 
-    def test_accelerometer_translation(self):
+    def test_translate(self):
         expected_midi_number = 65  # F4
-        expected_velocity = MAX_VELOCITY
+        expected_velocity = midi.MAX_VELOCITY
         F4 = ComposedNote('F', octave=4)
 
         x, y, z = self.acc.receive()
@@ -134,11 +134,11 @@ class TestAccelerometer(TestCase):
 
         # Start Midi Signal
         start_command = midi_note.get_start_command()
-        expected_start_command = [NOTE_CHANNEL_1_ON, expected_midi_number, expected_velocity]
+        expected_start_command = [midi.NOTE_CHANNEL_1_ON, expected_midi_number, expected_velocity]
         self.assertEqual(expected_start_command, start_command)
 
         # End Midi Signal
-        expected_end_command = [NOTE_CHANNEL_1_OFF, expected_midi_number]
+        expected_end_command = [midi.NOTE_CHANNEL_1_OFF, expected_midi_number, expected_velocity]
         with mock.patch('composer.midi.MidiNote.now') as now:
             now.return_value = midi_note.start
             end_command = midi_note.get_end_command()
@@ -150,7 +150,7 @@ class TestAccelerometer(TestCase):
 
     def test_run(self):
         start = datetime.datetime.now()
-        ten_seconds = start + datetime.timedelta(seconds=10)
+        ten_seconds = start + datetime.timedelta(seconds=60)
 
         midi_note = None
         while datetime.datetime.now() < ten_seconds:

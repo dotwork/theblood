@@ -87,7 +87,18 @@ class AccelerometerTranslator(Translator):
 
     def translate(self):
         pitch = self.strategy.get_pitch(self.x)
-        composed_note = ComposedNote.from_pitch(pitch, self.key.note_names)
+        composed_note = None
+        while pitch in PitchMap:
+            try:
+                composed_note = ComposedNote.from_pitch(pitch, self.key.notes)
+                print(f'COMPOSED NOTE FROM {self.x}: {composed_note}')
+                break
+            except UnavailableNoteError:
+                pitch = pitch.increase(semitones=1)
+
+        if composed_note is None:
+            raise Exception(f'Failed to translate x value to a ComposedNote: x={self.x}')
+
         velocity = self.strategy.get_velocity(self.y)
         note_value = self.strategy.get_note_value(self.z)
         duration = midi.get_duration_seconds(note_value, self.bpm)

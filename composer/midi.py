@@ -37,9 +37,9 @@ class MidiNote:
     def now():
         return datetime.datetime.now()
 
-    def get_end_command(self):
-        if self.now() >= self.end:
-            return [NOTE_CHANNEL_1_OFF, self.number]
+    def get_end_command(self, force=False):
+        if force or self.now() >= self.end:
+            return [NOTE_CHANNEL_1_OFF, self.number, self.velocity]
 
 
 def get_duration_seconds(note_value, bpm):

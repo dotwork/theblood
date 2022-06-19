@@ -1,10 +1,23 @@
+import datetime
 from unittest import TestCase
+
+from decorator import contextmanager
 
 from composer.compose import ComposedNote
 from composer.midi import NOTE_CHANNEL_1_ON, MidiNote, get_duration_seconds
 
 
 class TestMidi(TestCase):
+
+    def setUp(self):
+        super().setUp()
+        self._time_limit_end = None
+
+    def time_limit(self, seconds):
+        if self._time_limit_end:
+            return datetime.datetime.now() < self._time_limit_end
+        self._time_limit_end = datetime.datetime.now() + datetime.timedelta(seconds=seconds)
+        return True
 
     def test_send_notes_on_or_off(self):
         expected_midi_number = 52
@@ -53,3 +66,40 @@ class TestMidi(TestCase):
         self.assertEqual(1, note_value)
         duration_in_seconds = get_duration_seconds(note_value, bpm)
         self.assertEqual(2, duration_in_seconds)
+
+    def test_sequence(self):
+        """
+        https://www.cs.cmu.edu/~music/cmsip/readings/MIDI%20tutorial%20for%20programmers.html
+                # t=0 : 0x90 - 0x40 - 0x40 (Start of E3 note, pitch = 64)
+            t=0 : 0x90 - 0x43 - 0x40 (Start of G3 note, pitch= 67)
+            t=1 : 0x80 - 0x43 - 0x00 (End of G3 note, pitch=67)
+            t=1 : 0x90 - 0x45 - 0x40 (Start of A3 note, pitch=69)
+            t=2 : 0x80 - 0x45 - 0x00 (End of A3 note, pitch=69)
+                # t=2 : 0x80 - 0x40 - 0x00 (End of E3 note, pitch=64)
+                # t=2 : 0x90 - 0x3C - 0x40 (Start of C3 note, pitch = 60)
+            t=2 : 0x90 - 0x47 - 0x40 (Start of B3 note, pitch= 71)
+            t=3 : 0x80 - 0x47 - 0x00 (End of B3 note, pitch= 71)
+            t=3 : 0x90 - 0x48 - 0x40 (Start of C4 note, pitch= 72)
+            t=4 : 0x80 - 0x48 - 0x00 (End of C4 note, pitch= 72)
+                # t=4 : 0x80 - 0x3C - 0x40 (End of C3 note, pitch = 60)
+        """
+        velocity = 64
+        midi_notes = [
+            MidiNote(ComposedNote('G', octave=4), velocity, duration=1),
+            MidiNote(ComposedNote('A', octave=4), velocity, duration=1),
+            MidiNote(ComposedNote('B', octave=4), velocity, duration=1),
+            MidiNote(ComposedNote('C', octave=5), velocity, duration=1),
+        ]
+        commands = []
+        for midi_note in midi_notes:
+            commands.append(midi_note.get_start_command())
+            commands.append(midi_note.get_end_command(force=True))
+
+        self.assertEqual(('0x90', '0x43', '0x40'), tuple(hex(c) for c in commands[0]))
+        self.assertEqual(('0x80', '0x43', '0x40'), tuple(hex(c) for c in commands[1]))
+        self.assertEqual(('0x90', '0x45', '0x40'), tuple(hex(c) for c in commands[2]))
+        self.assertEqual(('0x80', '0x45', '0x40'), tuple(hex(c) for c in commands[3]))
+        self.assertEqual(('0x90', '0x47', '0x40'), tuple(hex(c) for c in commands[4]))
+        self.assertEqual(('0x80', '0x47', '0x40'), tuple(hex(c) for c in commands[5]))
+        self.assertEqual(('0x90', '0x48', '0x40'), tuple(hex(c) for c in commands[6]))
+        self.assertEqual(('0x80', '0x48', '0x40'), tuple(hex(c) for c in commands[7]))
