@@ -1,23 +1,10 @@
-import datetime
 from unittest import TestCase
-
-from decorator import contextmanager
 
 from composer.compose import ComposedNote
 from composer.midi import NOTE_CHANNEL_1_ON, MidiNote, get_duration_seconds
 
 
 class TestMidi(TestCase):
-
-    def setUp(self):
-        super().setUp()
-        self._time_limit_end = None
-
-    def time_limit(self, seconds):
-        if self._time_limit_end:
-            return datetime.datetime.now() < self._time_limit_end
-        self._time_limit_end = datetime.datetime.now() + datetime.timedelta(seconds=seconds)
-        return True
 
     def test_send_notes_on_or_off(self):
         expected_midi_number = 52

@@ -1,4 +1,4 @@
-from decimal import Decimal
+import collections
 
 from .data import *
 from .errors import *
@@ -40,14 +40,12 @@ class Quality(str):
 
 
 ########################################################################
-class Pitch(Decimal):
+class Pitch(float):
 
-    __interval_increase = Decimal('1.0595')
+    __interval_increase = float('1.0595')
 
     ####################################################################
     def __new__(cls, i, *args, **kwargs):
-        TWO_PLACES = Decimal(10) ** -2
-        i = Decimal(i).quantize(TWO_PLACES)
         val = super().__new__(Pitch, i, *args, **kwargs)
         return val
 
@@ -72,9 +70,9 @@ class Pitch(Decimal):
     ####################################################################
     def in_tune(self, pitch_2):
         diff = pitch_2 / self
-        if diff > Decimal('1.05'):
+        if diff > 1.05:
             return SHARP
-        elif diff < Decimal('0.95'):
+        elif diff < 0.95:
             return FLAT
         return IN_TUNE
 

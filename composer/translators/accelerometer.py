@@ -17,7 +17,7 @@ NOTE_VALUE_REMAINDER = int(ACC_MAX % len(NOTE_VALUES))
 
 class _AccelerometerStrategy(Strategy):
     def __init__(self):
-        middle_e = Decimal('329.63')
+        middle_e = 329.63
         self.pitches_lower_than_middle_f = [p for p in PianoRange if p <= middle_e]
         self.middle_f_and_higher = [p for p in PianoRange if p > middle_e]
 
@@ -82,8 +82,8 @@ class AccelerometerTranslator(Translator):
         self.y = None
         self.z = None
 
-    def receive(self):
-        raise NotImplemented()
+    def receive(self, accelerometer):
+        self.x, self.y, self.z = accelerometer.acceleration
 
     def translate(self):
         pitch = self.strategy.get_pitch(self.x)
@@ -112,7 +112,7 @@ class MockAccelerometer(AccelerometerTranslator):
     _z = []
     _range = [i for i in reversed(range(ACC_MAX))]
 
-    def receive(self):
+    def receive(self, accelerometer):
         if len(self._x) == 0:
             self._x = list(self._range)
         if len(self._y) == 0:

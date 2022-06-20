@@ -1,4 +1,7 @@
-import datetime
+import time
+
+from adafruit_midi.note_off import NoteOff
+from adafruit_midi.note_on import NoteOn
 
 from composer import compose
 from the_blood.models import *
@@ -26,20 +29,20 @@ class MidiNote:
         self.note = composed_note
         self.velocity = int(velocity)
         self.duration = float(duration)
-        self.start = start or datetime.datetime.now()
-        self.end = self.start + datetime.timedelta(milliseconds=self.duration * 1000)
+        self.start = start or self.now()
+        self.end = self.start + self.duration
         self.number = get_midi_number_from_note(self.note)
 
     def get_start_command(self):
-        return [NOTE_CHANNEL_1_ON, self.number, self.velocity]
+        return NoteOn(self.number, self.velocity)
 
     @staticmethod
     def now():
-        return datetime.datetime.now()
+        return time.time()
 
     def get_end_command(self, force=False):
         if force or self.now() >= self.end:
-            return [NOTE_CHANNEL_1_OFF, self.number, self.velocity]
+            return NoteOff(self.number, self.velocity)
 
 
 def get_duration_seconds(note_value, bpm):

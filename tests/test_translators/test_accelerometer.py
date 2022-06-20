@@ -1,11 +1,12 @@
-import datetime
+import time
 from unittest import TestCase, mock
 
-from composer.compose import ComposedNote
+import adafruit_midi
+
 from composer import midi
+from composer.compose import ComposedNote
 from composer.translators import accelerometer
-from composer.translators.accelerometer import NOTE_VALUE_UNIT, NOTE_VALUE_REMAINDER, MockAccelerometer, \
-    AccelerometerStrategy
+from composer.translators.accelerometer import NOTE_VALUE_UNIT, NOTE_VALUE_REMAINDER
 from the_blood.models import *
 
 
@@ -14,16 +15,16 @@ class TestAccelerometer(TestCase):
     def setUp(self):
         bpm = 120
         key = Key('C')
-        self.acc = accelerometer.MockAccelerometer(AccelerometerStrategy, key, bpm)
+        self.acc = accelerometer.MockAccelerometer(accelerometer.AccelerometerStrategy, key, bpm)
 
     def test_get_pitch(self):
         # Middle F Pitch
         for x in range(accelerometer.PITCH_UNIT):
             pitch = self.acc.strategy.get_pitch(x)
-            self.assertEqual(Decimal('349.23'), pitch, msg=f'x: {x}')
+            self.assertEqual(349.23, pitch, msg=f'x: {x}')
         for x in range(accelerometer.PITCH_UNIT):
             pitch = self.acc.strategy.get_pitch(x * -1)
-            self.assertEqual(Decimal('349.23'), pitch)
+            self.assertEqual(349.23, pitch)
 
         # 1 Note above Middle F
         fsharp4 = Pitch('369.99')
@@ -124,7 +125,7 @@ class TestAccelerometer(TestCase):
         expected_velocity = midi.MAX_VELOCITY
         F4 = ComposedNote('F', octave=4)
 
-        x, y, z = self.acc.receive()
+        x, y, z = self.acc.receive('<mock_accelerometer>')
         self.assertEqual(True, x == y == z == 0)
 
         midi_note = self.acc.translate()
@@ -144,23 +145,40 @@ class TestAccelerometer(TestCase):
             end_command = midi_note.get_end_command()
             self.assertEqual(None, end_command)
 
-            now.return_value = midi_note.start + datetime.timedelta(seconds=midi_note.duration)
+            now.return_value = midi_note.start + midi_note.duration
             end_command = midi_note.get_end_command()
             self.assertEqual(expected_end_command, end_command)
 
-    def test_run(self):
-        start = datetime.datetime.now()
-        ten_seconds = start + datetime.timedelta(seconds=60)
+    _time_limit_end = None
 
+    def time_limit(self, seconds):
+        if self._time_limit_end:
+            return time.time() < self._time_limit_end
+        self._time_limit_end = time.time() + seconds
+        return True
+
+    def test_run(self):
         midi_note = None
-        while datetime.datetime.now() < ten_seconds:
-            self.acc.receive()
+
+        class midi_out:
+            def __init__(self):
+                self.history = []
+
+            def write(self, packet, num):
+                self.history.append((packet, num))
+
+        midi_controller = adafruit_midi.MIDI(midi_out=midi_out(), out_channel=0)
+
+        while self.time_limit(10):
+            self.acc.receive('<mock_accelerometer>')
             if not midi_note:
                 midi_note = self.acc.translate()
                 start_command = midi_note.get_start_command()
                 print(start_command)
+                midi_controller.send(start_command)
             else:
                 end_command = midi_note.get_end_command()
                 if end_command:
                     print(end_command)
+                    midi_controller.send(end_command)
                     midi_note = None
