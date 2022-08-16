@@ -34,38 +34,38 @@ class TestText(unittest.TestCase):
         self.assertEqual('3/4', time_signature)
 
     ####################################################################
-    def test_chords(self):
-        text = 'This is a sentence'
-        translator = TextTranslator(text)
-        chord_this, chord_is, chord_a, chord_sentence = translator.chords
-
-        # First chord should be the key's tonic
-        self.assertEqual(Key('C'), translator.key)
-        self.assertEqual((C, E, G), chord_this)
-
-        # Remaining chords should be calculated from letters
-        self.assertEqual((D, G), chord_is)
-        self.assertEqual((C, ), chord_a)
-        self.assertEqual((G, B, A, E), chord_sentence)
-
-        track = Track()
-        bar = Bar()
-        bar.place_notes([str(n) for n in chord_this[:2]], 4)
-        bar.place_notes([str(chord_this[-1])], 2)
-        track.add_bar(bar)
-
-        bar = Bar()
-        bar.place_notes([str(n) for n in chord_is], 2)
-        track.add_bar(bar)
-
-        bar = Bar()
-        bar.place_notes([str(chord_a[0])], 1)
-        track.add_bar(bar)
-
-        bar = Bar()
-        bar.place_notes([str(n) for n in chord_sentence], 4)
-        track.add_bar(bar)
-
+    # def test_chords(self):
+    #     text = 'This is a sentence'
+    #     translator = TextTranslator(text)
+    #     chord_this, chord_is, chord_a, chord_sentence = translator.chords
+    #
+    #     # First chord should be the key's tonic
+    #     self.assertEqual(Key('C'), translator.key)
+    #     self.assertEqual((C, E, G), chord_this)
+    #
+    #     # Remaining chords should be calculated from letters
+    #     self.assertEqual((D, G), chord_is)
+    #     self.assertEqual((C, ), chord_a)
+    #     self.assertEqual((G, B, A, E), chord_sentence)
+    #
+    #     track = Track()
+    #     bar = Bar()
+    #     bar.place_notes([str(n) for n in chord_this[:2]], 4)
+    #     bar.place_notes([str(chord_this[-1])], 2)
+    #     track.add_bar(bar)
+    #
+    #     bar = Bar()
+    #     bar.place_notes([str(n) for n in chord_is], 2)
+    #     track.add_bar(bar)
+    #
+    #     bar = Bar()
+    #     bar.place_notes([str(chord_a[0])], 1)
+    #     track.add_bar(bar)
+    #
+    #     bar = Bar()
+    #     bar.place_notes([str(n) for n in chord_sentence], 4)
+    #     track.add_bar(bar)
+    #
         # MidiFile.write_Track('test_midi.mid', verbose=True)
 
     ####################################################################

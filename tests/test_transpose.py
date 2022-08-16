@@ -9,7 +9,7 @@ class TestTranspose(TestCase):
 
     ####################################################################
     def test_transpose_with_str(self):
-        self.assertEqual([B], Transpose('D♯').down.third)
+        self.assertEqual([B], Transpose('D#').down.third)
 
     ####################################################################
     def test_transpose_up_a_third(self):

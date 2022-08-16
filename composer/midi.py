@@ -17,11 +17,13 @@ A0_MIDI_NUMBER = 21  # LOWEST KEY ON A PIANO
 
 
 def get_midi_number_from_note(composed_note):
-    assert isinstance(composed_note, compose.ComposedNote), f'Expected a ComposedNote. Got {type(composed_note)}.'
+    error = 'Expected a ComposedNote. Got {}.'.format(type(composed_note))
+    assert isinstance(composed_note, compose.ComposedNote), error
     for midi_number, pitch in enumerate(PianoRange, start=A0_MIDI_NUMBER):
         if pitch == composed_note.pitch:
             return midi_number
-    raise Exception(f'Could not find pitch for ComposedNote {composed_note}.')
+
+    raise Exception('Could not find pitch for ComposedNote {}.'.format(composed_note))
 
 
 class MidiNote:
@@ -32,9 +34,10 @@ class MidiNote:
         self.start = start or self.now()
         self.end = self.start + self.duration
         self.number = get_midi_number_from_note(self.note)
+        self.channel = 1
 
     def get_start_command(self):
-        return NoteOn(self.number, self.velocity)
+        return NoteOn(self.number, self.velocity, channel=self.channel)
 
     @staticmethod
     def now():
@@ -42,7 +45,7 @@ class MidiNote:
 
     def get_end_command(self, force=False):
         if force or self.now() >= self.end:
-            return NoteOff(self.number, self.velocity)
+            return NoteOff(self.number, self.velocity, channel=self.channel)
 
 
 def get_duration_seconds(note_value, bpm):

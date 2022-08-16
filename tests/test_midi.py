@@ -1,7 +1,11 @@
+import unittest
 from unittest import TestCase
+
+from adafruit_midi.note_on import NoteOn
 
 from composer.compose import ComposedNote
 from composer.midi import NOTE_CHANNEL_1_ON, MidiNote, get_duration_seconds
+from composer.midi_data import MIDI_TO_PITCH_MAP
 
 
 class TestMidi(TestCase):
@@ -55,6 +59,53 @@ class TestMidi(TestCase):
         self.assertEqual(2, duration_in_seconds)
 
     def test_sequence(self):
+        """
+        https://www.cs.cmu.edu/~music/cmsip/readings/MIDI%20tutorial%20for%20programmers.html
+                # t=0 : 0x90 - 0x40 - 0x40 (Start of E3 note, pitch = 64)
+            t=0 : 0x90 - 0x43 - 0x40 (Start of G3 note, pitch= 67)
+            t=1 : 0x80 - 0x43 - 0x00 (End of G3 note, pitch=67)
+            t=1 : 0x90 - 0x45 - 0x40 (Start of A3 note, pitch=69)
+            t=2 : 0x80 - 0x45 - 0x00 (End of A3 note, pitch=69)
+                # t=2 : 0x80 - 0x40 - 0x00 (End of E3 note, pitch=64)
+                # t=2 : 0x90 - 0x3C - 0x40 (Start of C3 note, pitch = 60)
+            t=2 : 0x90 - 0x47 - 0x40 (Start of B3 note, pitch= 71)
+            t=3 : 0x80 - 0x47 - 0x00 (End of B3 note, pitch= 71)
+            t=3 : 0x90 - 0x48 - 0x40 (Start of C4 note, pitch= 72)
+            t=4 : 0x80 - 0x48 - 0x00 (End of C4 note, pitch= 72)
+                # t=4 : 0x80 - 0x3C - 0x40 (End of C3 note, pitch = 60)
+        """
+        velocity = 64
+
+        # G
+        midi_note = MidiNote(ComposedNote('G', octave=4), velocity, duration=1)
+        self.assertEqual(67, midi_note.number)
+        self.assertEqual(392.00, MIDI_TO_PITCH_MAP[67])
+        self.assertEqual(392.00, midi_note.note.pitch)
+
+        start = midi_note.get_start_command()
+        self.assertEqual(velocity, start.velocity)
+        self.assertEqual(midi_note.number, start.note)
+
+        end = midi_note.get_end_command(force=True)
+        self.assertEqual(64, end.velocity)
+        self.assertEqual(midi_note.number, end.note)
+
+        # A
+        midi_note = MidiNote(ComposedNote('A', octave=4), velocity, duration=1)
+        self.assertEqual(69, midi_note.number)
+        self.assertEqual(440.00, MIDI_TO_PITCH_MAP[69])
+        self.assertEqual(440.00, midi_note.note.pitch)
+
+        start = midi_note.get_start_command()
+        self.assertEqual(velocity, start.velocity)
+        self.assertEqual(midi_note.number, start.note)
+
+        end = midi_note.get_end_command(force=True)
+        self.assertEqual(64, end.velocity)
+        self.assertEqual(midi_note.number, end.note)
+
+    @unittest.skip('started using adafruit instead')
+    def test_sequence_bytestrings(self):
         """
         https://www.cs.cmu.edu/~music/cmsip/readings/MIDI%20tutorial%20for%20programmers.html
                 # t=0 : 0x90 - 0x40 - 0x40 (Start of E3 note, pitch = 64)

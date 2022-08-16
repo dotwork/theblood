@@ -7,18 +7,19 @@ class ComposedNote(Note):
         self.note = Note(note)
         self.octave = Octave(octave)
         super().__init__(note=self.note)
-        self.pitch = Pitch(PitchMap[self.note, self.octave])
+        self.pitch = Pitch(PitchMap((self.note, self.octave)))
 
     def __str__(self):
-        return f'{self.name}{self.octave}'
+        return '{name}{octave}'.format(name=self.name, octave=self.octave)
 
     def __repr__(self):
-        return f'ComposedNote("{self.note}", {self.octave})'
+        return 'ComposedNote("{name}", {octave})'.format(name=self.name, octave=self.octave)
 
     @classmethod
     def from_pitch(cls, pitch, available_notes):
         note = super().from_pitch(pitch, available_notes)
-        for _note, octave in PitchMap[pitch]:
+        for _note, octave in PitchMap(pitch):
             if _note == note:
                 return ComposedNote(note, octave)
-        raise UnavailableNoteError(f'Failed to compose note for pitch {pitch} with available notes {available_notes}.')
+        error = 'Failed to compose note for pitch {pitch} with available notes {available_notes}.'
+        raise UnavailableNoteError(error.format(pitch=pitch, available_notes=available_notes))

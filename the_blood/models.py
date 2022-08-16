@@ -1,5 +1,3 @@
-import collections
-
 from .data import *
 from .errors import *
 
@@ -36,52 +34,135 @@ class Quality(str):
         try:
             return QUALITIES[cleaned]
         except KeyError:
-            raise InvalidQualityError(f'"{quality}" is not a valid quality.')
+            raise InvalidQualityError('"{}" is not a valid quality.'.format(quality))
 
 
 ########################################################################
-class Pitch(float):
+class Pitch:
 
-    __interval_increase = float('1.0595')
+    __interval_increase = 1.0595
 
     ####################################################################
-    def __new__(cls, i, *args, **kwargs):
-        val = super().__new__(Pitch, i, *args, **kwargs)
-        return val
+    def __init__(self, _float):
+        self._value = _float
+        if isinstance(_float, Pitch):
+            _float = _float._value
+        self.value = float(_float)
 
     ####################################################################
     def __str__(self):
-        return f'Pitch({self.real})'
+        return 'Pitch({})'.format(self._value)
 
     ####################################################################
     def __repr__(self):
-        return f'Pitch({self.real})'
+        return 'Pitch({})'.format(self._value)
+
+    ####################################################################
+    def __hash__(self):
+        return hash(self._value)
+
+    ####################################################################
+    def __eq__(self, other):
+        if isinstance(other, (float, int)):
+            return self._value == other
+        elif isinstance(other, Pitch):
+            return self._value == other._value
+        else:
+            raise TypeError('Cannot compare Pitch to type {}'.format(type(other)))
+
+    ####################################################################
+    def __add__(self, other):
+        if isinstance(other, (float, int)):
+            return self._value + other
+        elif isinstance(other, Pitch):
+            return self._value + other._value
+        else:
+            raise TypeError('Cannot compare Pitch to type {}'.format(type(other)))
+
+    ####################################################################
+    def __sub__(self, other):
+        if isinstance(other, (float, int)):
+            return self._value - other
+        elif isinstance(other, Pitch):
+            return self._value - other._value
+        else:
+            raise TypeError('Cannot compare Pitch to type {}'.format(type(other)))
+
+    ####################################################################
+    def __rsub__(self, other):
+        if isinstance(other, (float, int)):
+            return other - self._value
+        elif isinstance(other, Pitch):
+            return other._value - self._value
+        else:
+            raise TypeError('Cannot compare Pitch to type {}'.format(type(other)))
+
+    ####################################################################
+    def __mul__(self, other):
+        if isinstance(other, (float, int)):
+            return self._value * other
+        elif isinstance(other, Pitch):
+            return self._value * other._value
+        else:
+            raise TypeError('Cannot compare Pitch to type {}'.format(type(other)))
 
     ####################################################################
     def __gt__(self, other):
-        return float(self) > float(other)
+        if isinstance(other, (float, int)):
+            return self._value > other
+        elif isinstance(other, Pitch):
+            return self._value > other._value
+        else:
+            raise TypeError('Cannot compare Pitch to type {}'.format(type(other)))
+
+    ####################################################################
+    def __ge__(self, other):
+        if isinstance(other, (float, int)):
+            return self._value >= other
+        elif isinstance(other, Pitch):
+            return self._value >= other._value
+        else:
+            raise TypeError('Cannot compare Pitch to type {}'.format(type(other)))
+
+    ####################################################################
+    def __lt__(self, other):
+        if isinstance(other, (float, int)):
+            return self._value < other
+        elif isinstance(other, Pitch):
+            return self._value < other._value
+        else:
+            raise TypeError('Cannot compare Pitch to type {}'.format(type(other)))
+
+    ####################################################################
+    def __le__(self, other):
+        if isinstance(other, (float, int)):
+            return self._value <= other
+        elif isinstance(other, Pitch):
+            return self._value <= other._value
+        else:
+            raise TypeError('Cannot compare Pitch to type {}'.format(type(other)))
 
     ####################################################################
     @property
     def next_pitch(self):
-        next_hz = self * self.__interval_increase
+        next_hz = self._value * self.__interval_increase
         return Pitch(next_hz)
 
     ####################################################################
-    def in_tune(self, pitch_2):
-        diff = pitch_2 / self
-        if diff > 1.05:
-            return SHARP
-        elif diff < 0.95:
-            return FLAT
-        return IN_TUNE
+    # def in_tune(self, pitch_2):
+    #     diff = pitch_2 / self._value
+    #     if diff > 1.05:
+    #         return SHARP
+    #     elif diff < 0.95:
+    #         return FLAT
+    #     return IN_TUNE
 
     ####################################################################
     def increase(self, semitones):
         increased = 0
 
-        for hz in PitchMap:
-            if hz > self:
+        for hz in PITCHES.values():
+            if hz > self._value:
                 increased += 1
             if increased == semitones:
                 break
@@ -93,7 +174,7 @@ class Pitch(float):
         decreased = 0
 
         for hz in reversed(PitchMap):
-            if hz < self:
+            if hz < self._value:
                 decreased += 1
             if decreased == semitones:
                 break
@@ -118,7 +199,7 @@ class NoteValue:
     ####################################################################
     def __rtruediv__(self, other):
         if not isinstance(other, int):
-            raise TypeError(f'Cannot compare type {type(other)} to NoteValue')
+            raise TypeError('Cannot compare type {} to NoteValue'.format(type(other)))
         return other/self.factor
 
     ####################################################################
@@ -127,12 +208,13 @@ class NoteValue:
 
     ####################################################################
     def __repr__(self):
-        return f'NoteValue({self.name}, {self.fraction}, {self.factor})'
+        r = 'NoteValue({name}, {fraction}, {factor})'
+        return r.format(name=self.name, fraction=self.fraction, factor=self.factor)
 
     ####################################################################
     def __eq__(self, other):
         if not isinstance(other, NoteValue):
-            raise TypeError(f'Cannot compare type NoteValue to type "{type(other)}"')
+            raise TypeError('Cannot compare type NoteValue to type "{}"'.format(type(other)))
         return hash(self) == hash(other)
 
     ####################################################################
@@ -165,15 +247,15 @@ class Note:
             quality = note.quality
         else:
             name = note[:1].upper().strip()
-            assert name in NATURAL_NOTES, f'"{name}" is not a valid note.'
+            assert name in NATURAL_NOTES, '"{}" is not a valid note.'.format(name)
             quality = note[1:].replace("-", "").replace("_", "").lower().strip()
             if quality:
                 try:
                     quality = SHARPS_AND_FLATS[quality]
                 except KeyError:
-                    raise InvalidNoteError(f'"{note}" is not a valid note.')
+                    raise InvalidNoteError('"{}" is not a valid note.'.format(note))
 
-        self.__name = f'{name}{quality}'
+        self.__name = '{}{}'.format(name, quality)
         self.__quality = Quality(quality)
 
     ####################################################################
@@ -192,12 +274,12 @@ class Note:
 
     ####################################################################
     def __repr__(self):
-        return f'Note("{self.name}")'
+        return 'Note("{}")'.format(self.name)
 
     ####################################################################
     def __eq__(self, other):
         if not isinstance(other, Note):
-            raise TypeError(f'Cannot compare type Note to type "{type(other)}"')
+            raise TypeError('Cannot compare type Note to type "{}"'.format(type(other)))
         return hash(self) == hash(other)
 
     ####################################################################
@@ -207,11 +289,12 @@ class Note:
     ####################################################################
     @classmethod
     def from_pitch(cls, pitch, available_notes):
-        for note, octave in PitchMap[pitch]:
+        for note, octave in PitchMap(pitch):
             if note in available_notes:
                 return note
-        raise UnavailableNoteError(f'Failed to find note for pitch {pitch} with available notes {available_notes}.'
-                                   f' Actual notes are: {available_notes}')
+        error = ('Failed to find note for pitch {pitch} with available notes {available_notes}. '
+                 'Actual notes are: {available_notes}')
+        raise UnavailableNoteError(error.format(pitch=pitch, available_notes=available_notes))
 
     ####################################################################
     @property
@@ -232,22 +315,22 @@ class Note:
     ####################################################################
     @property
     def is_sharp(self):
-        return self.name.endswith('♯') and not self.is_double_sharp
+        return self.name.endswith('#') and not self.is_double_sharp
 
     ####################################################################
     @property
     def is_double_sharp(self):
-        return self.name.endswith('♯♯')
+        return self.name.endswith('##')
 
     ####################################################################
     @property
     def is_flat(self):
-        return self.name.endswith('♭') and not self.is_double_flat
+        return self.name.endswith('b') and not self.is_double_flat
 
     ####################################################################
     @property
     def is_double_flat(self):
-        return self.name.endswith('♭♭')
+        return self.name.endswith('bb')
 
     ####################################################################
     @property
@@ -278,7 +361,7 @@ class Note:
 
 
 #######################################################################
-class _PitchMap(collections.OrderedDict):
+def PitchMap(item):
     """
     This dictionary maps pitches to their corresponding notes and octaves.
     The value is a tuple of tuples. Each inner tuple containing a (Note, Octave).
@@ -287,47 +370,40 @@ class _PitchMap(collections.OrderedDict):
 
     Here are a couple entries each way:
         {
-            Pitch('16.35'): ((Note('B♯') Octave(0)), (Note('C'), Octave(0))),
-            Pitch('17.32'): ((Note('C♯') Octave(0)), (Note('D♭'), Octave(0))),
+            Pitch('16.35'): ((Note('B#') Octave(0)), (Note('C'), Octave(0))),
+            Pitch('17.32'): ((Note('C#') Octave(0)), (Note('Db'), Octave(0))),
             ...
-            (Note('B♯') Octave(0)): Pitch('16.35'),
+            (Note('B#') Octave(0)): Pitch('16.35'),
             (Note('C'), Octave(0)): Pitch('16.35'),
-            (Note('C♯') Octave(0)): Pitch('17.32'),
+            (Note('C#') Octave(0)): Pitch('17.32'),
             ...
         }
     """
+    need_pitch = isinstance(item, tuple) and isinstance(item[0], Note) and isinstance(item[1], Octave)
+    need_note = isinstance(item, Pitch)
 
-    ####################################################################
-    def __init__(self):
-        data = collections.OrderedDict()
-        note_to_hz_map = collections.OrderedDict()
-
-        for notes_with_octaves, _pitch in PITCHES.items():
-            pitch = Pitch(_pitch)
+    for notes_with_octaves, _pitch in PITCHES.items():
+        if need_note:
+            if _pitch == item:
+                notes_with_octaves = notes_with_octaves.split('/')
+                notes = []
+                for note_with_octave in notes_with_octaves:
+                    name = note_with_octave[0]  # first character
+                    quality = note_with_octave[1:-1]  # any/every thing in the middle
+                    octave = Octave(note_with_octave[-1])  # last character, integer for octave
+                    note = Note(name + quality)
+                    notes.append((note, octave))
+                return tuple(notes)
+        elif need_pitch:
+            target_note, target_octave = item
             notes_with_octaves = notes_with_octaves.split('/')
-            notes = []
             for note_with_octave in notes_with_octaves:
                 name = note_with_octave[0]  # first character
                 quality = note_with_octave[1:-1]  # any/every thing in the middle
                 octave = Octave(note_with_octave[-1])  # last character, integer for octave
-                note = Note(f'{name}{quality}')
-                note_to_hz_map[(note, octave)] = pitch
-                notes.append((note, octave))
-
-            data[pitch] = tuple(notes)
-
-        super(_PitchMap, self).__init__(data)
-        self.note_to_hz_map = note_to_hz_map
-
-    ####################################################################
-    def __getitem__(self, item):
-        try:
-            return super(_PitchMap, self).__getitem__(item)
-        except KeyError:
-            return self.note_to_hz_map[item]
-
-
-PitchMap = _PitchMap()
+                note = Note(name + quality)
+                if target_note == note and target_octave == octave:
+                    return Pitch(_pitch)
 
 
 #######################################################################
@@ -335,58 +411,58 @@ class Interval(int):
     pass
 
 
-G_double_sharp = Note('G♯♯')
+G_double_sharp = Note('G##')
 A = Note('A')
-B_double_flat = Note('B♭♭')
+B_double_flat = Note('Bbb')
 Bbb = B_double_flat
 
-A_sharp = Note('A♯')
-B_flat = Note('B♭')
+A_sharp = Note('A#')
+B_flat = Note('Bb')
 Bb = B_flat
 
 B = Note('B')
-C_flat = Note('C♭')
+C_flat = Note('Cb')
 Cb = C_flat
 
-B_sharp = Note('B♯')
+B_sharp = Note('B#')
 C = Note('C')
-D_double_flat = Note('D♭♭')
+D_double_flat = Note('Dbb')
 Dbb = D_double_flat
 
-C_sharp = Note('C♯')
-D_flat = Note('D♭')
+C_sharp = Note('C#')
+D_flat = Note('Db')
 Db = D_flat
 
-C_double_sharp = Note('C♯♯')
+C_double_sharp = Note('C##')
 D = Note('D')
-E_double_flat = Note('E♭♭')
+E_double_flat = Note('Ebb')
 Ebb = E_double_flat
 
-D_sharp = Note('D♯')
-E_flat = Note('E♭')
+D_sharp = Note('D#')
+E_flat = Note('Eb')
 Eb = E_flat
 
-D_double_sharp = Note('D♯♯')
+D_double_sharp = Note('D##')
 E = Note('E')
-F_flat = Note('F♭')
+F_flat = Note('Fb')
 Fb = F_flat
 
-E_sharp = Note('E♯')
+E_sharp = Note('E#')
 F = Note('F')
-G_double_flat = Note('G♭♭')
+G_double_flat = Note('Gbb')
 Gbb = G_double_flat
 
-F_sharp = Note('F♯')
-G_flat = Note('G♭')
+F_sharp = Note('F#')
+G_flat = Note('Gb')
 Gb = G_flat
 
-F_double_sharp = Note('F♯♯')
+F_double_sharp = Note('F##')
 G = Note('G')
-A_double_flat = Note('A♭♭')
+A_double_flat = Note('Abb')
 Abb = A_double_flat
 
-G_sharp = Note('G♯')
-A_flat = Note('A♭')
+G_sharp = Note('G#')
+A_flat = Note('Ab')
 Ab = A_flat
 
 W = WHOLE_STEP = Interval(2)
@@ -449,8 +525,9 @@ class Range:
 
         _pitches = []
         for names, hz in PITCHES.items():
-            if lowest_pitch <= hz <= highest_pitch:
-                _pitches.append(Pitch(hz))
+            pitch = Pitch(hz)
+            if lowest_pitch <= pitch <= highest_pitch:
+                _pitches.append(pitch)
 
         self.pitches = tuple(_pitches)
 
@@ -462,8 +539,8 @@ class Range:
             yield pitch
 
 
-PianoRange = Range(Pitch('27.50'), Pitch('4186.01'))
-assert len(PianoRange) == 88, f'Piano Range: {len(PianoRange)}'
+PianoRange = Range(Pitch(27.50), Pitch(4186.01))
+assert len(PianoRange) == 88, 'Piano Range: {}'.format(len(PianoRange))
 
 
 #######################################################################
@@ -484,7 +561,8 @@ class ScalePattern:
     def clean_name_and_intervals(cls, name, intervals):
         assert name or intervals, 'A name or iterable of intervals must be provided.'
 
-        name = name.strip().title() if name else ''
+        name = (name.strip() if name else '')
+        name = ' '.join(word.capitalize() for word in name.split(' '))
         if intervals:
             intervals = tuple(intervals)
 
@@ -502,7 +580,7 @@ class ScalePattern:
                     name = MODAL_INTERVALS_TO_NAME_MAP[intervals]
                 except KeyError:
                     argument = name or intervals
-                    raise InvalidScaleError(f'{argument} is not a recognized scale.')
+                    raise InvalidScaleError('{} is not a recognized scale.'.format(argument))
 
         return name, intervals
 
@@ -526,7 +604,7 @@ class ScalePattern:
             return self
 
         intervals = self.intervals[start:stop:step]
-        name = f'{self.name} Slice[{start}:{stop}]'
+        name = '{name} Slice[{start}:{stop}]'.format(name=self.name, start=start, stop=stop)
         return ScalePattern(name, intervals=intervals)
 
 
@@ -566,28 +644,28 @@ class Scale(ScalePattern):
 
         # super().__init__ set self.name to the base scale's name.
         # Update it with the tonic's name.
-        self.name = f'{self.tonic} {self.name}'
+        self.name = '{tonic} {name}'.format(tonic=self.tonic, name=self.name)
 
         self.notes = tuple(self._generate_notes())
         self.note_names = tuple(note.name for note in self.notes)
 
-        num_intervals = len(self.notes)
-        self.first = self.notes[0]
-        self.second = self.notes[1] if num_intervals > 1 else None
-        self.third = self.notes[2] if num_intervals > 2 else None
-        self.fourth = self.notes[3] if num_intervals > 3 else None
-        self.fifth = self.notes[4] if num_intervals > 4 else None
-        self.sixth = self.notes[5] if num_intervals > 5 else None
-        self.seventh = self.notes[6] if num_intervals > 6 else None
-        self.eighth = self.notes[7] if num_intervals > 7 else None
-        self.ninth = self.notes[8] if num_intervals > 8 else None
-        self.tenth = self.notes[9] if num_intervals > 9 else None
-        self.eleventh = self.notes[10] if num_intervals > 10 else None
-        self.twelfth = self.notes[11] if num_intervals > 11 else None
-        self.thirteenth = self.notes[12] if num_intervals > 12 else None
-        self.fourteenth = self.notes[13] if num_intervals > 13 else None
-        self.fifteenth = self.notes[14] if num_intervals > 14 else None
-        self.sixteenth = self.notes[15] if num_intervals > 15 else None
+        # num_intervals = len(self.notes)
+        # self.first = self.notes[0]
+        # self.second = self.notes[1] if num_intervals > 1 else None
+        # self.third = self.notes[2] if num_intervals > 2 else None
+        # self.fourth = self.notes[3] if num_intervals > 3 else None
+        # self.fifth = self.notes[4] if num_intervals > 4 else None
+        # self.sixth = self.notes[5] if num_intervals > 5 else None
+        # self.seventh = self.notes[6] if num_intervals > 6 else None
+        # self.eighth = self.notes[7] if num_intervals > 7 else None
+        # self.ninth = self.notes[8] if num_intervals > 8 else None
+        # self.tenth = self.notes[9] if num_intervals > 9 else None
+        # self.eleventh = self.notes[10] if num_intervals > 10 else None
+        # self.twelfth = self.notes[11] if num_intervals > 11 else None
+        # self.thirteenth = self.notes[12] if num_intervals > 12 else None
+        # self.fourteenth = self.notes[13] if num_intervals > 13 else None
+        # self.fifteenth = self.notes[14] if num_intervals > 14 else None
+        # self.sixteenth = self.notes[15] if num_intervals > 15 else None
 
     ####################################################################
     def _generate_notes(self):
@@ -595,7 +673,7 @@ class Scale(ScalePattern):
         notes = [self.tonic]
 
         # Get the base pitch to start with from our tonic note
-        pitch_value = PitchMap[(self.tonic, Octave(4))]
+        pitch_value = PitchMap((self.tonic, Octave(4)))
         pitch = Pitch(pitch_value)
 
         # A key has a set of whole and half steps that determine what notes
@@ -609,7 +687,7 @@ class Scale(ScalePattern):
             pitch = pitch.increase(interval)
 
             # Get the list of harmonically equivalent notes for the increased pitch
-            equivalent_notes = PitchMap[pitch]
+            equivalent_notes = PitchMap(pitch)
 
             # Find which of the equivalent notes is named with the next letter for our key
             # For example, if the last note was some kind of A (A, A#, or Ab)
@@ -621,14 +699,15 @@ class Scale(ScalePattern):
                     notes.append(note)
                     break
             else:
-                raise InvalidKeyError(f'Did not find a {next_note_natural_name} note in {equivalent_notes}.')
+                error = 'Did not find a {next_name} note in {equivalent}.'
+                raise InvalidKeyError(error.format(next_name=next_note_natural_name, equivalent=equivalent_notes))
 
         return notes
 
     ####################################################################
     def __eq__(self, other):
         if not isinstance(other, Scale):
-            raise TypeError(f'Cannot compare type {type(other)} to type Scale.')
+            raise TypeError('Cannot compare type {} to type Scale.'.format(type(other)))
 
         return self.notes == other.notes and self.intervals == other.intervals
 
@@ -638,7 +717,7 @@ class Scale(ScalePattern):
             i = int(item)
             return self.notes[i]
         except IndexError:
-            raise Exception(f'This scale does not have {i + 1} notes: {self.notes}')
+            raise Exception('This scale does not have {qty} notes: {notes}'.format(qty=i + 1, notes=self.notes))
         except TypeError:
             return self.__getslice__(item)
         except ValueError:
@@ -660,32 +739,32 @@ class Scale(ScalePattern):
             yield note
 
     ####################################################################
-    @property
-    def minor_seventh(self):
-        """
-        The minor seventh for a scale is a minor third above the
-        the fifth. Using that as a starting point:
-            - Find the number of semitones minor seventh is above
-              the tonic's pitch
-            - Get the pitch for the tonic
-            - Increase the pitch by the number of semitones
-              for the minor seventh
-            - Get the harmonically equivalent notes at that raised pitch
-            - Select the one that has the same natural name as the
-              scale's seventh
-        """
-        min_7_semitones = sum((PerfectFifth, MinorThird))
-        tonic_with_octave = f'{self.tonic.name}4'
-        pitch = Pitch(PitchMap[tonic_with_octave]).increase(min_7_semitones)
-        return Note.from_pitch(pitch, self.notes)
-
-    ####################################################################
-    @property
-    def major_seventh(self):
-        maj_7_semitones = sum((PerfectFifth, MajorThird))
-        tonic_with_octave = f'{self.tonic.name}4'
-        pitch = Pitch(PitchMap[tonic_with_octave]).increase(maj_7_semitones)
-        return Note.from_pitch(pitch, self.notes)
+    # @property
+    # def minor_seventh(self):
+    #     """
+    #     The minor seventh for a scale is a minor third above the
+    #     the fifth. Using that as a starting point:
+    #         - Find the number of semitones minor seventh is above
+    #           the tonic's pitch
+    #         - Get the pitch for the tonic
+    #         - Increase the pitch by the number of semitones
+    #           for the minor seventh
+    #         - Get the harmonically equivalent notes at that raised pitch
+    #         - Select the one that has the same natural name as the
+    #           scale's seventh
+    #     """
+    #     min_7_semitones = sum((PerfectFifth, MinorThird))
+    #     tonic_with_octave = '{}4'.format(self.tonic.name)
+    #     pitch = Pitch(PitchMap[tonic_with_octave]).increase(min_7_semitones)
+    #     return Note.from_pitch(pitch, self.notes)
+    #
+    # ####################################################################
+    # @property
+    # def major_seventh(self):
+    #     maj_7_semitones = sum((PerfectFifth, MajorThird))
+    #     tonic_with_octave = '{}4'.format(self.tonic.name)
+    #     pitch = Pitch(PitchMap[tonic_with_octave]).increase(maj_7_semitones)
+    #     return Note.from_pitch(pitch, self.notes)
 
 
 #######################################################################
@@ -718,7 +797,7 @@ def _get_note_and_quality_from_music_element(element_name):
     try:
         note = Note(element_name[0])
     except IndexError:
-        raise InvalidNoteError(f'"{element_name}" does not contain a valid root note.')
+        raise InvalidNoteError('"{}" does not contain a valid root note.'.format(element_name))
     remainder = element_name[1:]
 
     if remainder:
@@ -743,7 +822,7 @@ class Key:
         tonic, quality = _get_note_and_quality_from_music_element(name.strip())
         self.tonic = tonic
         self.quality = quality
-        self.name = f'{self.tonic.name}{self.quality}'
+        self.name = '{name}{quality}'.format(name=self.tonic.name, quality=self.quality)
         self.base_scale = MinorScale if quality == MINOR else MajorScale
         self.scale = Scale(self.tonic, self.base_scale)
         self.notes = self.scale.notes
@@ -801,11 +880,11 @@ class Key:
 
     ####################################################################
     def __str__(self):
-        return f'Key of {self.name}'
+        return 'Key of {}'.format(self.name)
 
     ####################################################################
     def __repr__(self):
-        return f'Key({self.name})'
+        return 'Key({})'.format(self.name)
 
     ####################################################################
     def __iter__(self):
@@ -819,157 +898,3 @@ class Key:
     ####################################################################
     def is_major(self):
         return self.quality == MAJOR
-
-
-########################################################################
-class Chord:
-
-    ####################################################################
-    def __init__(self, name, key=None):
-        root, quality = _get_note_and_quality_from_music_element(name.strip())
-        self.root_note = root
-        self.quality = quality
-        self.is_minor = MAJOR_ABBREVIATION not in quality and MINOR in quality
-        self.is_major = not self.is_minor
-        self.name = f"{root}{quality}"
-        self.key_specified = key is not None
-        self.key = Key(key) if key else self.default_key
-        self.notes = self._generate_notes()
-
-    ####################################################################
-    @property
-    def default_key(self):
-        quality = MINOR if self.is_minor else MAJOR
-        name = f'{self.root_note.name}{quality}'
-        key = Key(name)
-        return key
-
-    ####################################################################
-    @property
-    def triad(self):
-        return (self.key.scale.first,
-                self.key.scale.third,
-                self.key.scale.fifth)
-
-    ####################################################################
-    def _generate_notes(self):
-        notes = list(self.triad)
-        if self.seventh:
-            notes.append(self.seventh)
-        return tuple(notes)
-
-    ####################################################################
-    @property
-    def seventh(self):
-        scale = self.key.scale
-        if self.quality == SEVENTH or self.quality == MINOR + SEVENTH:
-            return scale.minor_seventh
-        elif self.quality == MAJOR_ABBREVIATION + SEVENTH:
-            return scale.major_seventh
-        return None
-
-
-########################################################################
-class Transpose:
-
-    ####################################################################
-    def __init__(self, *notes, quality_to_use=None):
-        self._raw_notes = tuple(Note(n) for n in notes)
-        self.quality_to_use = quality_to_use
-        for note in self._raw_notes:
-            if note.quality and note.quality in QUALITIES:
-                self.quality_to_use = note.quality
-                break
-
-        self._transposed_notes = []
-        self.transpose_up = False
-        self.transpose_down = False
-        self._steps = ()
-
-    ####################################################################
-    def _semitones(self):
-        semitones = sum(self._steps)
-        return int(semitones)
-
-    ####################################################################
-    def steps(self, *steps):
-        self._steps = tuple(steps)
-        return self._transpose()
-
-    ####################################################################
-    @property
-    def up(self):
-        self.transpose_up = True
-        self.transpose_down = False
-        return self
-
-    ####################################################################
-    @property
-    def down(self):
-        self.transpose_down = True
-        self.transpose_up = False
-        return self
-
-    ####################################################################
-    @property
-    def half_step(self):
-        self._steps = (H, )
-        return self._transpose()
-
-    ####################################################################
-    @property
-    def whole_step(self):
-        self._steps = (W, )
-        return self._transpose()
-
-    ####################################################################
-    @property
-    def third(self):
-        self._steps = (W, W)
-        return self._transpose()
-
-    ####################################################################
-    @property
-    def minor_third(self):
-        self._steps = (W, H)
-        return self._transpose()
-
-    ####################################################################
-    @property
-    def fifth(self):
-        self._steps = (W, W, W, H)
-        return self._transpose()
-
-    ####################################################################
-    def octave(self):
-        self._steps = (W, W, W, W, W, W)
-        return self._transpose()
-
-    ####################################################################
-    def _transpose(self):
-        transposed = []
-        for note in self._raw_notes:
-            if self.transpose_up:
-                transposed_pitch = note.fundamental.increase(self._semitones())
-            else:
-                transposed_pitch = note.fundamental.decrease(self._semitones())
-            matches = PitchMap[transposed_pitch]
-            best_match = None
-            for match in matches:
-                octave = int(match[-1])
-                matching_note = Note(match[:-1], octave=octave)
-                if matching_note.is_natural:
-                    best_match = matching_note
-                    break
-
-                if self.quality_to_use and matching_note.quality == self.quality_to_use:
-                    best_match = matching_note
-                elif best_match:
-                    if not (best_match.is_standard_flat or best_match.is_standard_sharp):
-                        best_match = matching_note
-                elif not best_match:
-                    best_match = matching_note
-            assert best_match is not None, f'Failed to find note with pitch {transposed_pitch}. Tried {matches}'
-            transposed.append(best_match)
-        self._transposed_notes = transposed
-        return self._transposed_notes

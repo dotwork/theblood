@@ -1,6 +1,6 @@
 import string
 
-from the_blood.models import Key, Chord
+from the_blood.models import Key
 
 
 #######################################################################
@@ -16,7 +16,7 @@ class TextTranslator:
         self.text = text
         self.words = self.text.split(' ')
         self.key = self._calculate_key()
-        self.chords = self._calculate_chords()
+        # self.chords = self._calculate_chords()
         self.melody = self._calculate_melody()
         self.time_signature = self._calculate_time_signature()
 
@@ -44,16 +44,16 @@ class TextTranslator:
             raise NotImplementedError()
 
     ####################################################################
-    def _calculate_chords(self):
-        chords = [Chord(self.key.name).triad]
-        for word in self.words[1:]:
-            chord = []
-            for char in word:
-                note = self._get_note_from_char(char)
-                if note and note not in chord:
-                    chord.append(note)
-            chords.append(tuple(chord))
-        return chords
+    # def _calculate_chords(self):
+    #     chords = [Chord(self.key.name).triad]
+    #     for word in self.words[1:]:
+    #         chord = []
+    #         for char in word:
+    #             note = self._get_note_from_char(char)
+    #             if note and note not in chord:
+    #                 chord.append(note)
+    #         chords.append(tuple(chord))
+    #     return chords
 
     ####################################################################
     def _calculate_melody(self):

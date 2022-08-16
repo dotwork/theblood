@@ -47,11 +47,11 @@ class TestMajorKey(TestCase):
     ####################################################################
     def test_note_names__natural(self):
         names = Key('A').note_names
-        expected = ('A', 'B', 'C♯', 'D', 'E', 'F♯', 'G♯')
+        expected = ('A', 'B', 'C#', 'D', 'E', 'F#', 'G#')
         self.assertEqual(expected, names)
 
         names = Key('B').note_names
-        expected = ('B', 'C♯', 'D♯', 'E', 'F♯', 'G♯', 'A♯')
+        expected = ('B', 'C#', 'D#', 'E', 'F#', 'G#', 'A#')
         self.assertEqual(expected, names)
 
         names = Key('C').note_names
@@ -59,83 +59,83 @@ class TestMajorKey(TestCase):
         self.assertEqual(expected, names)
 
         names = Key('D').note_names
-        expected = ('D', 'E', 'F♯', 'G', 'A', 'B', 'C♯')
+        expected = ('D', 'E', 'F#', 'G', 'A', 'B', 'C#')
         self.assertEqual(expected, names)
 
         names = Key('E').note_names
-        expected = ('E', 'F♯', 'G♯', 'A', 'B', 'C♯', 'D♯')
+        expected = ('E', 'F#', 'G#', 'A', 'B', 'C#', 'D#')
         self.assertEqual(expected, names)
 
         names = Key('F').note_names
-        expected = ('F', 'G', 'A', 'B♭', 'C', 'D', 'E')
+        expected = ('F', 'G', 'A', 'Bb', 'C', 'D', 'E')
         self.assertEqual(expected, names)
 
         names = Key('G').note_names
-        expected = ('G', 'A', 'B', 'C', 'D', 'E', 'F♯')
+        expected = ('G', 'A', 'B', 'C', 'D', 'E', 'F#')
         self.assertEqual(expected, names)
 
     ####################################################################
     def test_note_names__sharps(self):
-        names = Key('C♯').note_names
-        expected = ('C♯', 'D♯', 'E♯', 'F♯', 'G♯', 'A♯', 'B♯')
+        names = Key('C#').note_names
+        expected = ('C#', 'D#', 'E#', 'F#', 'G#', 'A#', 'B#')
         self.assertEqual(expected, names)
 
-        names = Key('F♯').note_names
-        expected = ('F♯', 'G♯', 'A♯', 'B', 'C♯', 'D♯', 'E♯')
+        names = Key('F#').note_names
+        expected = ('F#', 'G#', 'A#', 'B', 'C#', 'D#', 'E#')
         self.assertEqual(expected, names)
 
     ####################################################################
     def test_note_names__non_standard_sharps(self):
-        names = Key('A♯').note_names
-        expected = ('A♯', 'B♯', 'C♯♯', 'D♯', 'E♯', 'F♯♯', 'G♯♯')
+        names = Key('A#').note_names
+        expected = ('A#', 'B#', 'C##', 'D#', 'E#', 'F##', 'G##')
         self.assertEqual(expected, names)
 
-        names = Key('B♯').note_names
-        expected = ('B♯', 'C♯♯', 'D♯♯', 'E♯', 'F♯♯', 'G♯♯', 'A♯♯')
+        names = Key('B#').note_names
+        expected = ('B#', 'C##', 'D##', 'E#', 'F##', 'G##', 'A##')
         self.assertEqual(expected, names)
 
-        names = Key('D♯').note_names
-        expected = ('D♯', 'E♯', 'F♯♯', 'G♯', 'A♯', 'B♯', 'C♯♯')
+        names = Key('D#').note_names
+        expected = ('D#', 'E#', 'F##', 'G#', 'A#', 'B#', 'C##')
         self.assertEqual(expected, names)
 
-        names = Key('E♯').note_names
-        expected = ('E♯', 'F♯♯', 'G♯♯', 'A♯', 'B♯', 'C♯♯', 'D♯♯')
+        names = Key('E#').note_names
+        expected = ('E#', 'F##', 'G##', 'A#', 'B#', 'C##', 'D##')
         self.assertEqual(expected, names)
 
-        names = Key('G♯').note_names
-        expected = ('G♯', 'A♯', 'B♯', 'C♯', 'D♯', 'E♯', 'F♯♯')
+        names = Key('G#').note_names
+        expected = ('G#', 'A#', 'B#', 'C#', 'D#', 'E#', 'F##')
         self.assertEqual(expected, names)
 
     ####################################################################
     def test_note_names__flats(self):
-        names = Key('A♭').note_names
-        expected = ('A♭', 'B♭', 'C', 'D♭', 'E♭', 'F', 'G')
+        names = Key('Ab').note_names
+        expected = ('Ab', 'Bb', 'C', 'Db', 'Eb', 'F', 'G')
         self.assertEqual(expected, names)
 
-        names = Key('B♭').note_names
-        expected = ('B♭', 'C', 'D', 'E♭', 'F', 'G', 'A')
+        names = Key('Bb').note_names
+        expected = ('Bb', 'C', 'D', 'Eb', 'F', 'G', 'A')
         self.assertEqual(expected, names)
 
-        names = Key('C♭').note_names
-        expected = ('C♭', 'D♭', 'E♭', 'F♭', 'G♭', 'A♭', 'B♭')
+        names = Key('Cb').note_names
+        expected = ('Cb', 'Db', 'Eb', 'Fb', 'Gb', 'Ab', 'Bb')
         self.assertEqual(expected, names)
 
-        names = Key('D♭').note_names
-        expected = ('D♭', 'E♭', 'F', 'G♭', 'A♭', 'B♭', 'C')
+        names = Key('Db').note_names
+        expected = ('Db', 'Eb', 'F', 'Gb', 'Ab', 'Bb', 'C')
         self.assertEqual(expected, names)
 
-        names = Key('E♭').note_names
-        expected = ('E♭', 'F', 'G', 'A♭', 'B♭', 'C', 'D')
+        names = Key('Eb').note_names
+        expected = ('Eb', 'F', 'G', 'Ab', 'Bb', 'C', 'D')
         self.assertEqual(expected, names)
 
-        names = Key('G♭').note_names
-        expected = ('G♭', 'A♭', 'B♭', 'C♭', 'D♭', 'E♭', 'F')
+        names = Key('Gb').note_names
+        expected = ('Gb', 'Ab', 'Bb', 'Cb', 'Db', 'Eb', 'F')
         self.assertEqual(expected, names)
 
     ####################################################################
     def test_note_names__non_standard_flats(self):
-        names = Key('F♭').note_names
-        expected = ('F♭', 'G♭', 'A♭', 'B♭♭', 'C♭', 'D♭', 'E♭')
+        names = Key('Fb').note_names
+        expected = ('Fb', 'Gb', 'Ab', 'Bbb', 'Cb', 'Db', 'Eb')
         self.assertEqual(expected, names)
 
 
@@ -221,66 +221,66 @@ class TestMinorKey(TestCase):
 
     ####################################################################
     def test_note_names__sharps(self):
-        names = Key('A♯ minor').note_names
-        expected = ('A♯', 'B♯', 'C♯', 'D♯', 'E♯', 'F♯', 'G♯')
+        names = Key('A# minor').note_names
+        expected = ('A#', 'B#', 'C#', 'D#', 'E#', 'F#', 'G#')
         self.assertEqual(expected, names)
 
-        names = Key('C♯ minor').note_names
-        expected = ('C♯', 'D♯', 'E', 'F♯', 'G♯', 'A', 'B')
+        names = Key('C# minor').note_names
+        expected = ('C#', 'D#', 'E', 'F#', 'G#', 'A', 'B')
         self.assertEqual(expected, names)
 
-        names = Key('D♯ minor').note_names
-        expected = ('D♯', 'E♯', 'F♯', 'G♯', 'A♯', 'B', 'C♯')
+        names = Key('D# minor').note_names
+        expected = ('D#', 'E#', 'F#', 'G#', 'A#', 'B', 'C#')
         self.assertEqual(expected, names)
 
-        names = Key('F♯ minor').note_names
-        expected = ('F♯', 'G♯', 'A', 'B', 'C♯', 'D', 'E')
+        names = Key('F# minor').note_names
+        expected = ('F#', 'G#', 'A', 'B', 'C#', 'D', 'E')
         self.assertEqual(expected, names)
 
-        names = Key('G♯ minor').note_names
-        expected = ('G♯', 'A♯', 'B', 'C♯', 'D♯', 'E', 'F♯')
+        names = Key('G# minor').note_names
+        expected = ('G#', 'A#', 'B', 'C#', 'D#', 'E', 'F#')
         self.assertEqual(expected, names)
 
     ####################################################################
     def test_note_names__non_standard_sharps(self):
-        names = Key('B♯ minor').note_names
-        expected = ('B♯', 'C♯♯', 'D♯', 'E♯', 'F♯♯', 'G♯', 'A♯')
+        names = Key('B# minor').note_names
+        expected = ('B#', 'C##', 'D#', 'E#', 'F##', 'G#', 'A#')
         self.assertEqual(expected, names)
 
-        names = Key('E♯ minor').note_names
-        expected = ('E♯', 'F♯♯', 'G♯', 'A♯', 'B♯', 'C♯', 'D♯')
+        names = Key('E# minor').note_names
+        expected = ('E#', 'F##', 'G#', 'A#', 'B#', 'C#', 'D#')
         self.assertEqual(expected, names)
 
     ####################################################################
     def test_note_names__flat(self):
-        names = Key('A♭ minor').note_names
-        expected = ('A♭', 'B♭', 'C♭', 'D♭', 'E♭', 'F♭', 'G♭')
+        names = Key('Ab minor').note_names
+        expected = ('Ab', 'Bb', 'Cb', 'Db', 'Eb', 'Fb', 'Gb')
         self.assertEqual(expected, names)
 
-        names = Key('B♭ minor').note_names
-        expected = ('B♭', 'C', 'D♭', 'E♭', 'F', 'G♭', 'A♭')
+        names = Key('Bb minor').note_names
+        expected = ('Bb', 'C', 'Db', 'Eb', 'F', 'Gb', 'Ab')
         self.assertEqual(expected, names)
 
-        names = Key('D♭ minor').note_names
-        expected = ('D♭', 'E♭', 'F♭', 'G♭', 'A♭', 'B♭♭', 'C♭')
+        names = Key('Db minor').note_names
+        expected = ('Db', 'Eb', 'Fb', 'Gb', 'Ab', 'Bbb', 'Cb')
         self.assertEqual(expected, names)
 
-        names = Key('E♭ minor').note_names
-        expected = ('E♭', 'F', 'G♭', 'A♭', 'B♭', 'C♭', 'D♭')
+        names = Key('Eb minor').note_names
+        expected = ('Eb', 'F', 'Gb', 'Ab', 'Bb', 'Cb', 'Db')
         self.assertEqual(expected, names)
 
-        names = Key('G♭ minor').note_names
-        expected = ('G♭', 'A♭', 'B♭♭', 'C♭', 'D♭', 'E♭♭', 'F♭')
+        names = Key('Gb minor').note_names
+        expected = ('Gb', 'Ab', 'Bbb', 'Cb', 'Db', 'Ebb', 'Fb')
         self.assertEqual(expected, names)
 
     ####################################################################
     def test_note_names__non_standard_flats(self):
-        names = Key('C♭ minor').note_names
-        expected = ('C♭', 'D♭', 'E♭♭', 'F♭', 'G♭', 'A♭♭', 'B♭♭')
+        names = Key('Cb minor').note_names
+        expected = ('Cb', 'Db', 'Ebb', 'Fb', 'Gb', 'Abb', 'Bbb')
         self.assertEqual(expected, names)
 
-        names = Key('F♭ minor').note_names
-        expected = ('F♭', 'G♭', 'A♭♭', 'B♭♭', 'C♭', 'D♭♭', 'E♭♭')
+        names = Key('Fb minor').note_names
+        expected = ('Fb', 'Gb', 'Abb', 'Bbb', 'Cb', 'Dbb', 'Ebb')
         self.assertEqual(expected, names)
 
 
@@ -372,21 +372,21 @@ class TestModesInMinorKeys(BaseModalScalesInKeyTest):
         The helper function iterates through each mode, shifting the expected
         set of notes over 1 degree. For example, from Ionian to Dorian, the
         expected notes for C Minor shift from:
-            ('C', 'D', 'E♭', 'F', 'G', 'A♭', 'B♭')
+            ('C', 'D', 'Eb', 'F', 'G', 'Ab', 'Bb')
         to:
-            ('D', 'E♭', 'F', 'G', 'A♭', 'B♭'. 'C')
+            ('D', 'Eb', 'F', 'G', 'Ab', 'Bb'. 'C')
 
         This test asserts that we are doing so correctly in the helper function.
         """
         modal_scales = self.assert_key_modes_are_correct(Key('Cm'))
         expected = [
-            ('C', 'D', 'E♭', 'F', 'G', 'A♭', 'B♭'),
-            ('D', 'E♭', 'F', 'G', 'A♭', 'B♭', 'C'),
-            ('E♭', 'F', 'G', 'A♭', 'B♭', 'C', 'D'),
-            ('F', 'G', 'A♭', 'B♭', 'C', 'D', 'E♭'),
-            ('G', 'A♭', 'B♭', 'C', 'D', 'E♭', 'F'),
-            ('A♭', 'B♭', 'C', 'D', 'E♭', 'F', 'G'),
-            ('B♭', 'C', 'D', 'E♭', 'F', 'G', 'A♭'),
+            ('C', 'D', 'Eb', 'F', 'G', 'Ab', 'Bb'),
+            ('D', 'Eb', 'F', 'G', 'Ab', 'Bb', 'C'),
+            ('Eb', 'F', 'G', 'Ab', 'Bb', 'C', 'D'),
+            ('F', 'G', 'Ab', 'Bb', 'C', 'D', 'Eb'),
+            ('G', 'Ab', 'Bb', 'C', 'D', 'Eb', 'F'),
+            ('Ab', 'Bb', 'C', 'D', 'Eb', 'F', 'G'),
+            ('Bb', 'C', 'D', 'Eb', 'F', 'G', 'Ab'),
         ]
         self.assertEqual(expected, modal_scales)
 

@@ -2,6 +2,8 @@ import time
 from unittest import TestCase, mock
 
 import adafruit_midi
+from adafruit_midi.note_off import NoteOff
+from adafruit_midi.note_on import NoteOn
 
 from composer import midi
 from composer.compose import ComposedNote
@@ -27,26 +29,26 @@ class TestAccelerometer(TestCase):
             self.assertEqual(349.23, pitch)
 
         # 1 Note above Middle F
-        fsharp4 = Pitch('369.99')
+        fsharp4 = Pitch(369.99)
         for x in range(accelerometer.PITCH_UNIT, accelerometer.PITCH_UNIT * 2):
             pitch = self.acc.strategy.get_pitch(x)
             self.assertEqual(fsharp4, pitch, msg=f'x: {x}')
 
         # 1 Note below Middle E
-        e4 = Pitch('329.63')
+        e4 = Pitch(329.63)
         for x in range(accelerometer.PITCH_UNIT, accelerometer.PITCH_UNIT * 2):
             pitch = self.acc.strategy.get_pitch(x * -1)
             self.assertEqual(e4, pitch, msg=f'x: {x}')
 
         # Highest Pitch
-        c_8_pitch = Pitch('4186.01')
+        c_8_pitch = Pitch(4186.01)
         self.assertEqual(44, len(self.acc.strategy.middle_f_and_higher))
         for x in range(accelerometer.PITCH_UNIT * 43, accelerometer.PITCH_UNIT * 44):
             pitch = self.acc.strategy.get_pitch(x)
             self.assertEqual(c_8_pitch, pitch, msg=f'x: {x}')
 
         # Lowest Pitch
-        a0_pitch = Pitch('27.50')
+        a0_pitch = Pitch(27.50)
         self.assertEqual(44, len(self.acc.strategy.pitches_lower_than_middle_f))
         for x in range(accelerometer.PITCH_UNIT * 43, accelerometer.PITCH_UNIT * 44):
             pitch = self.acc.strategy.get_pitch(x * -1)
@@ -120,6 +122,17 @@ class TestAccelerometer(TestCase):
         for z in range(NOTE_VALUE_UNIT*5, NOTE_VALUE_UNIT*6 + NOTE_VALUE_REMAINDER):
             self.assertEqual(WholeNote, self.acc.strategy.get_note_value(z))
 
+    def assert_midi_command(self, expected, actual):
+        if expected is None:
+            self.assertEqual(None, actual)
+            return
+        self.assertEqual(expected.CHANNELMASK, actual.CHANNELMASK)
+        self.assertEqual(expected.ENDSTATUS, actual.ENDSTATUS)
+        self.assertEqual(expected.LENGTH, actual.LENGTH)
+        self.assertEqual(expected.channel, actual.channel)
+        self.assertEqual(expected.note, actual.note)
+        self.assertEqual(expected.velocity, actual.velocity)
+
     def test_translate(self):
         expected_midi_number = 65  # F4
         expected_velocity = midi.MAX_VELOCITY
@@ -135,19 +148,19 @@ class TestAccelerometer(TestCase):
 
         # Start Midi Signal
         start_command = midi_note.get_start_command()
-        expected_start_command = [midi.NOTE_CHANNEL_1_ON, expected_midi_number, expected_velocity]
-        self.assertEqual(expected_start_command, start_command)
+        expected_start_command = NoteOn(expected_midi_number, expected_velocity, channel=1)
+        self.assert_midi_command(expected_start_command, start_command)
 
         # End Midi Signal
-        expected_end_command = [midi.NOTE_CHANNEL_1_OFF, expected_midi_number, expected_velocity]
+        expected_end_command = NoteOff(expected_midi_number, expected_velocity, channel=1)
         with mock.patch('composer.midi.MidiNote.now') as now:
             now.return_value = midi_note.start
             end_command = midi_note.get_end_command()
-            self.assertEqual(None, end_command)
+            self.assert_midi_command(None, end_command)
 
             now.return_value = midi_note.start + midi_note.duration
             end_command = midi_note.get_end_command()
-            self.assertEqual(expected_end_command, end_command)
+            self.assert_midi_command(expected_end_command, end_command)
 
     _time_limit_end = None
 
